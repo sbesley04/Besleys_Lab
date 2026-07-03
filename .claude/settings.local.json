@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sips -Z 400 \"/Users/samuelbesley/Documents/Besley's Lab/public/photos/blue-grotto.jpg\" --out \"/private/tmp/claude-501/-Users-samuelbesley-Documents-Besley-s-Lab/85cf936c-d60a-4fe1-b4ab-9e5cb39e0cab/scratchpad/grotto-check.jpg\")",
+      "Bash(sips -g pixelWidth -g pixelHeight \"/Users/samuelbesley/Documents/Besley's Lab/public/photos/blue-grotto.jpg\")",
+      "Bash(cp photos/DSCF8222.JPG public/photos/blue-grotto-tmp.jpg)",
+      "Bash(sips -c 2850 4608 --cropOffset 0 0 public/photos/blue-grotto-tmp.jpg)",
+      "Bash(sips -Z 1800 -s format jpeg -s formatOptions 78 public/photos/blue-grotto-tmp.jpg --out public/photos/blue-grotto.jpg)",
+      "Bash(rm public/photos/blue-grotto-tmp.jpg)",
+      "Bash(sips -Z 400 public/photos/blue-grotto.jpg --out \"/private/tmp/claude-501/-Users-samuelbesley-Documents-Besley-s-Lab/85cf936c-d60a-4fe1-b4ab-9e5cb39e0cab/scratchpad/grotto-check2.jpg\")"
+    ]
+  }
+}

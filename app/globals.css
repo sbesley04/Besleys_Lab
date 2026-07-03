@@ -1,0 +1,381 @@
+/* ===========================================================================
+   Besley's Lab — global stylesheet  ("Paper Lab" aesthetic)
+   ---------------------------------------------------------------------------
+   Fonts are loaded via next/font in app/layout.tsx and exposed as
+   --font-display (Playfair Display) and --font-body (Inter). If you prefer a
+   plain <link>, the Google Fonts import is provided as a fallback below.
+   EXTEND HERE: add new design tokens to :root so feature sections stay
+   visually consistent without hardcoding colors.
+   =========================================================================== */
+
+/* Fallback Google Fonts import (next/font is preferred — see layout.tsx) */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Caveat:wght@500;600&display=swap');
+
+/* --- Design tokens -------------------------------------------------------- */
+:root {
+  /* Color */
+  --paper:        #F5F0E8; /* cream / parchment background */
+  --paper-deep:   #EDE6DA; /* slightly darker panel tone   */
+  --ink:          #1A1A1A; /* deep ink black, primary type  */
+  --ink-soft:     #4A463E; /* secondary text                */
+  --accent:       #7A6A52; /* muted rust / aged-green        */
+  --accent-warm:  #8C7456; /* hover warmth                   */
+  --line:         rgba(0, 0, 0, 0.12); /* pencil-stroke border */
+
+  /* Typography */
+  --font-display: 'Playfair Display', 'Lora', Georgia, serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-hand:    'Caveat', 'Bradley Hand', cursive; /* photo captions, margin notes */
+
+  /* Photo print */
+  --print:        #FDFBF7; /* white border of a photo print */
+  --tape:         rgba(224, 205, 158, 0.5); /* translucent masking tape */
+
+  /* Elevation — soft, paper-like, never glassy */
+  --shadow-rest:  0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-lift:  0 8px 20px rgba(60, 48, 30, 0.14);
+
+  /* Spacing rhythm */
+  --radius: 6px;
+}
+
+/* --- Reset ---------------------------------------------------------------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* --- Grain / noise texture overlay ---------------------------------------
+   A fixed, pointer-transparent layer of fractal noise sits above the cream
+   background to give the parchment a fibrous feel. Opacity is intentionally
+   low so type stays crisp. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+}
+
+/* --- Typography ----------------------------------------------------------- */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.15;
+  margin: 0 0 0.4em;
+}
+
+p { margin: 0 0 1em; }
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+a:hover { color: var(--accent-warm); }
+
+/* --- Reusable "object on a desk" card ------------------------------------
+   EXTEND HERE: any new feature card can reuse .paper-card for a consistent
+   pencil border + paper-lift hover. */
+.paper-card {
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-rest);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.paper-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+
+/* Faint graph-paper grid, used by the Games board and any "lab" surface */
+.graph-paper {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* --- Snapshots: photos as prints taped into the notebook ------------------
+   .snapshot is a <figure> that frames a photo like a physical print: white
+   border, soft drop shadow, an optional tilt (set --tilt inline), and a strip
+   of masking tape across the top corner. Captions use the handwriting font.
+   EXTEND HERE: reuse via the <Snapshot> component in app/_components. */
+.snapshot {
+  position: relative;
+  margin: 0;
+  background: var(--print);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 10px 10px 8px;
+  box-shadow:
+    0 1px 2px rgba(60, 48, 30, 0.10),
+    0 10px 22px rgba(60, 48, 30, 0.12);
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.snapshot:hover {
+  transform: rotate(0deg) scale(1.015);
+  box-shadow:
+    0 2px 4px rgba(60, 48, 30, 0.10),
+    0 16px 32px rgba(60, 48, 30, 0.18);
+  z-index: 2;
+}
+
+/* Masking-tape strip pinned over the top edge */
+.snapshot--taped::before {
+  content: '';
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 84px;
+  height: 22px;
+  transform: translateX(-50%) rotate(-2deg);
+  background: var(--tape);
+  border-left: 1px dashed rgba(0, 0, 0, 0.08);
+  border-right: 1px dashed rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(60, 48, 30, 0.08);
+  z-index: 3;
+}
+
+.snapshot-frame {
+  position: relative;
+  overflow: hidden;
+  background: var(--paper-deep);
+}
+
+.snapshot-caption {
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  line-height: 1.3;
+  color: var(--ink-soft);
+  text-align: center;
+  padding: 0.45rem 0.25rem 0.15rem;
+}
+
+/* --- Photo strip: a scrollable row of snapshots ("field notebook") -------- */
+.photo-strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(180px, 22vw, 240px);
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding: 1.25rem 0.5rem 1.5rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+.photo-strip > * { scroll-snap-align: start; }
+
+/* --- Photo cluster: overlapping prints for the home hero ------------------ */
+.photo-cluster {
+  position: relative;
+  display: grid;
+  grid-template-columns: 7fr 6fr;
+  align-items: start;
+  gap: 0;
+}
+.photo-cluster > :first-child { z-index: 1; }
+.photo-cluster > :last-child { margin: 34% 0 0 -18%; }
+
+/* --- Photo gallery grid (About page) --------------------------------------- */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+  gap: 1.75rem 1.5rem;
+  align-items: start;
+}
+
+/* Strip photos that open the lightbox — an unstyled button wrapper so the
+   print inside stays a plain <figure>. */
+.snapshot-button {
+  display: block;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+  text-align: inherit;
+  font: inherit;
+  color: inherit;
+}
+.snapshot-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* --- Lightbox: a print lifted off the page ----------------------------------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background: rgba(26, 24, 20, 0.88);
+  backdrop-filter: blur(3px);
+  cursor: zoom-out;
+  animation: lightbox-in 0.18s ease;
+}
+
+@keyframes lightbox-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightbox-figure {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  pointer-events: none; /* clicks fall through to the backdrop to close */
+}
+
+.lightbox-frame {
+  position: relative;
+  width: min(100%, 1100px);
+  flex: 1;
+  min-height: 0;
+}
+
+.lightbox-caption {
+  color: var(--paper);
+  font-size: 1.5rem;
+  padding: 0;
+}
+
+.lightbox-close,
+.lightbox-nav {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 240, 232, 0.35);
+  background: rgba(26, 24, 20, 0.55);
+  color: var(--paper);
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.lightbox-close:hover,
+.lightbox-nav:hover {
+  background: rgba(122, 106, 82, 0.75);
+}
+.lightbox-close:focus-visible,
+.lightbox-nav:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 2px;
+}
+
+.lightbox-close { top: 1rem; right: 1rem; }
+.lightbox-prev { left: 0.75rem; top: 50%; transform: translateY(-50%); }
+.lightbox-next { right: 0.75rem; top: 50%; transform: translateY(-50%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox { animation: none; }
+}
+
+/* --- Handwritten margin note ----------------------------------------------- */
+.margin-note {
+  font-family: var(--font-hand);
+  font-size: 1.25rem;
+  color: var(--accent);
+}
+
+/* --- Site footer ------------------------------------------------------------ */
+.site-footer {
+  margin-top: 4rem;
+  border-top: 1px solid var(--line);
+  padding: 1.5rem clamp(1rem, 4vw, 2rem) 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+.site-footer a { color: var(--ink-soft); }
+.site-footer a:hover { color: var(--accent); }
+
+/* --- Rendered markdown ("prose") -------------------------------------------
+   Applied to blog post bodies and the editor preview so both match. */
+.prose {
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+.prose h1, .prose h2, .prose h3 { margin-top: 1.6em; }
+.prose h1 { font-size: 1.9rem; }
+.prose h2 { font-size: 1.5rem; }
+.prose h3 { font-size: 1.2rem; }
+.prose img { max-width: 100%; height: auto; border-radius: 4px; border: 1px solid var(--line); }
+.prose blockquote {
+  margin: 1.25em 0;
+  padding: 0.25em 1.1em;
+  border-left: 3px solid var(--accent);
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.prose code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+  background: rgba(0, 0, 0, 0.055);
+  padding: 0.12em 0.35em;
+  border-radius: 3px;
+}
+.prose pre {
+  background: #23211c;
+  color: #efe9dd;
+  padding: 1em 1.2em;
+  border-radius: 6px;
+  overflow-x: auto;
+  line-height: 1.55;
+}
+.prose pre code { background: transparent; padding: 0; color: inherit; font-size: 0.85rem; }
+.prose hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
+.prose table { border-collapse: collapse; width: 100%; }
+.prose th, .prose td { border: 1px solid var(--line); padding: 0.45em 0.7em; text-align: left; }
+.prose a { text-decoration: underline; text-underline-offset: 2px; }
+
+/* --- Global focus visibility (a11y) ---------------------------------------- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-card, .snapshot { transition: none; }
+  .paper-card:hover { transform: none; }
+  .snapshot:hover { transform: rotate(var(--tilt, 0deg)); }
+}

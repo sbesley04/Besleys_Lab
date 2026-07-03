@@ -1,0 +1,138 @@
+/* Tetris — paper aesthetic. Parchment board, graph-paper grid lines, ink
+   tetrominoes. Colors come from the global tokens in app/globals.css. */
+
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.75rem;
+  align-items: flex-start;
+}
+
+.boardWrap {
+  position: relative;
+  padding: 8px;
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-rest);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(10, var(--cell, 26px));
+  grid-template-rows: repeat(20, var(--cell, 26px));
+  /* faint graph-paper ruling behind the cells */
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: var(--cell, 26px) var(--cell, 26px);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.cell {
+  width: var(--cell, 26px);
+  height: var(--cell, 26px);
+  box-sizing: border-box;
+}
+
+/* Filled tetromino cell: ink block with a slightly lighter inner stroke so it
+   reads like a hand-inked square rather than a flat fill. */
+.filled {
+  background: var(--block, #1a1a1a);
+  border: 1px solid rgba(245, 240, 232, 0.25);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+/* Per-piece ink tones — muted, all in the ink/rust family. */
+.I { --block: #2b3a3a; }
+.O { --block: #6e5a3a; }
+.T { --block: #4a3b53; }
+.S { --block: #3f5440; }
+.Z { --block: #7a3f33; }
+.J { --block: #33415a; }
+.L { --block: #7a6a52; }
+
+.sidebar {
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.panel {
+  padding: 1rem 1.1rem;
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.panel h3 {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 0.35rem;
+}
+
+.stat {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.nextGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 20px);
+  grid-template-rows: repeat(4, 20px);
+}
+
+.nextCell {
+  width: 20px;
+  height: 20px;
+}
+
+.button {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.help {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Overlay shown for idle / paused / game-over states. */
+.overlay {
+  position: absolute;
+  inset: 8px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: rgba(245, 240, 232, 0.86);
+  border-radius: var(--radius);
+}
+
+.overlayInner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.overlayInner h2 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  margin: 0;
+}

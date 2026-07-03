@@ -1,0 +1,124 @@
+/* Snake — parchment board with graph-paper ruling, ink snake, rust food. */
+
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.75rem;
+  align-items: flex-start;
+}
+
+.boardWrap {
+  position: relative;
+  padding: 8px;
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-rest);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(20, var(--cell, 22px));
+  grid-template-rows: repeat(20, var(--cell, 22px));
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: var(--cell, 22px) var(--cell, 22px);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.cell {
+  width: var(--cell, 22px);
+  height: var(--cell, 22px);
+  box-sizing: border-box;
+}
+
+.body {
+  background: #2b2b2b;
+  border: 1px solid rgba(245, 240, 232, 0.18);
+  border-radius: 2px;
+}
+
+.head {
+  background: var(--ink);
+  border-radius: 3px;
+}
+
+.food {
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar {
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.panel {
+  padding: 1rem 1.1rem;
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.panel h3 {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 0.35rem;
+}
+
+.stat {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.help {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.overlay {
+  position: absolute;
+  inset: 8px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: rgba(245, 240, 232, 0.86);
+  border-radius: var(--radius);
+}
+
+.overlayInner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.overlayInner h2 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.button {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--paper);
+  cursor: pointer;
+}

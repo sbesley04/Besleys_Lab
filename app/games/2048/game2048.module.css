@@ -1,0 +1,131 @@
+/* 2048 — tiles as little paper squares; rust deepens as the value climbs. */
+
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.75rem;
+  align-items: flex-start;
+}
+
+.boardWrap {
+  position: relative;
+  padding: 10px;
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-rest);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(4, var(--cell, 78px));
+  grid-template-rows: repeat(4, var(--cell, 78px));
+  gap: 10px;
+}
+
+.cell {
+  width: var(--cell, 78px);
+  height: var(--cell, 78px);
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.7rem;
+  color: var(--ink);
+}
+
+/* Empty cells read as faint recesses. */
+.empty {
+  background: rgba(0, 0, 0, 0.03);
+  border-style: dashed;
+}
+
+/* Value tints — parchment → rust → ink as numbers grow. Text flips to paper
+   on the darker tiles for contrast. */
+.v2    { background: #efe7d8; }
+.v4    { background: #ece0c9; }
+.v8    { background: #e3cba6; }
+.v16   { background: #d9b487; color: var(--ink); }
+.v32   { background: #cf9d6a; }
+.v64   { background: #c4824a; color: var(--paper); }
+.v128  { background: #b06a3a; color: var(--paper); font-size: 1.5rem; }
+.v256  { background: #9c5a32; color: var(--paper); font-size: 1.5rem; }
+.v512  { background: #864c2c; color: var(--paper); font-size: 1.5rem; }
+.v1024 { background: #5f4030; color: var(--paper); font-size: 1.25rem; }
+.v2048 { background: var(--ink); color: var(--paper); font-size: 1.25rem; }
+.vbig  { background: #111; color: var(--paper); font-size: 1.1rem; }
+
+.sidebar {
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.panel {
+  padding: 1rem 1.1rem;
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.panel h3 {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 0.35rem;
+}
+
+.stat {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.button {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.help {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.overlay {
+  position: absolute;
+  inset: 10px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: rgba(245, 240, 232, 0.88);
+  border-radius: var(--radius);
+}
+
+.overlayInner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.overlayInner h2 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  margin: 0;
+}

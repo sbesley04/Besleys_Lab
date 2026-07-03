@@ -1,0 +1,251 @@
+// Prisma schema for "Besley's Lab"
+// ---------------------------------------------------------------------------
+// EXTEND HERE: add new feature models below the existing ones. Each content
+// type (Post, Project, ...) follows the same shape — a `published` flag for
+// visitor visibility and timestamps. Copy that pattern for new sections
+// (e.g. a `GameScore` model for the arcade leaderboard) without touching the
+// auth models above it.
+//
+// DATABASE: SQLite (zero-setup, single dev.db file). SQLite has no enums and
+// no scalar lists, so `role` is a plain String and `Project.techStack` is a
+// comma-separated String (see lib/techstack.ts). To move to Postgres later:
+// set provider = "postgresql", switch techStack back to String[], and you can
+// reintroduce an enum for role.
+// ---------------------------------------------------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --- Auth -------------------------------------------------------------------
+// Single admin user. NextAuth credentials provider looks the user up here and
+// compares the bcrypt hash. Standard NextAuth relation models are included so
+// the schema is ready if you later switch to / add OAuth providers.
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  username     String?         @unique // public handle; nullable so legacy rows migrate cleanly
+  name         String?
+  passwordHash String // bcrypt hash — never store plaintext
+  role         String          @default("USER") // "ADMIN" | "EDITOR" | "USER"
+  posts        Post[]
+  projects     Project[]
+  accounts     Account[]
+  sessions     Session[]
+  gameSaves    GameSave[]
+  rosters      Roster[]
+  simulations  SimulationRun[]
+  bookReviews  BookReview[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// --- Blog -------------------------------------------------------------------
+// Markdown body stored as text; rendered server-side. `slug` drives the public
+// URL. EXTEND HERE: add a `tags` column or a `Comment[]` relation as needed.
+
+model Post {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  excerpt     String?
+  body        String // raw markdown
+  coverImage  String?
+  published   Boolean   @default(false)
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([published, publishedAt])
+}
+
+// --- Projects ---------------------------------------------------------------
+// techStack is a comma-separated string ("Next.js,Prisma,Python") because
+// SQLite has no array type. Serialize/parse via lib/techstack.ts. EXTEND HERE:
+// add `featured Boolean`, `demoUrl String?`, etc.
+
+model Project {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  techStack   String   @default("") // comma-separated tags
+  thumbnail   String?
+  githubUrl   String?
+  published   Boolean  @default(false)
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([published])
+}
+
+// --- Saved game state ---------------------------------------------------------
+// Everything a signed-in visitor can persist from the arcade. All payloads are
+// JSON serialized to a String column (SQLite has no JSON type). Data is always
+// scoped to `userId` — the API routes only ever read/write rows owned by the
+// session user. Payload size is capped in the routes (lib/saves.ts).
+
+// One named save slot per user per game ("tetris" / "2048" / "snake" / "life" /
+// "hunger-games"). Upserted on save so a slot name overwrites cleanly.
+model GameSave {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game      String // game slug from app/games/registry.ts
+  name      String   @default("autosave") // slot label
+  data      String // JSON-serialized game state
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, game, name])
+  @@index([userId, updatedAt])
+}
+
+// A saved Hunger Games roster: the user's custom tributes with their stats.
+model Roster {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  data      String // JSON array of RosterPlayer (see app/games/hunger-games/engine)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+  @@index([userId, updatedAt])
+}
+
+// --- Library --------------------------------------------------------------------
+// The digital bookshelf. Each Book renders as a spine on /library; the spine's
+// look (color, size, design) and its place on the shelf are editable from the
+// admin. `review` is the site owner's writeup (markdown); visitors with
+// accounts add their own BookReview rows.
+
+model Book {
+  id        String       @id @default(cuid())
+  slug      String       @unique
+  title     String
+  author    String
+  review    String       @default("") // owner's review, markdown
+  rating    Int? // owner's rating 1–5
+  color     String       @default("#7a6a52") // spine base color (hex)
+  height    Int          @default(200) // spine height, px
+  thickness Int          @default(40) // spine width, px
+  design    String       @default("plain") // plain | bands | ornate | split | dots
+  bookcase  Int          @default(0) // which bookcase "page"
+  shelf     Int          @default(0) // which shelf row within the case
+  position  Int          @default(0) // order within the shelf
+  published Boolean      @default(true)
+  reviews   BookReview[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([published, bookcase, shelf, position])
+}
+
+// A bookcase "page". Created from the admin; `idx` is the stable page number
+// used by Book.bookcase / ShelfDecorItem.bookcase, `name` is the tab label.
+model Bookcase {
+  idx       Int      @id
+  name      String   @default("")
+  createdAt DateTime @default(now())
+}
+
+// A decorative object on a shelf (plants etc.). Shares the books' position
+// space so decor can sit between books and be moved with the same controls.
+model ShelfDecorItem {
+  id        String   @id @default(cuid())
+  kind      String // snake-plant | pothos | cactus | bonsai
+  bookcase  Int      @default(0)
+  shelf     Int      @default(0)
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([bookcase, shelf, position])
+}
+
+// A visitor's review of a book — one per user per book (posting again updates).
+model BookReview {
+  id        String   @id @default(cuid())
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  body      String
+  rating    Int? // 1–5
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([bookId, userId])
+  @@index([bookId, createdAt])
+}
+
+// --- Field notebook ----------------------------------------------------------------
+// The photo strip on the home page. Admin-managed: image path (from
+// /photos/... or /uploads/...), alt text, handwritten caption, and order.
+
+model FieldNote {
+  id        String   @id @default(cuid())
+  image     String // public path or URL
+  alt       String
+  caption   String
+  tilt      Float    @default(0) // degrees of rotation on the strip
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position])
+}
+
+// A recorded simulation run. Stores the seed + roster snapshot rather than the
+// full turn-by-turn log — the engine is deterministic, so a run can be replayed
+// exactly from (seed, roster).
+model SimulationRun {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seed      Int
+  roster    String // JSON array of RosterPlayer used for the run
+  winner    String? // winner name (null if the run hit the turn cap)
+  turns     Int
+  players   Int
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}

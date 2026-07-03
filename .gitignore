@@ -1,0 +1,26 @@
+# dependencies
+/node_modules
+
+# next.js (.nosync keeps iCloud from corrupting the build cache — see next.config.js)
+/.next
+/.next.nosync
+/out
+
+# production
+/build
+
+# env
+.env
+.env*.local
+
+# prisma
+/prisma/*.db
+
+# user uploads (keep the folder, ignore its contents)
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+# misc
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts

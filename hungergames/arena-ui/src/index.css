@@ -1,0 +1,22 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  min-height: 100%;
+  background: #f5f0e8;
+  color: #1a1410;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #ede8dc; }
+::-webkit-scrollbar-thumb { background: #c8bfa8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a89878; }
+
+input[type=range] { accent-color: #b8820a; cursor: pointer; }
+input[type=number], input[type=text], select {
+  background: #f5f0e8; color: #1a1410; border: 1px solid #c8bfa8;
+  border-radius: 3px; padding: 4px 8px; font-family: inherit;
+}
+input[type=number]:focus, input[type=text]:focus, select:focus {
+  outline: 2px solid #b8820a; outline-offset: 1px;
+}
+button:focus-visible { outline: 2px solid #b8820a; outline-offset: 2px; }

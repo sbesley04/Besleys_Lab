@@ -1,0 +1,86 @@
+/* Game of Life — graph-paper grid, ink cells. Click to draw while paused. */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.boardWrap {
+  padding: 8px;
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-rest);
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(32, var(--cell, 18px));
+  grid-template-rows: repeat(24, var(--cell, 18px));
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: var(--cell, 18px) var(--cell, 18px);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  cursor: crosshair;
+}
+
+.cell {
+  width: var(--cell, 18px);
+  height: var(--cell, 18px);
+  box-sizing: border-box;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+.alive {
+  background: var(--ink);
+  box-shadow: inset 0 0 0 1px rgba(245, 240, 232, 0.18);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.button {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: var(--line);
+}
+
+.stat {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-left: auto;
+}
+
+.help {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 0;
+}

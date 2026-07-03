@@ -1,0 +1,263 @@
+/* The library bookshelf — a wooden case with shelves of clickable spines,
+   bookends, and a couple of plants. Pure CSS/SVG, no images. Wood tones stay
+   inside the site's paper/ink/rust palette. */
+
+.case {
+  --wood-dark: #5d4a35;
+  --wood: #7a6248;
+  --wood-light: #96795a;
+  background: linear-gradient(175deg, var(--wood) 0%, var(--wood-dark) 100%);
+  border-radius: 8px;
+  padding: 18px 18px 22px;
+  box-shadow:
+    inset 0 2px 6px rgba(255, 245, 225, 0.18),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.28),
+    0 14px 34px rgba(60, 48, 30, 0.30);
+}
+
+.shelf {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-height: 295px;
+  padding: 14px 16px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  /* The inside back panel of the case */
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0.16) 22%, rgba(0, 0, 0, 0.06) 100%),
+    linear-gradient(90deg, var(--wood-dark), #4c3c2b 50%, var(--wood-dark));
+  border-radius: 3px 3px 0 0;
+}
+
+/* The plank the books stand on */
+.plank {
+  height: 13px;
+  border-radius: 2px;
+  margin-bottom: 14px;
+  background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood) 45%, var(--wood-dark) 100%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+}
+.plank:last-child { margin-bottom: 0; }
+
+/* --- Book spines --- */
+
+.spineLink {
+  display: block;
+  flex: none;
+  transition: transform 0.18s ease;
+  transform-origin: bottom center;
+  border-radius: 3px 4px 2px 2px;
+}
+.spineLink:hover,
+.spineLink:focus-visible {
+  transform: translateY(-8px) rotate(-1.2deg);
+  outline: none;
+}
+.spineLink:focus-visible .spine {
+  outline: 2px solid #f5f0e8;
+  outline-offset: 2px;
+}
+
+.spine {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 3px 4px 2px 2px;
+  padding: 12px 0;
+  box-shadow:
+    inset 2px 0 3px rgba(255, 255, 255, 0.22),
+    inset -3px 0 5px rgba(0, 0, 0, 0.32),
+    2px 2px 5px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.spineTitle {
+  writing-mode: vertical-rl;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+  max-height: 72%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.spineAuthor {
+  writing-mode: vertical-rl;
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  max-height: 22%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Design variants — layered with the base color set inline. */
+.designBands::before,
+.designBands::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+  background: rgba(222, 205, 158, 0.85);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+.designBands::before { top: 9%; }
+.designBands::after { bottom: 9%; }
+
+.designOrnate::before,
+.designOrnate::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  height: 12px;
+  border-top: 1px solid rgba(222, 190, 120, 0.95);
+  border-bottom: 1px solid rgba(222, 190, 120, 0.95);
+}
+.designOrnate::before { top: 6%; }
+.designOrnate::after { bottom: 6%; }
+
+.designSplit::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%;
+  background: rgba(0, 0, 0, 0.32);
+  border-top: 2px solid rgba(222, 205, 158, 0.6);
+}
+
+.designDots::before {
+  content: '';
+  position: absolute;
+  top: 8%;
+  bottom: 8%;
+  left: 50%;
+  width: 4px;
+  transform: translateX(-50%);
+  background-image: radial-gradient(circle, rgba(222, 205, 158, 0.9) 1.6px, transparent 1.8px);
+  background-size: 4px 14px;
+  background-repeat: repeat-y;
+  background-position: center top;
+}
+
+/* --- Bookends --- */
+
+.bookend {
+  flex: none;
+  width: 34px;
+  height: 92px;
+  position: relative;
+  align-self: flex-end;
+}
+.bookend::before {
+  /* upright */
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  background: linear-gradient(90deg, #3c352c, #55493a 60%, #2e2822);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+}
+.bookend::after {
+  /* foot */
+  content: '';
+  position: absolute;
+  bottom: 0;
+  height: 9px;
+  width: 30px;
+  background: linear-gradient(180deg, #55493a, #2e2822);
+  border-radius: 2px;
+}
+.bookendLeft::before { left: 18px; }
+.bookendLeft::after { left: 2px; }
+.bookendRight::before { right: 18px; }
+.bookendRight::after { right: 2px; }
+
+/* --- Plants and shelf decor --- */
+
+.decor {
+  flex: none;
+  align-self: flex-end;
+  display: block;
+  filter: drop-shadow(2px 3px 3px rgba(0, 0, 0, 0.35));
+}
+
+.emptyShelfNote {
+  align-self: center;
+  margin: 0 auto;
+  color: rgba(245, 240, 232, 0.55);
+  font-family: var(--font-hand);
+  font-size: 1.2rem;
+}
+
+/* --- Page framing --- */
+
+.legendRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
+  margin-top: 0.9rem;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+/* --- Bookcase pager --- */
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.1rem;
+}
+
+.pagerTab,
+.pagerTabActive {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.pagerTab:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.pagerTabActive,
+.pagerTabActive:hover,
+.pagerTabActive:visited {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+  font-weight: 600;
+}
+.pagerTab:focus-visible,
+.pagerTabActive:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  .shelf { min-height: 245px; padding: 10px 10px 0; }
+  .case { padding: 12px 10px 16px; }
+}
