@@ -107,17 +107,29 @@ JSON import/export round-trips.
 
 ## Deploying to Vercel
 
-1. **Database** — SQLite doesn't persist on serverless. Create a hosted
-   Postgres (Vercel Postgres, Neon, Supabase…), then in
-   `prisma/schema.prisma` change the datasource provider to `postgresql` and
-   deploy a migration: `npx prisma migrate deploy`.
-2. **Environment variables** (Vercel project settings): `DATABASE_URL`,
-   `NEXTAUTH_SECRET`, `NEXT_PUBLIC_SITE_URL` (your production URL). Vercel
-   provides `NEXTAUTH_URL` automatically; set it explicitly if you use a
-   custom domain.
-3. **Build** — the default `npm run build` already runs `prisma generate`.
-   Seed the admin once with `npm run db:seed` pointed at the production
-   `DATABASE_URL`.
+Import the repo with the **Next.js** framework preset (auto-detected; keep all
+build defaults) and set four environment variables — that's the whole deploy:
+
+| Variable | Value |
+| --- | --- |
+| `DATABASE_URL` | A hosted Postgres URL (Vercel Postgres / Neon / Supabase) |
+| `NEXTAUTH_SECRET` | A fresh secret: `openssl rand -base64 32` |
+| `NEXT_PUBLIC_SITE_URL` | Your production URL (used by OG tags + sitemap) |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Credentials for the admin account (optional but recommended) |
+
+Everything else is automatic. The `vercel-build` script:
+
+1. detects the Postgres `DATABASE_URL` and switches the Prisma provider for
+   that build (`scripts/prepare-vercel.mjs` — the repo itself stays on SQLite
+   for local dev),
+2. syncs the schema to the database with `prisma db push`,
+3. seeds/updates the admin account from `ADMIN_EMAIL`/`ADMIN_PASSWORD`
+   (skipped with a warning if unset or still the placeholder),
+4. builds the site.
+
+The build fails fast with a clear message if `DATABASE_URL` isn't Postgres, so
+you can't accidentally ship an ephemeral database. `NEXTAUTH_URL` is provided
+by Vercel automatically; set it explicitly only for a custom domain.
 
 ### Known limitations
 
