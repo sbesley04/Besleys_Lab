@@ -12,10 +12,12 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const book = await prisma.book.findUnique({
-    where: { slug: params.slug },
-    select: { title: true, author: true, published: true },
-  });
+  const book = await prisma.book
+    .findUnique({
+      where: { slug: params.slug },
+      select: { title: true, author: true, published: true },
+    })
+    .catch(() => null);
   if (!book || !book.published) return { title: "Library" };
   return {
     title: `${book.title} — Library`,
@@ -25,16 +27,18 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function BookPage({ params }: { params: { slug: string } }) {
   const [book, session] = await Promise.all([
-    prisma.book.findUnique({
-      where: { slug: params.slug },
-      include: {
-        reviews: {
-          orderBy: { createdAt: "desc" },
-          include: { user: { select: { username: true, name: true } } },
+    prisma.book
+      .findUnique({
+        where: { slug: params.slug },
+        include: {
+          reviews: {
+            orderBy: { createdAt: "desc" },
+            include: { user: { select: { username: true, name: true } } },
+          },
         },
-      },
-    }),
-    getSession(),
+      })
+      .catch(() => null),
+    getSession().catch(() => null),
   ]);
 
   if (!book) notFound();

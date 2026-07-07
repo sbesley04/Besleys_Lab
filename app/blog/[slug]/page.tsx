@@ -12,10 +12,12 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = await prisma.post.findUnique({
-    where: { slug: params.slug },
-    select: { title: true, excerpt: true, coverImage: true, published: true },
-  });
+  const post = await prisma.post
+    .findUnique({
+      where: { slug: params.slug },
+      select: { title: true, excerpt: true, coverImage: true, published: true },
+    })
+    .catch(() => null);
   if (!post || !post.published) return { title: "Post" };
   return {
     title: post.title,
@@ -30,7 +32,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function PostPage({ params }: { params: { slug: string } }) {
-  const post = await prisma.post.findUnique({ where: { slug: params.slug } });
+  // On a DB error, fall through to notFound() rather than crashing the page.
+  const post = await prisma.post.findUnique({ where: { slug: params.slug } }).catch(() => null);
   if (!post) notFound();
 
   // Draft preview is staff-only.

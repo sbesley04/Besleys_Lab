@@ -16,11 +16,14 @@ function readingTime(words: number): string {
 }
 
 export default async function BlogIndex() {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    orderBy: { publishedAt: "desc" },
-    select: { slug: true, title: true, excerpt: true, publishedAt: true, coverImage: true, body: true },
-  });
+  // A DB hiccup should show the empty state, not crash the page.
+  const posts = await prisma.post
+    .findMany({
+      where: { published: true },
+      orderBy: { publishedAt: "desc" },
+      select: { slug: true, title: true, excerpt: true, publishedAt: true, coverImage: true, body: true },
+    })
+    .catch(() => []);
 
   return (
     <main style={{ maxWidth: 720, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
