@@ -1,7 +1,10 @@
 import { prisma } from "@/lib/prisma";
+import { requestOrigin } from "@/lib/baseUrl";
 
 // Sitemap served from a route handler (see robots.txt/route.ts for why this
-// isn't app/sitemap.ts): static pages plus published blog posts.
+// isn't app/sitemap.ts): static pages plus published blog posts and books.
+// URLs use the requesting host so the sitemap is valid on every domain the
+// site answers on (Google requires sitemap URLs to match the sitemap's host).
 export const dynamic = "force-dynamic";
 
 const STATIC_PATHS = [
@@ -25,7 +28,7 @@ function esc(s: string): string {
 }
 
 export async function GET(): Promise<Response> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const base = requestOrigin();
 
   // Content queries shouldn't break the sitemap if the DB is unreachable.
   const [posts, books] = await Promise.all([
