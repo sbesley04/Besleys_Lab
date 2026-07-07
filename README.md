@@ -117,19 +117,32 @@ build defaults) and set four environment variables — that's the whole deploy:
 | `NEXT_PUBLIC_SITE_URL` | Your production URL (used by OG tags + sitemap) |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Credentials for the admin account (optional but recommended) |
 
-Everything else is automatic. The `vercel-build` script:
+Everything else is automatic. The `build` script runs `scripts/prepare-vercel.mjs`
+first (Vercel runs `npm run build`, so all deploy logic lives there). On Vercel
+it:
 
-1. detects the Postgres `DATABASE_URL` and switches the Prisma provider for
-   that build (`scripts/prepare-vercel.mjs` — the repo itself stays on SQLite
-   for local dev),
-2. syncs the schema to the database with `prisma db push`,
-3. seeds/updates the admin account from `ADMIN_EMAIL`/`ADMIN_PASSWORD`
-   (skipped with a warning if unset or still the placeholder),
-4. builds the site.
+1. verifies `DATABASE_URL` (Postgres) and `NEXTAUTH_SECRET` are set — **failing
+   the build with a clear message if either is missing**, so you never ship a
+   broken site,
+2. switches the Prisma provider to `postgresql` for that build
+   (the committed repo stays on SQLite for zero-setup local dev),
+3. syncs the schema to the database with `prisma db push`,
+4. seeds/updates the admin from `ADMIN_EMAIL`/`ADMIN_PASSWORD` (skipped with a
+   warning if unset or still the placeholder),
+5. builds the site.
 
-The build fails fast with a clear message if `DATABASE_URL` isn't Postgres, so
-you can't accidentally ship an ephemeral database. `NEXTAUTH_URL` is provided
-by Vercel automatically; set it explicitly only for a custom domain.
+Locally, the same script just generates the SQLite client and builds — no
+provider swap, no database writes. `NEXTAUTH_URL` is provided by Vercel
+automatically; set it explicitly only for a custom domain.
+
+**Diagnostics:** visit `/api/health` on the deployed site to see, without
+exposing secrets, whether each env var is set and whether the database actually
+connects. If a page ever errors, that endpoint tells you which piece is missing.
+
+> Note: `prisma db push` uses `--accept-data-loss` so deploys are
+> non-interactive. That's safe for additive schema changes; a change that drops
+> a column would drop its data. For destructive changes, run a reviewed
+> `prisma migrate` against production instead.
 
 ### Known limitations
 
