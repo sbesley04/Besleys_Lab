@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 // cover thumbnails. Server Component; drafts never reach this query.
 export const metadata = {
   title: "Blog",
-  description: "Notes on data science, machine learning, and building things — from Besley's Lab.",
+  description: "My free-rein writing space",
 };
 
 export const dynamic = "force-dynamic";

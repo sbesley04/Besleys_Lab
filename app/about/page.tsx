@@ -53,12 +53,11 @@ export default function AboutPage() {
           </h1>
           <div style={{ fontSize: "1.05rem", color: "var(--ink)" }}>
             <p>
-              Hi there! Welcome to the lab. I&rsquo;m Sam — a data science student at Emory
-              (class of &rsquo;26), originally from Madison, Wisconsin, where my family&rsquo;s
-              farm and its two extremely opinionated donkeys still expect regular visits.
+              Hi there! Welcome in. I&rsquo;m Sam — a data/quantitative science student from Emory
+              (class of &rsquo;26), living in Atlanta.
             </p>
             <p>
-              My work lives where machine learning meets things people can actually use:
+              My work so far has lived where machine learning meets things people can actually use:
               NLP pipelines with transformer models, prediction models with carefully
               engineered features, and the full-stack apps that put them on a screen. The{" "}
               <Link href="/projects">projects shelf</Link> has the highlights — including a
@@ -69,13 +68,13 @@ export default function AboutPage() {
             <p>
               This site is part notebook, part workshop. The <Link href="/games">arcade</Link>{" "}
               holds the experiments that exist mostly because they were fun to build — try the
-              Hunger Games simulator with your own cast of friends.
+              Hunger Games simulator with your own friends as tributes.
             </p>
             <p>
               When the laptop is closed, I&rsquo;m usually somewhere in the photos below — on a
               volleyball court (eight years of it, plus a stint as club president and volunteer
               coach), behind a camera (once for Emory&rsquo;s communications team, now mostly for
-              the donkeys), hiking past the treeline, or attempting ceramics with mixed results.
+              the donkeys), trying my had at ceramics, or reading (for one of my book clubs).
             </p>
             <p style={{ fontSize: "0.95rem" }}>
               Looking for the formal version? Here&rsquo;s my{" "}

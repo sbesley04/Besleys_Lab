@@ -13,7 +13,7 @@ const channels = [
     label: "Email",
     value: "sambesley04@gmail.com",
     href: "mailto:sambesley04@gmail.com",
-    blurb: "The fastest way to reach me — I read everything.",
+    blurb: "The fastest way to reach me",
     external: false,
   },
   {
@@ -27,7 +27,14 @@ const channels = [
     label: "GitHub",
     value: "github.com/sbesley04",
     href: "https://github.com/sbesley04",
-    blurb: "Where the code lives — including this site.",
+    blurb: "Where the code lives (this site included)",
+    external: true,
+  },
+    {
+    label: "Instagram",
+    value: "instagram.com/sam.besley",
+    href: "https://www.instagram.com/sam.besley",
+    blurb: "If you want to reach me, but not for work",
     external: true,
   },
 ];
@@ -39,8 +46,8 @@ export default function ContactPage() {
         Contact
       </h1>
       <p style={{ color: "var(--ink-soft)", marginBottom: "2rem", maxWidth: "50ch" }}>
-        I&rsquo;m Sam — a data scientist and full-stack developer based in Atlanta, graduating from
-        Emory in May 2026 and looking for data science and ML engineering roles. If something here
+        I&rsquo;m Sam — a data scientist and full-stack developer based in Atlanta, graduated from
+        Emory in May 2026 and looking for data science roles (although I am open to other roles). If something here
         caught your eye, I&rsquo;d genuinely love to hear from you.
       </p>
 
@@ -85,7 +92,7 @@ export default function ContactPage() {
             Resume
           </span>
           <span style={{ display: "block", color: "var(--ink-soft)", fontSize: "0.88rem", marginTop: "0.15rem" }}>
-            Education, experience, projects, and skills — on one page.
+            Education, experience, projects, and skills.
           </span>
         </span>
         <span style={{ display: "flex", gap: "1.25rem", fontSize: "0.95rem" }}>
@@ -97,7 +104,7 @@ export default function ContactPage() {
       </div>
 
       <p className="margin-note" style={{ marginTop: "2rem" }}>
-        no forms, no funnels — just say hi ✌︎
+        feel free to just say hi ✌︎
       </p>
     </main>
   );
