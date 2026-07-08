@@ -74,7 +74,7 @@ export default function AboutPage() {
               When the laptop is closed, I&rsquo;m usually somewhere in the photos below — on a
               volleyball court (eight years of it, plus a stint as club president and volunteer
               coach), behind a camera (once for Emory&rsquo;s communications team, now mostly for
-              the donkeys), trying my had at ceramics, or reading (for one of my book clubs).
+              the donkeys), trying my hand at ceramics, or reading (for one of my book clubs).
             </p>
             <p style={{ fontSize: "0.95rem" }}>
               Looking for the formal version? Here&rsquo;s my{" "}

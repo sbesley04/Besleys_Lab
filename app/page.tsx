@@ -32,31 +32,31 @@ const sections: Section[] = [
     href: "/blog",
     title: "Blog",
     blurb: "Markdown notes on data, models, and building things.",
-    glyph: "¶",
+    glyph: "♟",
   },
   {
     href: "/projects",
     title: "Projects",
     blurb: "Writeups with tech stacks, thumbnails, and GitHub links.",
-    glyph: "❡",
+    glyph: "♜",
   },
   {
     href: "/games",
     title: "Games",
     blurb: "A small arcade — including the Hunger Games simulator.",
-    glyph: "▦",
+    glyph: "♞",
   },
   {
     href: "/library",
     title: "Library",
     blurb: "A digital bookshelf: what I'm reading, with reviews.",
-    glyph: "❧",
+    glyph: "♛",
   },
   {
     href: "/about",
     title: "About",
     blurb: "Data scientist & full-stack developer. ML, analytics, web.",
-    glyph: "✎",
+    glyph: "♚",
   },
 ];
 
@@ -113,9 +113,7 @@ export default async function HomePage() {
               maxWidth: "42ch",
             }}
           >
-            Data science, full-stack development, and a few fun experiments —
-            written up from a desk that&rsquo;s usually within earshot of the
-            donkeys.
+            Data science, full-stack development, and a few fun experiments. Feel free to explore!
           </p>
           <div
             aria-hidden
@@ -133,7 +131,7 @@ export default async function HomePage() {
           <Snapshot
             src={donkeys}
             alt="Two donkeys poking their noses through a red farm gate"
-            caption="the welcoming committee"
+            caption="Mabel and Midge"
             tilt={-2.5}
             aspect="3 / 4"
             sizes="(max-width: 720px) 60vw, 300px"
