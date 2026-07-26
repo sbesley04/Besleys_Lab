@@ -1,0 +1,134 @@
+/* Sudoku — pencil-and-paper grid. Givens are printed ink, entries are the
+   player's pen, notes are tiny pencil marks. */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.button {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.button:hover { background: var(--paper-deep); }
+.buttonActive {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+.button:disabled { opacity: 0.5; cursor: default; }
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  align-items: center;
+}
+
+.boardWrap { display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: flex-start; }
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  width: min(100%, 430px);
+  aspect-ratio: 1;
+  border: 2px solid var(--ink);
+  background: var(--print);
+  user-select: none;
+}
+
+.cell {
+  position: relative;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 3.2vw, 1.3rem);
+  color: #2b4a8b; /* pen-blue entries */
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+/* Heavier 3x3 box borders. */
+.cell:nth-child(9n + 3),
+.cell:nth-child(9n + 6) { border-right: 2px solid var(--ink); }
+.cell:nth-child(n + 19):nth-child(-n + 27),
+.cell:nth-child(n + 46):nth-child(-n + 54) { border-bottom: 2px solid var(--ink); }
+
+.given { color: var(--ink); font-weight: 600; }
+.selectedCell { background: rgba(122, 106, 82, 0.28) !important; }
+.peerCell { background: rgba(122, 106, 82, 0.10); }
+.sameNumber { background: rgba(122, 106, 82, 0.20); }
+.wrong { color: #a03c2e; }
+
+.notes {
+  position: absolute;
+  inset: 1px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  font-size: 0.52rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  font-family: var(--font-hand);
+  pointer-events: none;
+}
+.notes span { display: grid; place-items: center; }
+
+.pad {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  gap: 0.4rem;
+  align-content: start;
+}
+.padWide { grid-column: 1 / -1; }
+.padButton {
+  font-size: 1.1rem;
+  padding: 0.55rem 0;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  cursor: pointer;
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+.padButton:hover { background: var(--paper-deep); }
+.padActive { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+
+.winBanner {
+  text-align: center;
+  padding: 1rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.statTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.statTable th, .statTable td {
+  border: 1px solid var(--line);
+  padding: 0.35rem 0.55rem;
+  text-align: left;
+}
+.statTable th { font-weight: 600; background: var(--paper-deep); }
+
+.help { font-size: 0.82rem; color: var(--ink-soft); margin: 0; }

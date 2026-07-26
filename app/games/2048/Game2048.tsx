@@ -3,6 +3,8 @@
 import { useEffect, useReducer, useRef } from "react";
 import styles from "./game2048.module.css";
 import SaveSlot from "../_components/SaveSlot";
+import { unlock, recordPlayed, recordWin } from "@/lib/arcade";
+import { summonZote } from "@/app/_components/eggs/ZoteHeckler";
 import { reducer, SIZE, type Dir, type GameState } from "./engine";
 
 // 2048 rendered as a CSS grid of tiles. Logic lives in engine.ts. No game loop
@@ -38,8 +40,24 @@ export default function Game2048() {
     if (!started.current) {
       started.current = true;
       dispatch({ type: "START" });
+      recordPlayed("2048");
     }
   }, []);
+
+  // Progression + cameo hooks.
+  const prevStatus = useRef(state.status);
+  useEffect(() => {
+    if (state.board.includes(2048)) {
+      unlock("g2048-namesake");
+      recordWin("2048");
+    }
+    if (state.board.includes(4096)) unlock("g2048-overachiever");
+
+    if (state.status === "over" && prevStatus.current !== "over" && state.score < 400) {
+      summonZote("score");
+    }
+    prevStatus.current = state.status;
+  }, [state]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {

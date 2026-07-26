@@ -3,7 +3,8 @@
 import { useEffect, useReducer, useRef } from "react";
 import styles from "./life.module.css";
 import SaveSlot from "../_components/SaveSlot";
-import { reducer, createInitialState, COLS, ROWS, type GameState } from "./engine";
+import { unlock, recordPlayed, recordWin } from "@/lib/arcade";
+import { reducer, createInitialState, containsGlider, COLS, ROWS, type GameState } from "./engine";
 
 // Conway's Game of Life. A drawable grid plus play/step/clear/randomize. The
 // generation loop is a single interval that dispatches STEP while running.
@@ -22,6 +23,24 @@ export default function Life() {
   }, [state.running]);
 
   const liveCount = state.grid.reduce((n, alive) => n + (alive ? 1 : 0), 0);
+
+  useEffect(() => recordPlayed("life"), []);
+
+  // Progression: a 1,000-generation survivor, and the glider salute — draw a
+  // working glider and a little one takes up permanent residence on the
+  // arcade hub's header.
+  useEffect(() => {
+    if (state.generation >= 1000 && liveCount > 0) {
+      unlock("life-immortalist");
+      recordWin("life");
+    }
+    if (liveCount >= 5 && liveCount <= 24 && containsGlider(state.grid)) {
+      unlock("life-gliderwright");
+      try {
+        localStorage.setItem("bl:glider", "1");
+      } catch { /* cosmetic */ }
+    }
+  }, [state.grid, state.generation, liveCount]);
 
   return (
     <div className={styles.layout}>

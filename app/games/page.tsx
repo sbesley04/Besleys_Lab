@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { games } from "./registry";
+import ArcadeHub from "./ArcadeHub";
 
-// Arcade hub. Driven entirely by ./registry — to add a game, add an entry there
-// and a folder at app/games/<slug>/. No edits needed here.
+// Arcade hub. The card grid itself lives in ArcadeHub (a client component,
+// because the hub has… residents). Driven entirely by ./registry — to add a
+// game, add an entry there and a folder at app/games/<slug>/.
 export const metadata = { title: "Games" };
 
 export default function GamesPage() {
@@ -18,29 +19,7 @@ export default function GamesPage() {
         A small, growing shelf of browser games.
       </p>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: "1.25rem",
-        }}
-      >
-        {games.map((g) => (
-          <Link
-            key={g.slug}
-            href={`/games/${g.slug}`}
-            className="paper-card"
-            style={{ padding: "1.5rem", color: "var(--ink)", display: "block" }}
-          >
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", margin: 0 }}>
-              {g.title}
-            </h2>
-            <p style={{ color: "var(--ink-soft)", margin: "0.4rem 0 0", fontSize: "0.92rem" }}>
-              {g.blurb}
-            </p>
-          </Link>
-        ))}
-      </div>
+      <ArcadeHub />
     </main>
   );
 }

@@ -42,4 +42,16 @@ export const games: GameMeta[] = [
     blurb: "Draw a pattern on the graph paper and watch it evolve.",
     renderer: "dom",
   },
+  {
+    slug: "solitaire",
+    title: "Solitaire",
+    blurb: "Klondike, Spider, and FreeCell. Fifty-two cards — on a good day.",
+    renderer: "dom",
+  },
+  {
+    slug: "sudoku",
+    title: "Sudoku",
+    blurb: "Pencil marks welcome. Four difficulties, a daily puzzle, and streaks.",
+    renderer: "dom",
+  },
 ];

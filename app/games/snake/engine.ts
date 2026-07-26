@@ -18,8 +18,18 @@ export interface GameState {
   dir: Dir; // current heading
   pendingDir: Dir; // next heading, applied on TICK (prevents mid-tick reversal)
   food: Point;
+  /** Almost always a rust dot — but 1 in 50 is a bladderfish worth 5. */
+  foodKind: FoodKind;
   score: number;
   status: Status;
+}
+
+export type FoodKind = "dot" | "fish";
+export const FISH_ODDS = 1 / 50;
+export const FISH_SCORE = 5;
+
+export function rollFoodKind(rng: () => number = Math.random): FoodKind {
+  return rng() < FISH_ODDS ? "fish" : "dot";
 }
 
 export type Action =
@@ -72,6 +82,7 @@ export function createInitialState(): GameState {
     dir: "right",
     pendingDir: "right",
     food: { x: 14, y: 10 },
+    foodKind: "dot",
     score: 0,
     status: "idle",
   };
@@ -81,7 +92,12 @@ export function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case "LOAD":
       // Come back paused so the snake doesn't move the instant it loads.
-      return { ...action.state, status: action.state.status === "running" ? "paused" : action.state.status };
+      // (Older saves predate foodKind — default it.)
+      return {
+        ...action.state,
+        foodKind: action.state.foodKind ?? "dot",
+        status: action.state.status === "running" ? "paused" : action.state.status,
+      };
 
     case "START":
       return { ...createInitialState(), status: "running" };
@@ -126,7 +142,8 @@ export function reducer(state: GameState, action: Action): GameState {
           snake,
           dir,
           food: placeFood(snake),
-          score: state.score + 1,
+          foodKind: rollFoodKind(),
+          score: state.score + (state.foodKind === "fish" ? FISH_SCORE : 1),
         };
       }
       return { ...state, snake, dir };

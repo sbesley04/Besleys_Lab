@@ -39,6 +39,68 @@
   --radius: 6px;
 }
 
+/* --- Secret themes ---------------------------------------------------------
+   data-theme is set on <html> by the arcade's hidden terminal (persists in
+   localStorage); data-egg="konami" is the ↑↑↓↓←→←→BA mode (session only).
+   Both work purely by re-mapping the design tokens above. */
+
+/* "Blueprint" — the lab after dark: cyanotype paper, chalk-white ink. */
+:root[data-theme='blueprint'] {
+  --paper:        #16263e;
+  --paper-deep:   #0f1c30;
+  --ink:          #dce8f5;
+  --ink-soft:     #9fb3c8;
+  --accent:       #7fb4e8;
+  --accent-warm:  #a8cdf0;
+  --line:         rgba(220, 232, 245, 0.18);
+  --print:        #1c3050;
+  --tape:         rgba(127, 180, 232, 0.28);
+  --shadow-rest:  0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-lift:  0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Konami: something went very wrong in the lab. Green phosphor ink,
+   scorched page edges, faint CRT scanlines. */
+:root[data-egg='konami'] {
+  --paper:        #0c110c;
+  --paper-deep:   #101710;
+  --ink:          #46e05a;
+  --ink-soft:     #2f9e40;
+  --accent:       #6cf07e;
+  --accent-warm:  #98f5a4;
+  --line:         rgba(70, 224, 90, 0.25);
+  --print:        #101910;
+  --tape:         rgba(70, 224, 90, 0.18);
+}
+:root[data-egg='konami'] body {
+  box-shadow:
+    inset 0 0 60px 18px rgba(0, 0, 0, 0.85),
+    inset 0 0 160px 40px rgba(120, 60, 10, 0.35); /* scorched edges */
+}
+:root[data-egg='konami'] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0 2px,
+    rgba(0, 0, 0, 0.22) 2px 4px
+  );
+  animation: crt-flicker 4s infinite;
+}
+@keyframes crt-flicker {
+  0%, 100% { opacity: 1; }
+  97% { opacity: 1; }
+  98% { opacity: 0.7; }
+  99% { opacity: 1; }
+}
+:root[data-egg='konami'] img { filter: sepia(1) hue-rotate(60deg) saturate(1.6) brightness(0.8); }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-egg='konami'] body::after { animation: none; }
+}
+
 /* --- Reset ---------------------------------------------------------------- */
 *,
 *::before,
@@ -362,6 +424,56 @@ a:hover { color: var(--accent-warm); }
 .prose table { border-collapse: collapse; width: 100%; }
 .prose th, .prose td { border: 1px solid var(--line); padding: 0.45em 0.7em; text-align: left; }
 .prose a { text-decoration: underline; text-underline-offset: 2px; }
+
+/* --- Zote the Mighty, loss heckler ------------------------------------------ */
+.zote-wrap {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 190;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  max-width: min(400px, calc(100vw - 2rem));
+  cursor: pointer;
+  animation: zote-in 0.35s ease;
+}
+.zote-head { flex-shrink: 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+.zote-bubble {
+  background: var(--print);
+  border: 1px solid var(--ink);
+  border-radius: 8px 8px 8px 2px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  box-shadow: var(--shadow-lift);
+}
+@keyframes zote-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zote-wrap { animation: none; }
+}
+
+/* --- Achievement toast: a paper scrap sliding in from the right ------------- */
+.achievement-toast {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  padding: 0.8rem 1rem;
+  animation: toast-in 0.3s ease, toast-out 0.4s ease 4.8s forwards;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(24px) rotate(1.5deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes toast-out {
+  to { opacity: 0; transform: translateY(6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .achievement-toast { animation: none; }
+}
 
 /* --- Global focus visibility (a11y) ---------------------------------------- */
 a:focus-visible,

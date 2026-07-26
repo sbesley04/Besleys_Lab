@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Playfair_Display, Inter, Caveat } from "next/font/google";
 import Providers from "./providers";
 import SiteHeader from "./_components/SiteHeader";
+import AchievementToaster from "./_components/AchievementToaster";
+import EggEffects from "./_components/eggs/EggEffects";
+import ZoteHeckler from "./_components/eggs/ZoteHeckler";
 import "./globals.css";
 
 // next/font self-hosts the fonts and exposes them as CSS variables that
@@ -54,8 +57,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable} ${caveat.variable}`}>
+    // suppressHydrationWarning: the inline script below sets data-theme on
+    // <html> before hydration, which React would otherwise flag in dev.
+    <html
+      lang="en"
+      className={`${playfair.variable} ${inter.variable} ${caveat.variable}`}
+      suppressHydrationWarning
+    >
       <body>
+        {/* Restore the saved secret theme before first paint (no flash). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('bl:theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}",
+          }}
+        />
         <Providers>
           <SiteHeader />
           {children}
@@ -72,6 +88,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </nav>
             <span className="margin-note">thanks for stopping by ✌︎</span>
           </footer>
+          <AchievementToaster />
+          <EggEffects />
+          <ZoteHeckler />
         </Providers>
       </body>
     </html>

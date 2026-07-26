@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { games } from "@/app/games/registry";
 import { isStaff } from "@/lib/validation";
+import { ACHIEVEMENTS, ACHIEVEMENT_SECTIONS } from "@/lib/achievements";
 
 // The signed-in dashboard: profile settings, saved game states, saved
 // Hunger Games rosters, and recent simulation runs — everything a user has
@@ -60,7 +61,7 @@ export default async function DashboardPage() {
   const userId = session.user.id;
 
   // One round of parallel queries; if any fail Next's error boundary catches it.
-  const [user, saves, rosters, runs] = await Promise.all([
+  const [user, saves, rosters, runs, unlockedRows] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
       select: { email: true, username: true, name: true, role: true, createdAt: true },
@@ -82,7 +83,30 @@ export default async function DashboardPage() {
       orderBy: { createdAt: "desc" },
       take: 8,
     }),
+    prisma.achievement.findMany({
+      where: { userId },
+      select: { key: true, unlockedAt: true },
+    }),
   ]);
+
+  // "One Year In" is granted server-side — the client never knows createdAt.
+  // Same calendar day+month, at least one year on.
+  if (user) {
+    const now = new Date();
+    const c = user.createdAt;
+    const anniversary =
+      now.getMonth() === c.getMonth() &&
+      now.getDate() === c.getDate() &&
+      now.getFullYear() > c.getFullYear();
+    if (anniversary && !unlockedRows.some((a) => a.key === "meta-anniversary")) {
+      await prisma.achievement
+        .create({ data: { userId, key: "meta-anniversary" } })
+        .then((row) => unlockedRows.push({ key: row.key, unlockedAt: row.unlockedAt }))
+        .catch(() => {}); // unique race — someone double-loaded the page
+    }
+  }
+
+  const unlocked = new Map(unlockedRows.map((a) => [a.key, a.unlockedAt]));
 
   if (!user) {
     return (
@@ -254,6 +278,75 @@ export default async function DashboardPage() {
           )}
         </section>
       </div>
+
+      {/* --- Trophy case --- */}
+      <section className="paper-card" style={{ ...card, marginTop: "1.25rem" }} aria-label="Trophy case">
+        <h2 style={cardTitle}>Trophy case</h2>
+        <p style={cardHint}>
+          {unlocked.size} of {ACHIEVEMENTS.length} unlocked. Hidden ones stay ??? until you stumble into them.
+        </p>
+        {ACHIEVEMENT_SECTIONS.map(({ game, label }) => {
+          const defs = ACHIEVEMENTS.filter((a) => a.game === game);
+          if (defs.length === 0) return null;
+          return (
+            <div key={game} style={{ margin: "0 0 1rem" }}>
+              <h3
+                style={{
+                  fontSize: "0.78rem",
+                  fontFamily: "var(--font-body)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.07em",
+                  color: "var(--ink-soft)",
+                  margin: "0 0 0.45rem",
+                }}
+              >
+                {label}
+              </h3>
+              <ul
+                style={{
+                  listStyle: "none",
+                  margin: 0,
+                  padding: 0,
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 250px), 1fr))",
+                  gap: "0.5rem",
+                }}
+              >
+                {defs.map((a) => {
+                  const at = unlocked.get(a.key);
+                  const secret = a.hidden && !at;
+                  return (
+                    <li
+                      key={a.key}
+                      title={at ? `Unlocked ${fmt(at)}` : undefined}
+                      style={{
+                        display: "flex",
+                        gap: "0.55rem",
+                        alignItems: "flex-start",
+                        padding: "0.5rem 0.6rem",
+                        border: "1px solid var(--line)",
+                        borderRadius: 4,
+                        background: at ? "var(--paper)" : "transparent",
+                        opacity: at ? 1 : 0.55,
+                      }}
+                    >
+                      <span style={{ fontSize: "1.25rem", lineHeight: 1.2, filter: at ? "none" : "grayscale(1)" }} aria-hidden>
+                        {secret ? "❓" : a.icon}
+                      </span>
+                      <div style={{ fontSize: "0.85rem", lineHeight: 1.35 }}>
+                        <strong style={{ fontWeight: 600 }}>{secret ? "???" : a.title}</strong>
+                        <div style={{ color: "var(--ink-soft)", fontSize: "0.78rem" }}>
+                          {secret ? "A secret worth finding." : a.desc}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
+      </section>
     </main>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import GrubJar from "@/app/_components/eggs/GrubJar";
 
 // Public blog index — published posts, newest first, with reading time and
 // cover thumbnails. Server Component; drafts never reach this query.
@@ -106,6 +107,8 @@ export default async function BlogIndex() {
           })}
         </ul>
       )}
+
+      <GrubJar />
     </main>
   );
 }

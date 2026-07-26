@@ -1,0 +1,164 @@
+/* Arcade hub — the game-card grid plus its resident wildlife. */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.cardWrap { position: relative; }
+
+.card {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 1.5rem;
+  color: var(--ink);
+}
+
+/* --- Junimo: sleeps behind a card, wakes on hover, scurries elsewhere ------ */
+.junimo {
+  position: absolute;
+  top: -15px;
+  z-index: 0; /* behind the card body — only the top of its head shows */
+  width: 30px;
+  height: 30px;
+  transition: left 0.25s ease;
+  pointer-events: none;
+}
+.junimoAwake { animation: junimo-hop 0.55s ease; }
+@keyframes junimo-hop {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-14px) rotate(-6deg); }
+  60% { transform: translateY(-4px) rotate(4deg); }
+}
+
+/* --- Glider salute: earned in Game of Life, lives here forever ------------- */
+.gliderLane {
+  position: relative;
+  height: 20px;
+  overflow: hidden;
+  margin: 0.25rem 0 0.5rem;
+}
+.glider {
+  position: absolute;
+  top: 2px;
+  left: -24px;
+  display: grid;
+  grid-template-columns: repeat(3, 5px);
+  grid-template-rows: repeat(3, 5px);
+  gap: 1px;
+  animation: glider-drift 26s linear infinite;
+}
+.glider i { background: transparent; }
+.gliderOn { background: var(--accent) !important; }
+@keyframes glider-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(100vw + 48px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glider { animation: none; left: 8px; }
+}
+
+/* --- The sheep in the margin ------------------------------------------------ */
+.sheepWrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2.5rem;
+}
+.sheep {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.85;
+}
+.sheep:hover { opacity: 1; }
+.sheepShake { animation: sheep-shake 0.3s ease; }
+@keyframes sheep-shake {
+  0%, 100% { transform: translateX(0); }
+  33% { transform: translateX(-2px) rotate(-2deg); }
+  66% { transform: translateX(2px) rotate(2deg); }
+}
+.woolPop {
+  animation: wool-pop 0.7s ease forwards;
+  transform-origin: center;
+}
+@keyframes wool-pop {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-26px) scale(1.4); opacity: 0; }
+}
+.jebWool { animation: jeb-cycle 4s linear infinite; }
+@keyframes jeb-cycle {
+  0% { fill: #e66; } 16% { fill: #ea3; } 33% { fill: #dd5; }
+  50% { fill: #5c5; } 66% { fill: #5ad; } 83% { fill: #a6e; } 100% { fill: #e66; }
+}
+
+/* --- Secret terminal -------------------------------------------------------- */
+.termBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(12, 10, 8, 0.55);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+.terminal {
+  width: min(640px, 100%);
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: #10140f;
+  color: #7ee787;
+  border: 1px solid #2c3a2c;
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  overflow: hidden;
+}
+.termHeader {
+  padding: 0.4rem 0.8rem;
+  background: #182018;
+  color: #9db89d;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.termClose {
+  background: none;
+  border: none;
+  color: #9db89d;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.termBody {
+  padding: 0.7rem 0.9rem;
+  overflow-y: auto;
+  flex: 1;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+.termDim { color: #557755; }
+.termAccent { color: #d8b45a; }
+.termInputRow {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem 0.7rem;
+  border-top: 1px solid #1e281e;
+}
+.termInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #7ee787;
+  font: inherit;
+}
+.termRainbow { animation: term-rainbow 3s linear infinite; }
+@keyframes term-rainbow {
+  0% { color: #e66; } 20% { color: #ea3; } 40% { color: #5c5; }
+  60% { color: #5ad; } 80% { color: #a6e; } 100% { color: #e66; }
+}

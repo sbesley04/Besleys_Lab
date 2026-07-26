@@ -42,6 +42,8 @@ model User {
   rosters      Roster[]
   simulations  SimulationRun[]
   bookReviews  BookReview[]
+  achievements Achievement[]
+  gameResults  GameResult[]
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 }
@@ -231,6 +233,43 @@ model FieldNote {
   updatedAt DateTime @updatedAt
 
   @@index([position])
+}
+
+// --- Arcade progression ------------------------------------------------------
+// Achievements and completed-game records. Both are append-mostly and scoped
+// to the session user by the API routes, same as GameSave.
+
+// One unlocked achievement per user. `key` comes from lib/achievements.ts —
+// the API rejects unknown keys, so rows always map to a real definition.
+model Achievement {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key        String
+  unlockedAt DateTime @default(now())
+
+  @@unique([userId, key])
+  @@index([userId, unlockedAt])
+}
+
+// A finished (or dealt) game: solitaire wins, sudoku solves, etc. High scores
+// and stats are aggregates over these rows. `mode` is the variant/difficulty
+// ("klondike-1", "spider", "easy"...); `meta` is a small JSON blob for extras
+// (assisted flag, mistakes, daily-puzzle date).
+model GameResult {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game      String // game slug from app/games/registry.ts
+  mode      String   @default("")
+  event     String   @default("win") // "deal" | "win" — lets us count played vs won
+  score     Int      @default(0)
+  timeMs    Int?
+  moves     Int?
+  meta      String   @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([userId, game, mode, createdAt])
 }
 
 // A recorded simulation run. Stores the seed + roster snapshot rather than the

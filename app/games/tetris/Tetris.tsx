@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import styles from "./tetris.module.css";
 import SaveSlot from "../_components/SaveSlot";
+import { unlock, recordPlayed, recordWin } from "@/lib/arcade";
+import { summonZote } from "@/app/_components/eggs/ZoteHeckler";
 import {
   reducer,
   createInitialState,
@@ -32,6 +34,33 @@ export default function Tetris() {
   const [state, dispatch] = useReducer(reducer, undefined, createInitialState);
   const stateRef = useRef(state);
   stateRef.current = state;
+
+  // The initial next-piece is random, so its preview differs between server
+  // and client markup; render it only after mount to avoid the mismatch.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => recordPlayed("tetris"), []);
+
+  // Progression + cameo hooks, driven by state transitions.
+  const prevLines = useRef(state.lines);
+  const prevStatus = useRef(state.status);
+  useEffect(() => {
+    // Four lines in one settle. Both states must be mid-run so a loaded save
+    // (which arrives paused) can't fake the jump.
+    if (state.lines - prevLines.current >= 4 && state.status === "running" && prevStatus.current === "running") {
+      unlock("tet-tetris");
+    }
+    prevLines.current = state.lines;
+
+    if (state.level >= 10) unlock("tet-marathon");
+    if (state.lines >= 10) recordWin("tetris");
+
+    if (state.status === "over" && prevStatus.current !== "over" && state.level === 1 && state.score < 300) {
+      summonZote("general");
+    }
+    prevStatus.current = state.status;
+  }, [state]);
 
   // --- Gravity loop: re-armed whenever level or status changes. ---
   useEffect(() => {
@@ -137,7 +166,7 @@ export default function Tetris() {
         </div>
         <div className={styles.panel}>
           <h3>Next</h3>
-          <NextPreview piece={state.next} />
+          {mounted && <NextPreview piece={state.next} />}
         </div>
         <p className={styles.help}>
           ← → move · ↑ rotate · ↓ soft drop · space hard drop · P pause

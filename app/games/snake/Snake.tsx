@@ -3,7 +3,10 @@
 import { useEffect, useReducer, useRef } from "react";
 import styles from "./snake.module.css";
 import SaveSlot from "../_components/SaveSlot";
-import { reducer, createInitialState, COLS, ROWS, type Dir, type GameState } from "./engine";
+import { unlock, recordPlayed, recordWin } from "@/lib/arcade";
+import { bloop } from "@/lib/sound";
+import { summonZote } from "@/app/_components/eggs/ZoteHeckler";
+import { reducer, createInitialState, COLS, ROWS, FISH_SCORE, type Dir, type GameState } from "./engine";
 
 // Snake rendered as a CSS grid. Logic lives in engine.ts; this component owns
 // the tick loop, keyboard input, and painting.
@@ -20,6 +23,24 @@ export default function Snake() {
   const [state, dispatch] = useReducer(reducer, undefined, createInitialState);
   const stateRef = useRef(state);
   stateRef.current = state;
+
+  useEffect(() => recordPlayed("snake"), []);
+
+  // Progression + cameo hooks, driven by state transitions.
+  const prevScore = useRef(state.score);
+  const prevStatus = useRef(state.status);
+  useEffect(() => {
+    if (state.score === prevScore.current + FISH_SCORE) bloop(); // that was no dot
+    prevScore.current = state.score;
+
+    if (state.snake.length >= Math.floor((COLS * ROWS) / 4)) unlock("snk-ouroboros");
+    if (state.score >= 10) recordWin("snake");
+
+    if (state.status === "over" && prevStatus.current !== "over" && state.score <= 2) {
+      summonZote("score");
+    }
+    prevStatus.current = state.status;
+  }, [state]);
 
   // Tick loop — speed scales gently with score, re-armed when either changes.
   const speed = Math.max(70, BASE_SPEED - state.score * 3);
@@ -61,10 +82,15 @@ export default function Snake() {
     for (let x = 0; x < COLS; x++) {
       const key = `${x},${y}`;
       let cls = styles.cell;
+      const isFish = key === foodKey && state.foodKind === "fish";
       if (key === headKey) cls += ` ${styles.head}`;
       else if (bodyKeys.has(key)) cls += ` ${styles.body}`;
-      else if (key === foodKey) cls += ` ${styles.food}`;
-      cells.push(<div key={key} className={cls} />);
+      else if (key === foodKey && !isFish) cls += ` ${styles.food}`;
+      cells.push(
+        <div key={key} className={cls}>
+          {isFish ? <Bladderfish /> : null}
+        </div>,
+      );
     }
   }
 
@@ -112,5 +138,18 @@ export default function Snake() {
         />
       </aside>
     </div>
+  );
+}
+
+// A rare visitor from a wetter biome. Worth five — it knows what it's worth.
+function Bladderfish() {
+  return (
+    <svg viewBox="0 0 20 20" width="100%" height="100%" aria-label="Bladderfish" style={{ display: "block" }}>
+      <ellipse cx="9" cy="10" rx="6.5" ry="5.5" fill="rgba(238,170,185,0.85)" stroke="#b06a80" strokeWidth="1" />
+      <ellipse cx="9" cy="8.2" rx="3.4" ry="2.2" fill="rgba(255,255,255,0.5)" />
+      <path d="M15 10 L19 7 L19 13 Z" fill="#b06a80" />
+      <circle cx="6.4" cy="9.4" r="1.1" fill="#3a2530" />
+      <path d="M9 4.6 Q9.6 2.8 11 2.4" fill="none" stroke="#b06a80" strokeWidth="1" strokeLinecap="round" />
+    </svg>
   );
 }

@@ -19,6 +19,7 @@ import {
 } from "./roster";
 import ArenaMap from "./ArenaMap";
 import styles from "./hungerGames.module.css";
+import { unlock, recordPlayed, recordWin } from "@/lib/arcade";
 
 // The interactive simulator. Two stages:
 //   setup — roster editor (add/edit/remove tributes, import/export, save/load)
@@ -50,6 +51,8 @@ export default function HungerGames({
 }) {
   const { data: session, status: authStatus } = useSession();
   const signedIn = Boolean(session?.user);
+
+  useEffect(() => recordPlayed("hunger-games"), []);
 
   // --- setup state ---
   const [players, setPlayers] = useState<RosterPlayer[]>(SAMPLE_ROSTER);
@@ -280,6 +283,23 @@ export default function HungerGames({
     setTurn(0);
     setPlaying(true);
     setMessage(null);
+
+    // Achievements: a day-one massacre, and a tribute named after you winning.
+    const dayOneDeaths = sim.snapshots
+      .filter((s) => s.hour < 24)
+      .reduce((n, s) => n + s.deaths.length, 0);
+    if (dayOneDeaths >= 6) unlock("hg-bloodbath");
+    const myNames = [session?.user?.name, session?.user?.username]
+      .filter((n): n is string => typeof n === "string" && n.length > 0)
+      .map((n) => n.trim().toLowerCase());
+    if (
+      sim.winner &&
+      (myNames.includes(sim.winner.trim().toLowerCase()) ||
+        myNames.some((n) => sim.winner!.trim().toLowerCase().startsWith(n.split(" ")[0])))
+    ) {
+      unlock("hg-sole-survivor");
+      recordWin("hunger-games");
+    }
 
     // Record the finished run for the dashboard (signed-in, fire-and-forget).
     if (signedIn) {

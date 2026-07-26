@@ -5,7 +5,7 @@ import { reducer as snakeReducer, createInitialState as snakeInit, placeFood, CO
   from "./snake/engine.ts";
 import { collapseLine, applyMove, isGameOver, reducer as g2048Reducer, type Board }
   from "./2048/engine.ts";
-import { step, emptyGrid, COLS as LC, ROWS as LR } from "./life/engine.ts";
+import { step, emptyGrid, containsGlider, COLS as LC, ROWS as LR } from "./life/engine.ts";
 
 let fail = 0;
 const ok = (c: boolean, n: string) => { if (!c) { fail++; console.log("FAIL:", n); } };
@@ -77,6 +77,26 @@ const bs = step(bg);
 ok(JSON.stringify(bs) === JSON.stringify(bg), "life block is stable");
 // empty stays empty
 ok(step(emptyGrid()).every((c)=>!c), "life empty stays empty");
+
+// Glider detection: canonical phase, a rotated step of it, and non-gliders.
+let gl = emptyGrid();
+// .X. / ..X / XXX at (10,10)
+gl[10*LC+11]=true; gl[11*LC+12]=true; gl[12*LC+10]=true; gl[12*LC+11]=true; gl[12*LC+12]=true;
+ok(containsGlider(gl), "life glider detected");
+ok(containsGlider(step(gl)), "life glider still detected next phase");
+ok(!containsGlider(emptyGrid()), "life empty grid has no glider");
+let blob = emptyGrid();
+for (let y = 10; y < 13; y++) for (let x = 10; x < 13; x++) blob[y*LC+x] = true;
+ok(!containsGlider(blob), "life 3x3 blob is not a glider");
+let crowded = gl.slice();
+crowded[9*LC+10] = true; // live cell in the isolation ring
+ok(!containsGlider(crowded), "life crowded glider doesn't count");
+
+// Snake bladderfish: fish is worth 5 and food kind rerolls after eating.
+let fishy: SnakeState = { ...s, food: { x: s.snake[0].x + 1, y: s.snake[0].y }, foodKind: "fish" };
+let ate = snakeReducer(fishy, { type: "TICK" });
+ok(ate.score === 5, "snake bladderfish scores 5");
+ok(ate.foodKind === "dot" || ate.foodKind === "fish", "snake rerolls food kind");
 
 console.log(fail === 0 ? "\nALL GAME ENGINE TESTS PASSED" : `\n${fail} failed`);
 process.exit(fail?1:0);

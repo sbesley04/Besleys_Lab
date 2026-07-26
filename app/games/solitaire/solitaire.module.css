@@ -1,0 +1,166 @@
+/* Solitaire — paper-lab card table. Cards are DOM divs sized by a --card-w
+   variable so Klondike (7 cols) and Spider (10 cols) both fit the frame. */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.button {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.button:hover { background: var(--paper-deep); }
+.buttonActive {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.table {
+  --card-w: clamp(44px, 9.5vw, 72px);
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.9rem;
+  user-select: none;
+}
+.tableWide { --card-w: clamp(30px, 6.8vw, 52px); }
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.pileGroup { display: flex; gap: 0.45rem; }
+
+.columns {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.pile {
+  position: relative;
+  min-height: calc(var(--card-w) * 1.45);
+}
+
+.slot {
+  width: var(--card-w);
+  aspect-ratio: 5 / 7;
+  border: 1.5px dashed var(--line);
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: var(--ink-soft);
+  font-size: calc(var(--card-w) * 0.34);
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+}
+
+.card {
+  width: var(--card-w);
+  aspect-ratio: 5 / 7;
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  border-radius: 6px;
+  background: var(--print);
+  box-shadow: 0 1px 2px rgba(60, 48, 30, 0.18);
+  cursor: pointer;
+  position: relative;
+  font-family: var(--font-body);
+  padding: 0;
+  text-align: left;
+}
+
+.stacked { margin-top: calc(var(--card-w) * -0.98); }
+.stackedTight { margin-top: calc(var(--card-w) * -1.26); }
+.pile .card { display: block; }
+.pile > * + * { }
+
+.faceDown {
+  background:
+    repeating-linear-gradient(45deg, rgba(122, 106, 82, 0.25) 0 3px, transparent 3px 7px),
+    var(--paper);
+}
+
+.corner {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: calc(var(--card-w) * 0.26);
+  font-weight: 600;
+  line-height: 1.05;
+}
+.pip {
+  position: absolute;
+  bottom: 3px;
+  right: 5px;
+  font-size: calc(var(--card-w) * 0.42);
+  line-height: 1;
+}
+.red { color: #a03c2e; }
+.black { color: var(--ink); }
+.joker { color: #6b4d92; }
+.jokerCard {
+  background: linear-gradient(150deg, #f6efff 0%, var(--print) 55%);
+  border-color: #6b4d92;
+}
+
+.selected {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.winBanner {
+  text-align: center;
+  padding: 1rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.scoreTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.scoreTable th,
+.scoreTable td {
+  border: 1px solid var(--line);
+  padding: 0.35rem 0.55rem;
+  text-align: left;
+}
+.scoreTable th {
+  font-weight: 600;
+  background: var(--paper-deep);
+}
+
+.help {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
