@@ -41,12 +41,24 @@ export async function POST(req: NextRequest) {
     select: { key: true },
   });
   const have = new Set(existing.map((r) => r.key));
-  const fresh = valid.filter((k) => !have.has(k));
+  const candidates = valid.filter((k) => !have.has(k));
 
-  if (fresh.length > 0) {
-    await prisma.achievement.createMany({
-      data: fresh.map((key) => ({ userId: auth.user.id, key })),
-    });
-  }
-  return NextResponse.json({ unlocked: fresh });
+  // Two unlocks can land at once — a game calling unlock() while the toaster
+  // flushes the local cache on the same pageview — and both would pass the
+  // check above. `skipDuplicates` isn't supported on SQLite, so each row is
+  // inserted independently and a lost race (P2002) just means someone else
+  // already recorded it. Anything else is a real failure and still throws.
+  const unlocked: string[] = [];
+  await Promise.all(
+    candidates.map(async (key) => {
+      try {
+        await prisma.achievement.create({ data: { userId: auth.user.id, key } });
+        unlocked.push(key);
+      } catch (err) {
+        const code = (err as { code?: string }).code;
+        if (code !== "P2002") throw err;
+      }
+    }),
+  );
+  return NextResponse.json({ unlocked });
 }

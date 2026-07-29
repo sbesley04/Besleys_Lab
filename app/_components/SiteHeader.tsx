@@ -13,6 +13,7 @@ import styles from "./siteHeader.module.css";
 const NAV = [
   { href: "/blog", label: "Blog" },
   { href: "/projects", label: "Projects" },
+  { href: "/lab", label: "Lab" },
   { href: "/games", label: "Games" },
   { href: "/library", label: "Library" },
   { href: "/about", label: "About" },

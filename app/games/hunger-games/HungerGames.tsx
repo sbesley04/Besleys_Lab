@@ -289,16 +289,25 @@ export default function HungerGames({
       .filter((s) => s.hour < 24)
       .reduce((n, s) => n + s.deaths.length, 0);
     if (dayOneDeaths >= 6) unlock("hg-bloodbath");
-    const myNames = [session?.user?.name, session?.user?.username]
-      .filter((n): n is string => typeof n === "string" && n.length > 0)
-      .map((n) => n.trim().toLowerCase());
-    if (
-      sim.winner &&
-      (myNames.includes(sim.winner.trim().toLowerCase()) ||
-        myNames.some((n) => sim.winner!.trim().toLowerCase().startsWith(n.split(" ")[0])))
-    ) {
-      unlock("hg-sole-survivor");
-      recordWin("hunger-games");
+    // "A tribute named after you" — match the full name/handle, or the first
+    // name on its own. Compared as whole tokens rather than by prefix: a
+    // two-letter handle shouldn't claim victory because someone called
+    // Alice won.
+    if (sim.winner) {
+      const winner = sim.winner.trim().toLowerCase();
+      const winnerFirst = winner.split(/\s+/)[0];
+      const mine = [session?.user?.name, session?.user?.username]
+        .filter((n): n is string => typeof n === "string" && n.trim().length > 0)
+        .map((n) => n.trim().toLowerCase());
+      const named = mine.some((n) => {
+        if (n === winner) return true;
+        const first = n.split(/\s+/)[0];
+        return first.length >= 3 && first === winnerFirst;
+      });
+      if (named) {
+        unlock("hg-sole-survivor");
+        recordWin("hunger-games");
+      }
     }
 
     // Record the finished run for the dashboard (signed-in, fire-and-forget).

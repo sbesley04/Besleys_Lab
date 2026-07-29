@@ -1,0 +1,139 @@
+/* Evolution sandbox — a petri dish drawn on lab paper, with trait charts. */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.stageRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.field {
+  flex: 1 1 340px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-deep);
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.side {
+  flex: 1 1 260px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  padding: 0.7rem 0.85rem;
+}
+.panelTitle {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin: 0 0 0.45rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.button {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.button:hover { background: var(--paper-deep); }
+.button:disabled { opacity: 0.45; cursor: default; }
+.buttonActive {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+.sliderGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: 0.5rem 1.2rem;
+}
+.slider {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.5rem;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+.slider input[type="range"] {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: var(--accent);
+}
+.sliderValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--ink);
+}
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.2rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+.statValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--ink);
+}
+
+.traitRow {
+  display: grid;
+  grid-template-columns: 4.4rem 1fr 2.6rem;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.82rem;
+  margin-bottom: 0.35rem;
+}
+.traitBar {
+  height: 9px;
+  background: var(--paper-deep);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.traitFill { height: 100%; border-radius: 999px; }
+
+.banner {
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--paper);
+  text-align: center;
+}
+
+.help { font-size: 0.82rem; color: var(--ink-soft); margin: 0; max-width: 66ch; line-height: 1.55; }
+.aside {
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  color: var(--accent);
+  margin: 0;
+}

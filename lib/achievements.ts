@@ -39,6 +39,25 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { key: "sud-under-pressure", game: "sudoku", icon: "⚡", title: "Under Pressure", desc: "Solve an easy puzzle in under 3 minutes." },
   { key: "sud-long-game", game: "sudoku", icon: "🧠", title: "The Long Game", desc: "Solve an expert puzzle with no hints." },
 
+  // --- Minesweeper ---
+  { key: "mine-first-sweep", game: "minesweeper", icon: "🚩", title: "All Clear", desc: "Sweep a board without hitting a mine." },
+  { key: "mine-expert", game: "minesweeper", icon: "💣", title: "Bomb Disposal", desc: "Clear an expert board — all 99 of them." },
+  { key: "mine-speed", game: "minesweeper", icon: "⚡", title: "Steady Hands", desc: "Sweep a beginner board in under 15 seconds." },
+  { key: "mine-cartographer", game: "minesweeper", icon: "🗺", title: "Cartographer", desc: "Win with every single mine correctly flagged." },
+
+  // --- Evolution ---
+  { key: "evo-dynasty", game: "evolution", icon: "🧬", title: "Dynasty", desc: "Keep a population alive for 25 generations." },
+  { key: "evo-deep-time", game: "evolution", icon: "⏳", title: "Deep Time", desc: "Reach generation 100 without extinction." },
+  { key: "evo-extinction", game: "evolution", icon: "☄️", title: "Mass Extinction", desc: "Wipe out an entire population. It happens." },
+  { key: "evo-cheetah", game: "evolution", icon: "🐆", title: "Built for Speed", desc: "Evolve an average speed of 2.0 or higher." },
+  { key: "evo-titan", game: "evolution", icon: "🐘", title: "Titan", desc: "Evolve an average size of 2.0 or higher." },
+
+  // --- The Lab ---
+  { key: "lab-visitor", game: "lab", icon: "🔬", title: "Lab Notebook", desc: "Try every experiment on the bench." },
+  { key: "lab-diverged", game: "lab", icon: "📈", title: "Diverged", desc: "Blow up a training run with too high a learning rate." },
+  { key: "lab-xor", game: "lab", icon: "🧠", title: "Hidden Layer", desc: "Train the little network until it actually solves XOR." },
+  { key: "lab-policy", game: "lab", icon: "🗺️", title: "Optimal Policy", desc: "Train a Q-learning agent to an 80% success rate." },
+
   // --- Tetris ---
   { key: "tet-tetris", game: "tetris", icon: "🟦", title: "Tetris!", desc: "Clear four lines at once." },
   { key: "tet-marathon", game: "tetris", icon: "🏃", title: "Marathon", desc: "Reach level 10." },
@@ -80,6 +99,9 @@ export const ACHIEVEMENTS_BY_KEY = new Map(ACHIEVEMENTS.map((a) => [a.key, a]));
 export const ACHIEVEMENT_SECTIONS: { game: string; label: string }[] = [
   { game: "solitaire", label: "Solitaire" },
   { game: "sudoku", label: "Sudoku" },
+  { game: "minesweeper", label: "Minesweeper" },
+  { game: "evolution", label: "Evolution" },
+  { game: "lab", label: "The Lab" },
   { game: "tetris", label: "Tetris" },
   { game: "snake", label: "Snake" },
   { game: "2048", label: "2048" },

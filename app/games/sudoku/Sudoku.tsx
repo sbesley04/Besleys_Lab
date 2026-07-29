@@ -67,6 +67,7 @@ export default function Sudoku() {
   const [wrongCells, setWrongCells] = useState<Set<number>>(new Set());
   const [startedAt, setStartedAt] = useState(Date.now());
   const [baseElapsed, setBaseElapsed] = useState(0);
+  const [finalElapsed, setFinalElapsed] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
   const [statRefresh, setStatRefresh] = useState(0);
   const [generating, setGenerating] = useState(false);
@@ -88,7 +89,11 @@ export default function Sudoku() {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, [solved]);
-  const elapsed = baseElapsed + (solved ? 0 : now - startedAt);
+  // Once solved the clock stops, but it must keep *showing* the finishing
+  // time — hence finalElapsed, frozen by the win effect below. (Reading the
+  // live expression here would collapse to baseElapsed, i.e. 0:00 on a fresh
+  // puzzle, which is exactly what the win banner used to display.)
+  const elapsed = solved && finalElapsed !== null ? finalElapsed : baseElapsed + (now - startedAt);
 
   const stateRef = useRef({ game, entries, notes, mistakes, hints, notesUsed, startedAt, baseElapsed });
   stateRef.current = { game, entries, notes, mistakes, hints, notesUsed, startedAt, baseElapsed };
@@ -111,6 +116,7 @@ export default function Sudoku() {
       setWrongCells(new Set());
       setStartedAt(Date.now());
       setBaseElapsed(0);
+      setFinalElapsed(null);
       setGenerating(false);
     }, 30);
   }
@@ -199,6 +205,7 @@ export default function Sudoku() {
     if (!solved || solvedRef.current === game) return;
     solvedRef.current = game;
     const timeMs = baseElapsed + (Date.now() - startedAt);
+    setFinalElapsed(timeMs); // freeze the clock at the finishing time
     const mode = game.daily ? "daily" : game.difficulty;
 
     postResult({
@@ -347,6 +354,7 @@ export default function Sudoku() {
           setNotesUsed(p.notesUsed);
           setWrongCells(new Set(p.entries.map((v, i) => (v !== 0 && !p.game.puzzle[i] && v !== p.game.solution[i] ? i : -1)).filter((i) => i >= 0)));
           setBaseElapsed(p.elapsed);
+          setFinalElapsed(null);
           setStartedAt(Date.now());
           setSelected(null);
         }}

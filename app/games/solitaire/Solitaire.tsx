@@ -124,6 +124,7 @@ export default function Solitaire() {
   const { cur } = ui;
   const [selected, setSelected] = useState<Loc | null>(null);
   const [now, setNow] = useState(Date.now());
+  const [finalElapsed, setFinalElapsed] = useState<number | null>(null);
   const [scoreRefresh, setScoreRefresh] = useState(0);
   const uiRef = useRef(ui);
   uiRef.current = ui;
@@ -141,7 +142,10 @@ export default function Solitaire() {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, [cur.won, ui.dealId]);
-  const elapsed = ui.baseElapsed + (cur.won ? 0 : now - ui.startedAt);
+  // Frozen at the winning move — reading the live expression after a win
+  // collapses to baseElapsed (0:00 on a fresh deal), and recomputing
+  // Date.now() during render made the banner drift on every re-render.
+  const elapsed = cur.won && finalElapsed !== null ? finalElapsed : ui.baseElapsed + (now - ui.startedAt);
 
   // Card 53: unlock the moment the joker is visible anywhere.
   const jokerVisible =
@@ -158,6 +162,7 @@ export default function Solitaire() {
     if (!cur.won || wonDealRef.current === ui.dealId) return;
     wonDealRef.current = ui.dealId;
     const timeMs = ui.baseElapsed + (Date.now() - ui.startedAt);
+    setFinalElapsed(timeMs); // freeze the clock at the winning move
     const mode = modeOf(cur);
 
     postResult({
@@ -189,6 +194,8 @@ export default function Solitaire() {
       variant === "spider" ? dealSpider(opt) : dealFreecell();
     dispatch({ type: "NEW", state });
     setSelected(null);
+    setFinalElapsed(null);
+    setNow(Date.now());
     afterDeal(state);
   }
 
@@ -356,7 +363,7 @@ export default function Solitaire() {
             You won{cur.jokerUsed ? " (with a little help from a friend)" : ""}! 🎉
           </strong>
           <p className={styles.help} style={{ marginTop: "0.3rem" }}>
-            {MODE_LABELS[modeOf(cur)]} · {fmtTime(ui.baseElapsed + (Date.now() - ui.startedAt))} · {cur.moves} moves
+            {MODE_LABELS[modeOf(cur)]} · {fmtTime(elapsed)} · {cur.moves} moves
             {cur.jokerUsed ? " · assisted" : ""}
           </p>
         </div>
@@ -448,6 +455,8 @@ export default function Solitaire() {
         onLoad={(payload) => {
           dispatch({ type: "LOAD", payload });
           setSelected(null);
+          setFinalElapsed(null);
+          setNow(Date.now());
         }}
         validate={(s): s is SavePayload =>
           !!s && typeof s === "object" && !!(s as SavePayload).cur &&

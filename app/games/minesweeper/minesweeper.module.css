@@ -1,0 +1,124 @@
+/* Minesweeper — pencil grid on graph paper. Hidden cells are lightly shaded
+   paper; revealed cells are the page itself, with the classic number colors
+   restated in the site's ink palette. */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.button {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.button:hover { background: var(--paper-deep); }
+.buttonActive {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  align-items: center;
+}
+.statValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--ink);
+}
+
+.boardWrap {
+  overflow-x: auto;
+  max-width: 100%;
+  padding-bottom: 0.35rem;
+}
+
+.board {
+  display: grid;
+  gap: 0;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  user-select: none;
+  width: max-content;
+  touch-action: manipulation;
+}
+
+.cell {
+  width: var(--cell, 30px);
+  height: var(--cell, 30px);
+  border: 1px solid var(--line);
+  background: var(--paper-deep);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: calc(var(--cell, 30px) * 0.52);
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  color: var(--ink);
+}
+.cell:hover { background: var(--paper); }
+
+.revealed {
+  background: var(--print);
+  cursor: default;
+  border-color: rgba(0, 0, 0, 0.07);
+}
+.revealed:hover { background: var(--print); }
+
+.flagged { color: #a03c2e; }
+.boom { background: #c0503f !important; }
+.mine { background: rgba(160, 60, 46, 0.22); }
+
+/* Classic number colors, restated for cream paper. */
+.n1 { color: #2b5f8b; }
+.n2 { color: #3f7d4f; }
+.n3 { color: #a03c2e; }
+.n4 { color: #6b4d92; }
+.n5 { color: #8a5a2b; }
+.n6 { color: #2f7d78; }
+.n7 { color: #2f2b24; }
+.n8 { color: #6b6b6b; }
+
+.banner {
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--paper);
+  text-align: center;
+  align-self: stretch;
+}
+
+.scoreTable {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 260px;
+}
+.scoreTable th, .scoreTable td {
+  border: 1px solid var(--line);
+  padding: 0.35rem 0.6rem;
+  text-align: left;
+}
+.scoreTable th { background: var(--paper-deep); font-weight: 600; }
+
+.help { font-size: 0.82rem; color: var(--ink-soft); margin: 0; max-width: 60ch; }

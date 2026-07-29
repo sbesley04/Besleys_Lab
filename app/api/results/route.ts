@@ -23,30 +23,47 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unknown game." }, { status: 400 });
   }
 
-  const rows = await prisma.gameResult.findMany({
-    where: { userId: auth.user.id, game },
-    select: { mode: true, event: true, score: true, timeMs: true, moves: true, meta: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
-    take: 500,
-  });
+  // Aggregate in the database rather than over a page of rows — a personal
+  // best must survive however many games get played after it.
+  const [wins, deals, recent] = await Promise.all([
+    prisma.gameResult.groupBy({
+      by: ["mode"],
+      where: { userId: auth.user.id, game, event: "win" },
+      _count: { _all: true },
+      _min: { timeMs: true, moves: true },
+      _max: { score: true },
+    }),
+    prisma.gameResult.groupBy({
+      by: ["mode"],
+      where: { userId: auth.user.id, game, event: "deal" },
+      _count: { _all: true },
+    }),
+    // Recent rows are only for client-side streak math (sudoku dailies).
+    prisma.gameResult.findMany({
+      where: { userId: auth.user.id, game },
+      select: { mode: true, event: true, score: true, timeMs: true, moves: true, meta: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+      take: 60,
+    }),
+  ]);
 
-  // Per-mode aggregate: deals, wins, best (lowest) time, fewest moves, best score.
   const byMode: Record<
     string,
     { deals: number; wins: number; bestTimeMs: number | null; fewestMoves: number | null; bestScore: number }
   > = {};
-  for (const r of rows) {
-    const m = (byMode[r.mode] ??= { deals: 0, wins: 0, bestTimeMs: null, fewestMoves: null, bestScore: 0 });
-    if (r.event === "deal") m.deals++;
-    if (r.event === "win") {
-      m.wins++;
-      if (r.timeMs != null && (m.bestTimeMs == null || r.timeMs < m.bestTimeMs)) m.bestTimeMs = r.timeMs;
-      if (r.moves != null && (m.fewestMoves == null || r.moves < m.fewestMoves)) m.fewestMoves = r.moves;
-      if (r.score > m.bestScore) m.bestScore = r.score;
-    }
-  }
+  const slot = (mode: string) =>
+    (byMode[mode] ??= { deals: 0, wins: 0, bestTimeMs: null, fewestMoves: null, bestScore: 0 });
 
-  return NextResponse.json({ byMode, recent: rows.slice(0, 60) });
+  for (const w of wins) {
+    const m = slot(w.mode);
+    m.wins = w._count._all;
+    m.bestTimeMs = w._min.timeMs;
+    m.fewestMoves = w._min.moves;
+    m.bestScore = w._max.score ?? 0;
+  }
+  for (const d of deals) slot(d.mode).deals = d._count._all;
+
+  return NextResponse.json({ byMode, recent });
 }
 
 export async function POST(req: NextRequest) {

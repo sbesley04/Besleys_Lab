@@ -28,6 +28,18 @@ export default function EggEffects() {
 
     let progress = 0;
     function onKey(e: KeyboardEvent) {
+      // Never listen while someone is typing — arrow-keys-then-"ba" is a
+      // plausible thing to type into a comment box, and repainting the whole
+      // site green mid-sentence is not a fun surprise.
+      const target = e.target as HTMLElement | null;
+      if (
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.isContentEditable
+      ) {
+        progress = 0;
+        return;
+      }
       const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
       progress = key === KONAMI[progress] ? progress + 1 : key === KONAMI[0] ? 1 : 0;
       if (progress === KONAMI.length) {

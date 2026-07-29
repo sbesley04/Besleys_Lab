@@ -11,14 +11,16 @@
     "test:engine": "node --experimental-strip-types app/games/tetris/engine.test.ts",
     "test:games": "node --experimental-strip-types app/games/_games.test.ts",
     "test:hunger": "node --experimental-strip-types app/games/hunger-games/engine.test.ts",
-    "test": "npm run test:engine && npm run test:games && npm run test:hunger && npm run test:solitaire && npm run test:sudoku",
+    "test": "npm run test:engine && npm run test:games && npm run test:hunger && npm run test:solitaire && npm run test:sudoku && npm run test:lab && npm run test:minesweeper",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "create-user": "tsx scripts/create-user.ts",
     "postinstall": "prisma generate",
     "test:solitaire": "node --experimental-strip-types app/games/solitaire/engine.test.ts",
-    "test:sudoku": "node --experimental-strip-types app/games/sudoku/engine.test.ts"
+    "test:sudoku": "node --experimental-strip-types app/games/sudoku/engine.test.ts",
+    "test:lab": "node --experimental-strip-types app/lab/_engines.test.ts",
+    "test:minesweeper": "node --experimental-strip-types app/games/minesweeper/engine.test.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

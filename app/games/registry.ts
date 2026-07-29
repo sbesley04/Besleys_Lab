@@ -54,4 +54,16 @@ export const games: GameMeta[] = [
     blurb: "Pencil marks welcome. Four difficulties, a daily puzzle, and streaks.",
     renderer: "dom",
   },
+  {
+    slug: "minesweeper",
+    title: "Minesweeper",
+    blurb: "Pencil grid, hidden mines. The first click is always safe — after that you're on your own.",
+    renderer: "dom",
+  },
+  {
+    slug: "evolution",
+    title: "Evolution",
+    blurb: "Creatures forage, breed, and mutate. You set the world; selection writes the rest.",
+    renderer: "canvas",
+  },
 ];

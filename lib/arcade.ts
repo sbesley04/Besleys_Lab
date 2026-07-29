@@ -61,10 +61,17 @@ export function unlock(...keys: string[]) {
   }).catch(() => {});
 }
 
-/** Push every locally-unlocked achievement to the server (idempotent). Called
- *  once per pageview by the toaster when a session exists, so guest unlocks
- *  attach to the account the next time the user is signed in. */
+/** Push every locally-unlocked achievement to the server (idempotent), so
+ *  anything earned as a guest attaches to the account on the next sign-in.
+ *  Runs at most once per browser session — re-uploading the whole set on every
+ *  navigation is pure noise, and unlock() already writes through as it goes. */
 export function syncLocalToServer() {
+  try {
+    if (sessionStorage.getItem("bl:synced") === "1") return;
+    sessionStorage.setItem("bl:synced", "1");
+  } catch {
+    /* storage blocked — fall through and sync anyway */
+  }
   const local = [...readSet(LS_UNLOCKED)];
   for (let i = 0; i < local.length; i += 20) {
     fetch("/api/achievements", {
@@ -75,9 +82,26 @@ export function syncLocalToServer() {
   }
 }
 
-/** Every slug that counts toward Lab Rat. Kept in sync with the registry by
- *  the arcade test suite. */
-export const LAB_RAT_SLUGS = ["hunger-games", "tetris", "snake", "2048", "life", "solitaire", "sudoku"];
+/** Every game slug that counts toward Lab Rat. Kept in sync with the arcade
+ *  registry by the arcade test suite. */
+export const LAB_RAT_SLUGS = [
+  "hunger-games", "tetris", "snake", "2048", "life",
+  "solitaire", "sudoku", "minesweeper", "evolution",
+];
+
+/** Every /lab demo slug that counts toward the Lab Notebook achievement. */
+export const LAB_DEMO_SLUGS = [
+  "gradient-descent", "lr-schedules", "k-means", "svm", "regression",
+  "xor-net", "bayes", "markov-blog", "q-learning",
+];
+
+/** Call when a /lab demo mounts: tracks the Lab Notebook achievement. */
+export function recordDemoVisit(slug: string) {
+  const seen = readSet("bl:demos");
+  seen.add(slug);
+  writeSet("bl:demos", seen);
+  if (LAB_DEMO_SLUGS.every((s) => seen.has(s))) unlock("lab-visitor");
+}
 
 /** Call once when a game screen mounts: tracks Lab Rat + Night Shift. */
 export function recordPlayed(slug: string) {
