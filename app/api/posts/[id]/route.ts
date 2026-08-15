@@ -4,13 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { requireApiStaff } from "@/lib/api";
 import { slugify } from "@/lib/slug";
 import { canEditContent } from "@/lib/validation";
+import { isSafeImageSource } from "@/lib/images";
 
 // Item endpoints for a single post.
 //   PUT    /api/posts/:id → update
 //   DELETE /api/posts/:id → delete
 // Staff only; editors are limited to posts they authored, admins to any.
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiStaff();
   if (auth instanceof NextResponse) return auth;
 
@@ -19,7 +21,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: "Title and body are required." }, { status: 400 });
   }
 
-  const existing = await prisma.post.findUnique({ where: { id: params.id } });
+  const coverImage = typeof body.coverImage === "string" && body.coverImage.trim() ? body.coverImage.trim() : null;
+  if (coverImage && !isSafeImageSource(coverImage)) {
+    return NextResponse.json({ error: "Cover image must be a local image path or secure https URL." }, { status: 400 });
+  }
+
+  const existing = await prisma.post.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Not found." }, { status: 404 });
   if (!canEditContent(auth.user.role, auth.user.id, existing.authorId)) {
     return NextResponse.json({ error: "You can only edit your own posts." }, { status: 403 });
@@ -33,13 +40,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   try {
     const post = await prisma.post.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         slug,
         title: body.title,
         excerpt: body.excerpt || null,
         body: body.body,
-        coverImage: body.coverImage || null,
+        coverImage,
         published,
         publishedAt,
       },
@@ -53,12 +60,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiStaff();
   if (auth instanceof NextResponse) return auth;
 
   const existing = await prisma.post.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { authorId: true },
   });
   if (!existing) return NextResponse.json({ ok: true });
@@ -66,6 +74,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ error: "You can only delete your own posts." }, { status: 403 });
   }
 
-  await prisma.post.delete({ where: { id: params.id } }).catch(() => null);
+  await prisma.post.delete({ where: { id } }).catch(() => null);
   return NextResponse.json({ ok: true });
 }

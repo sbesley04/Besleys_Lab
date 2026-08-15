@@ -10,12 +10,21 @@ import { isValidEmail, passwordProblem, usernameProblem } from "@/lib/validation
 //
 // EXTEND HERE: add rate limiting / email verification before going public.
 export async function POST(req: NextRequest) {
+  const contentLength = Number(req.headers.get("content-length") ?? 0);
+  if (Number.isFinite(contentLength) && contentLength > 16_384) {
+    return NextResponse.json({ error: "Request is too large." }, { status: 413 });
+  }
+
   const body = await req.json().catch(() => null);
   const email = String(body?.email ?? "").trim().toLowerCase();
   const username = String(body?.username ?? "").trim().toLowerCase();
   // Trimmed so the hash matches what authorize() compares against.
   const password = String(body?.password ?? "").trim();
   const name = body?.name ? String(body.name).trim() : null;
+
+  if (name && name.length > 80) {
+    return NextResponse.json({ error: "Name must be at most 80 characters." }, { status: 400 });
+  }
 
   if (!isValidEmail(email)) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });

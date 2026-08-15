@@ -84,3 +84,52 @@
   line-height: 1.5;
   margin: 0;
 }
+
+/* ===========================================================================
+   THE GRID — the Konami mode (:root[data-egg="tron"]). This file is otherwise
+   fully token-driven, so the board, the rules and the controls already invert
+   correctly on their own. Only three things fail the swap, and they are the
+   only things restyled here:
+
+   1. .board's border is rgba(0,0,0,.18) — a black hairline on a near-black
+      page, i.e. no edge at all.
+   2. .alive's inner stroke is hardcoded cream (rgba(245,240,232,.18)), which is
+      paper's colour showing through on the wrong background.
+   3. a live cell is meant to be alive: on the Grid that means emitting light,
+      not just sitting there as a filled square.
+
+   Scoped to the egg attribute, so paper mode and the nine data-theme variants
+   are untouched. No animation is added — the simulation itself is the motion.
+   =========================================================================== */
+
+:global(:root[data-egg="tron"]) .boardWrap {
+  border-color: rgba(125, 249, 255, 0.28);
+  border-radius: 0;
+}
+
+:global(:root[data-egg="tron"]) .board {
+  border: 1px solid rgba(125, 249, 255, 0.3);
+  box-shadow: inset 0 0 40px rgba(0, 150, 190, 0.15), inset 0 0 90px rgba(0, 0, 0, 0.5);
+}
+
+/* Cyan rather than white-hot --ink, so a dense colony doesn't flatten into a
+   white slab. Deliberately ONE shadow and no inset: the board is 32x24 and a
+   busy generation lights a few hundred of these at once, all re-painted every
+   tick — the small bloom is affordable at that count, a second layer is not. */
+:global(:root[data-egg="tron"]) .alive {
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(125, 249, 255, 0.5);
+}
+
+/* Match the rest of the arcade's controls on the Grid. */
+:global(:root[data-egg="tron"]) .button {
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  box-shadow: 0 0 18px rgba(0, 184, 212, 0.4), 0 0 2px rgba(125, 249, 255, 0.7);
+}
+:global(:root[data-egg="tron"]) .ghost {
+  border-color: rgba(125, 249, 255, 0.28);
+  box-shadow: none;
+}

@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireApiStaff } from "@/lib/api";
 import { slugify } from "@/lib/slug";
+import { isSafeImageSource } from "@/lib/images";
 
 // Collection endpoints for blog posts.
 //   GET  /api/posts  → list all posts (admin only; includes drafts)
@@ -28,6 +29,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Title and body are required." }, { status: 400 });
   }
 
+  const coverImage = typeof body.coverImage === "string" && body.coverImage.trim() ? body.coverImage.trim() : null;
+  if (coverImage && !isSafeImageSource(coverImage)) {
+    return NextResponse.json({ error: "Cover image must be a local image path or secure https URL." }, { status: 400 });
+  }
+
   const published = Boolean(body.published);
   const slug = body.slug ? slugify(body.slug) : slugify(body.title);
 
@@ -38,7 +44,7 @@ export async function POST(req: NextRequest) {
         title: body.title,
         excerpt: body.excerpt || null,
         body: body.body,
-        coverImage: body.coverImage || null,
+        coverImage,
         published,
         publishedAt: published ? new Date() : null,
         authorId: auth.user.id,

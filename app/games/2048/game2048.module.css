@@ -129,3 +129,131 @@
   font-size: 1.8rem;
   margin: 0;
 }
+
+/* ===========================================================================
+   THE GRID — 2048 as energy blocks
+   ---------------------------------------------------------------------------
+   On the Grid the paper metaphor is gone, so the tiles stop being little
+   parchment squares and become flat, saturated blocks of light: no radius, no
+   dashed recesses, one solid fill per value. The ramp climbs the neon set
+   (cyan → teal → lime → amber → orange → magenta → violet → white-hot) so a
+   glance at the board reads as a heat map instead of eleven shades of rust.
+
+   Every value class only supplies three custom properties; the shared recipe
+   on .cell below turns them into fill, label colour and bloom. Adding a tile
+   value later means one three-declaration rule, not a new block of CSS.
+     --tile      the solid fill (also drives the rim and the glow colour)
+     --tile-ink  label colour — flips to near-black once the fill goes bright
+     --tile-glow bloom multiplier, 0–1.7; climbs with the value so the big
+                 tiles genuinely feel hotter than the small ones
+   =========================================================================== */
+:global(:root[data-egg='tron']) .cell {
+  --tile: rgba(3, 6, 10, 0.55);
+  --tile-ink: var(--ink);
+  --tile-glow: 0;
+
+  border-radius: 0; /* crisp edges everywhere on the Grid — see .boardWrap etc. */
+  background: var(--tile);
+  /* A rim one step brighter than the fill keeps the block's edge readable
+     against its own bloom. */
+  border: 1px solid color-mix(in srgb, var(--tile) 70%, #ffffff);
+  color: var(--tile-ink);
+  /* Michroma has no bold cut, so 600 would synthesise a smeared faux-bold on
+     top of bright fills; and body's inherited cyan text-shadow muddies dark
+     labels, so both are cancelled here. */
+  font-weight: 400;
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+  text-shadow: none;
+  box-shadow:
+    0 0 calc(var(--tile-glow) * 12px) color-mix(in srgb, var(--tile) 55%, transparent),
+    0 0 calc(var(--tile-glow) * 30px) color-mix(in srgb, var(--tile) 26%, transparent);
+}
+
+/* Empty cells: a plain dark slot with a faint cyan hairline. No dashes, no
+   glow — they should recede behind the lit tiles. */
+:global(:root[data-egg='tron']) .empty {
+  --tile-glow: 0;
+  background: rgba(3, 6, 10, 0.55);
+  border: 1px solid rgba(125, 249, 255, 0.16);
+  box-shadow: none;
+}
+
+/* The ramp. Low values stay cool and dim; from 8 upward the fill is bright
+   enough that the label flips to near-black for contrast (every pairing below
+   clears 4.2:1, and these are large 600-ish numerals). */
+:global(:root[data-egg='tron']) .v2    { --tile: #0a4e62; --tile-ink: var(--ink); --tile-glow: 0.25; }
+:global(:root[data-egg='tron']) .v4    { --tile: #0a6076; --tile-ink: var(--ink); --tile-glow: 0.35; }
+:global(:root[data-egg='tron']) .v8    { --tile: #16c6e0; --tile-ink: #03060a; --tile-glow: 0.5; }
+:global(:root[data-egg='tron']) .v16   { --tile: #31e5c0; --tile-ink: #03060a; --tile-glow: 0.6; }
+:global(:root[data-egg='tron']) .v32   { --tile: #a6ff4d; --tile-ink: #03060a; --tile-glow: 0.7; }
+:global(:root[data-egg='tron']) .v64   { --tile: #ffb020; --tile-ink: #03060a; --tile-glow: 0.8; }
+:global(:root[data-egg='tron']) .v128  { --tile: #ff7a1a; --tile-ink: #03060a; --tile-glow: 0.9; }
+:global(:root[data-egg='tron']) .v256  { --tile: #ff3ca0; --tile-ink: #03060a; --tile-glow: 1; }
+:global(:root[data-egg='tron']) .v512  { --tile: #c07dff; --tile-ink: #03060a; --tile-glow: 1.1; }
+:global(:root[data-egg='tron']) .v1024 { --tile: #e9c6ff; --tile-ink: #03060a; --tile-glow: 1.25; }
+:global(:root[data-egg='tron']) .v2048 { --tile: #ffffff; --tile-ink: #03060a; --tile-glow: 1.4; }
+:global(:root[data-egg='tron']) .vbig  { --tile: #ffffff; --tile-ink: #03060a; --tile-glow: 1.7; }
+
+/* Michroma is a much wider face than the paper display font, so each digit
+   count needs its own step down to stay inside a 78px cell. */
+:global(:root[data-egg='tron']) .v128,
+:global(:root[data-egg='tron']) .v256,
+:global(:root[data-egg='tron']) .v512 { font-size: 1.15rem; }
+:global(:root[data-egg='tron']) .v1024,
+:global(:root[data-egg='tron']) .v2048 { font-size: 1rem; }
+:global(:root[data-egg='tron']) .vbig { font-size: 0.85rem; }
+
+/* 2048+ is the win condition, so it throbs. Transform only (no layout, no
+   paint), and at most a couple of tiles ever carry it. */
+:global(:root[data-egg='tron']) .v2048,
+:global(:root[data-egg='tron']) .vbig {
+  animation: tile-overload 2600ms ease-in-out infinite;
+}
+@keyframes tile-overload {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.035); }
+}
+
+/* Board, panels and overlay: same flat-and-crisp treatment as the tiles. */
+:global(:root[data-egg='tron']) .boardWrap,
+:global(:root[data-egg='tron']) .panel {
+  border-radius: 0;
+  background: rgba(6, 18, 26, 0.5);
+  border-color: rgba(125, 249, 255, 0.28);
+  box-shadow: 0 0 22px rgba(0, 184, 212, 0.16), inset 0 0 34px rgba(0, 120, 150, 0.07);
+}
+
+:global(:root[data-egg='tron']) .stat {
+  text-shadow: 0 0 6px rgba(125, 249, 255, 0.55), 0 0 20px rgba(0, 184, 212, 0.45);
+  letter-spacing: 0.04em;
+}
+
+/* The base overlay is cream (rgba(245,240,232,.88)) — on black that would look
+   like the board had been bleached, so it becomes a dark scrim instead. */
+:global(:root[data-egg='tron']) .overlay {
+  border-radius: 0;
+  background: rgba(3, 6, 10, 0.86);
+  box-shadow: inset 0 0 0 1px rgba(125, 249, 255, 0.28), inset 0 0 60px rgba(0, 120, 150, 0.12);
+}
+:global(:root[data-egg='tron']) .overlayInner h2 { letter-spacing: 0.06em; }
+
+/* Cyan-on-near-black already clears 15:1; this only squares the corners, adds
+   the tight box glow and makes the focus ring visible against the bloom. */
+:global(:root[data-egg='tron']) .button {
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.82rem;
+  box-shadow: 0 0 18px rgba(0, 184, 212, 0.35), 0 0 2px rgba(125, 249, 255, 0.7);
+}
+:global(:root[data-egg='tron']) .button:hover { background: var(--accent-warm); border-color: var(--accent-warm); }
+:global(:root[data-egg='tron']) .button:focus-visible {
+  outline: 2px solid var(--accent-warm);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root[data-egg='tron']) .v2048,
+  :global(:root[data-egg='tron']) .vbig { animation: none; }
+}

@@ -193,7 +193,7 @@ model Bookcase {
 // space so decor can sit between books and be moved with the same controls.
 model ShelfDecorItem {
   id        String   @id @default(cuid())
-  kind      String // snake-plant | pothos | cactus | bonsai
+  kind      String // see DECOR_KINDS in lib/library.ts
   bookcase  Int      @default(0)
   shelf     Int      @default(0)
   position  Int      @default(0)

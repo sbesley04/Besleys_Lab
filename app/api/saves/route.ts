@@ -17,6 +17,14 @@ export async function GET(req: NextRequest) {
   const game = req.nextUrl.searchParams.get("game");
   const name = req.nextUrl.searchParams.get("name");
 
+  if (game && !GAME_SLUGS.has(game)) {
+    return NextResponse.json({ error: "Unknown game." }, { status: 400 });
+  }
+  if (name) {
+    const nameErr = slotNameProblem(name);
+    if (nameErr) return NextResponse.json({ error: nameErr }, { status: 400 });
+  }
+
   if (game && name) {
     const save = await prisma.gameSave.findUnique({
       where: { userId_game_name: { userId: auth.user.id, game, name } },

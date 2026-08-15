@@ -122,3 +122,143 @@
 .scoreTable th { background: var(--paper-deep); font-weight: 600; }
 
 .help { font-size: 0.82rem; color: var(--ink-soft); margin: 0; max-width: 60ch; }
+
+/* ===========================================================================
+   THE GRID — the Konami mode (:root[data-egg="tron"]). The graph-paper field
+   becomes a minefield readout: unswept cells sit proud of the board, swept
+   cells are punched into it, and the adjacency digits — the only real
+   information the game gives you — climb a neon ramp.
+
+   Two structural notes:
+   1. Every rule below is scoped to the egg attribute, so paper mode and the
+      nine data-theme variants are untouched.
+   2. The section lives at the END of the file, and its own rules stay in the
+      same order as the paper rules they shadow. Almost everything here is
+      (0,3,0) — `.revealed`/`.mine`/`.flagged` all tie with `.cell` — so the
+      cascade is resolved by source order exactly as it is above.
+   =========================================================================== */
+
+:global(:root[data-egg="tron"]) .board {
+  background: #03060a;
+  border: 1px solid rgba(125, 249, 255, 0.45);
+  box-shadow: 0 0 22px rgba(0, 184, 212, 0.28), 0 0 2px rgba(125, 249, 255, 0.5);
+}
+
+/* Unswept: raised. A top-lit gradient plus a bright top edge and a dark bottom
+   one is the whole trick — no radius, no bevel, just light falling from above
+   on a slab that hasn't been touched yet. */
+:global(:root[data-egg="tron"]) .cell {
+  background:
+    linear-gradient(rgba(125, 249, 255, 0.11), rgba(125, 249, 255, 0.02));
+  border-color: rgba(125, 249, 255, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(125, 249, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.55);
+}
+/* Hover touches background only — same as the paper rule. A hover selector is
+   (0,4,0) and would otherwise outrank the .flagged/.mine rules below, wiping
+   their amber and magenta rims off the moment the pointer crossed them. */
+:global(:root[data-egg="tron"]) .cell:hover {
+  background: linear-gradient(rgba(125, 249, 255, 0.22), rgba(125, 249, 255, 0.06));
+}
+
+/* Swept: recessed. Same near-black as the board with the light coming from
+   below instead, so a cleared region reads as a hole rather than a panel.
+   The digit colour and its bloom are driven by the --num pair the .nN classes
+   set on this very element; the fallback keeps unnumbered cells inert. */
+:global(:root[data-egg="tron"]) .revealed {
+  background: #03060a;
+  border-color: rgba(125, 249, 255, 0.1);
+  color: var(--num, var(--ink-soft));
+  text-shadow: 0 0 calc(var(--num-glow, 0) * 9px) color-mix(in srgb, var(--num, transparent) 65%, transparent);
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 0, 0, 0.7);
+}
+:global(:root[data-egg="tron"]) .revealed:hover {
+  background: #03060a;
+}
+
+/* The adjacency ramp. Two channels carry the value, not one: hue climbs the
+   neon set cool→hot (the same order 2048's tiles use, so the arcade reads as
+   one system), and the bloom climbs with it — a 1 is a cool ember, an 8 is
+   white-hot. The second channel is what keeps neighbouring steps apart at a
+   glance, since hue alone would leave 1/2 and 4/5 close on a small glyph. */
+:global(:root[data-egg="tron"]) .n1 { --num: #7df9ff; --num-glow: 0.45; } /* cyan    */
+:global(:root[data-egg="tron"]) .n2 { --num: #31e5c0; --num-glow: 0.6; }  /* teal    */
+:global(:root[data-egg="tron"]) .n3 { --num: #a6ff4d; --num-glow: 0.75; } /* lime    */
+:global(:root[data-egg="tron"]) .n4 { --num: #ffb020; --num-glow: 0.9; }  /* amber   */
+:global(:root[data-egg="tron"]) .n5 { --num: #ff7a1a; --num-glow: 1.05; } /* orange  */
+:global(:root[data-egg="tron"]) .n6 { --num: #ff3ca0; --num-glow: 1.2; }  /* magenta */
+:global(:root[data-egg="tron"]) .n7 { --num: #c07dff; --num-glow: 1.35; } /* violet  */
+:global(:root[data-egg="tron"]) .n8 { --num: #ffffff; --num-glow: 1.5; }  /* white   */
+
+/* A flag is a claim, and it sits on an unswept cell — amber so it can never be
+   confused with either the cyan field or the magenta mines it marks. */
+:global(:root[data-egg="tron"]) .flagged {
+  color: #ffb020;
+  border-color: rgba(255, 176, 32, 0.55);
+  text-shadow: 0 0 9px rgba(255, 176, 32, 0.8);
+  box-shadow: inset 0 0 12px rgba(255, 176, 32, 0.18), 0 0 8px rgba(255, 176, 32, 0.2);
+}
+
+/* Mines exposed at game over: lit magenta, but still clearly *revealed* cells
+   rather than live threats. */
+:global(:root[data-egg="tron"]) .mine {
+  background: rgba(255, 60, 160, 0.14);
+  border-color: rgba(255, 60, 160, 0.45);
+  color: #ff3ca0;
+  text-shadow: 0 0 10px rgba(255, 60, 160, 0.85);
+  box-shadow: inset 0 0 14px rgba(255, 60, 160, 0.22);
+}
+
+/* The one you actually stepped on. Solid magenta with a near-black glyph, and
+   a single non-looping pop on arrival — exactly one cell per game ever carries
+   it, and it animates transform only. */
+:global(:root[data-egg="tron"]) .boom {
+  background: #ff3ca0 !important;
+  border-color: #ffd6e9;
+  color: #03060a;
+  text-shadow: none;
+  box-shadow: 0 0 18px rgba(255, 60, 160, 0.85), 0 0 44px rgba(255, 60, 160, 0.4);
+  animation: ms-grid-detonate 460ms cubic-bezier(0.2, 0.8, 0.3, 1) 1;
+}
+@keyframes ms-grid-detonate {
+  from { transform: scale(1.4); }
+  to   { transform: scale(1); }
+}
+
+:global(:root[data-egg="tron"]) .button {
+  border-radius: 0;
+  background: transparent;
+  border-color: rgba(125, 249, 255, 0.28);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.76rem;
+}
+:global(:root[data-egg="tron"]) .button:hover {
+  background: rgba(125, 249, 255, 0.1);
+  border-color: rgba(125, 249, 255, 0.55);
+}
+:global(:root[data-egg="tron"]) .buttonActive {
+  background: var(--accent);
+  /* border-color has to be restated: the .button rule above dims it at (0,3,0),
+     which outranks the paper .buttonActive rule that sets it. */
+  border-color: var(--accent);
+  color: #03060a;
+  box-shadow: 0 0 18px rgba(0, 184, 212, 0.4), 0 0 2px rgba(125, 249, 255, 0.7);
+}
+
+:global(:root[data-egg="tron"]) .banner {
+  background: rgba(6, 18, 26, 0.6);
+  border-radius: 0;
+  box-shadow: 0 0 22px rgba(0, 184, 212, 0.28), inset 0 0 0 1px rgba(125, 249, 255, 0.14);
+}
+
+:global(:root[data-egg="tron"]) .scoreTable th {
+  background: rgba(125, 249, 255, 0.08);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root[data-egg="tron"]) .boom { animation: none; }
+}

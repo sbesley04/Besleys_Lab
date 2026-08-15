@@ -3,7 +3,7 @@ import { getSession } from "@/lib/session";
 import { isStaff } from "@/lib/validation";
 import Link from "next/link";
 import BookSpine from "./_components/BookSpine";
-import { Bookend, Decor, PottedPlant, TrailingPlant, Cactus } from "./_components/ShelfDecor";
+import { Bookend, Decor, PottedPlant, Monstera, Fern, Armillary, PenMug } from "./_components/ShelfDecor";
 import styles from "./library.module.css";
 
 // The library: bookcases of clickable spines with plants between the books.
@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 // Until the admin places their own decor, each shelf gets a default plant so
 // a fresh install still looks lived-in (same pattern as the field notebook).
-const FALLBACK_DECOR = [PottedPlant, TrailingPlant, Cactus];
+const FALLBACK_DECOR = [PottedPlant, Monstera, Fern, Armillary, PenMug];
 
 type ShelfThing =
   | { type: "book"; position: number; key: string; book: Parameters<typeof BookSpine>[0]["book"] }
@@ -28,8 +28,9 @@ type ShelfThing =
 export default async function LibraryPage({
   searchParams,
 }: {
-  searchParams?: { case?: string };
+  searchParams?: Promise<{ case?: string }>;
 }) {
+  const query = await searchParams;
   const [books, decor, cases, session] = await Promise.all([
     prisma.book
       .findMany({
@@ -48,7 +49,7 @@ export default async function LibraryPage({
   ].sort((a, b) => a - b);
   const pages = caseIndexes.length ? caseIndexes : [0];
 
-  const requested = Number(searchParams?.case);
+  const requested = Number(query?.case);
   const activeCase = pages.includes(requested) ? requested : pages[0];
   const caseName = cases.find((c) => c.idx === activeCase)?.name || "";
 

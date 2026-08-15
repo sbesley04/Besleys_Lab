@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { isExternalImage } from "@/lib/images";
 import { prisma } from "@/lib/prisma";
 import GrubJar from "@/app/_components/eggs/GrubJar";
 
@@ -74,6 +75,7 @@ export default async function BlogIndex() {
                         alt=""
                         fill
                         sizes="96px"
+                        unoptimized={isExternalImage(post.coverImage)}
                         style={{ objectFit: "cover" }}
                       />
                     </div>

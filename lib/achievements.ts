@@ -84,12 +84,13 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { key: "meta-anniversary", game: "meta", icon: "🎂", title: "One Year In", desc: "Visit on the anniversary of your account." },
 
   // --- Easter eggs (all hidden) ---
-  { key: "egg-shear", game: "secret", icon: "🐑", title: "Just Shear Luck", desc: "Somebody had to shear it.", hidden: true },
+  { key: "egg-shear", game: "secret", icon: "🐑", title: "Just Shear Luck", desc: "Shear the sheep from the Arcade page.", hidden: true },
   { key: "egg-grubsong", game: "secret", icon: "🫙", title: "Grubsong", desc: "Free a small friend from a jar.", hidden: true },
   { key: "egg-chemist", game: "secret", icon: "⚗️", title: "Zinc & Iodine", desc: "Reproduce a classic synthesis in the terminal.", hidden: true },
   { key: "egg-overfit", game: "secret", icon: "📉", title: "Suspiciously Low Loss", desc: "Train a model that learned a little too well.", hidden: true },
   { key: "egg-rusty", game: "secret", icon: "🦌", title: "The Lake Is Calling", desc: "Ask the terminal about a certain lake.", hidden: true },
   { key: "egg-jeb", game: "secret", icon: "🌈", title: "jeb_", desc: "An old name tag still works here.", hidden: true },
+  { key: "egg-grid", game: "secret", icon: "⚡", title: "End of Line", desc: "Take the whole site to the Grid.", hidden: true },
 ];
 
 export const ACHIEVEMENT_KEYS = new Set(ACHIEVEMENTS.map((a) => a.key));

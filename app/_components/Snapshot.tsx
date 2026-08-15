@@ -1,5 +1,6 @@
 import Image, { type StaticImageData } from "next/image";
 import type { CSSProperties } from "react";
+import { isExternalImage } from "@/lib/images";
 
 // A photo rendered as a physical print taped into the notebook: white border,
 // soft shadow, slight tilt, handwritten caption. Styling lives in globals.css
@@ -50,6 +51,7 @@ export default function Snapshot({
             sizes={sizes}
             priority={priority}
             placeholder={isStatic ? "blur" : "empty"}
+            unoptimized={isExternalImage(src)}
             style={{ objectFit: "cover" }}
           />
         ) : (

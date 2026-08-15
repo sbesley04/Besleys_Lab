@@ -7,10 +7,11 @@ import BookForm from "../_components/BookForm";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Edit book — Admin" };
 
-export default async function EditBookPage({ params }: { params: { id: string } }) {
+export default async function EditBookPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   await requireStaff();
 
-  const book = await prisma.book.findUnique({ where: { id: params.id } });
+  const book = await prisma.book.findUnique({ where: { id } });
   if (!book) notFound();
 
   return (

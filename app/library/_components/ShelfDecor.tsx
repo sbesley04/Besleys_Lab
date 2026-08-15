@@ -1,8 +1,10 @@
+import Image from "next/image";
 import styles from "../library.module.css";
 import type { DecorKind } from "@/lib/library";
 
-// Non-book objects that live on the shelves: bookends and the admin-managed
-// plants. All inline SVG/CSS so they scale crisply and stay in the palette.
+// Non-book objects that live on the shelves: bookends, plants, and small
+// library artifacts. The compact legacy SVGs sit alongside generated,
+// transparent field-guide sprites so the whole collection keeps its paper feel.
 
 export function Bookend({ side }: { side: "left" | "right" }) {
   return (
@@ -93,6 +95,45 @@ export function Bonsai() {
   );
 }
 
+function IllustratedDecor({
+  className,
+}: {
+  className: string;
+}) {
+  return <span aria-hidden className={`${styles.decor} ${className}`} />;
+}
+
+/** The new painted decor uses one transparent sprite sheet per collection. */
+export function Monstera() {
+  return <IllustratedDecor className={styles.monstera} />;
+}
+export function Fern() {
+  return <IllustratedDecor className={styles.fern} />;
+}
+export function HangingPhilodendron() {
+  return <IllustratedDecor className={styles.hangingPhilodendron} />;
+}
+export function Armillary() {
+  return <IllustratedDecor className={styles.armillary} />;
+}
+export function PenMug() {
+  return <IllustratedDecor className={styles.penMug} />;
+}
+export function LanternStems() {
+  return <IllustratedDecor className={styles.lanternStems} />;
+}
+export function CalvinHobbesBookends() {
+  return (
+    <Image
+      className={`${styles.decor} ${styles.calvinHobbesBookends}`}
+      src="/artifacts/calvin-hobbes-bookends.png"
+      alt="Calvin and Hobbes bicycle bookends"
+      width={800}
+      height={500}
+    />
+  );
+}
+
 /** Dispatcher: render a decor item by its stored kind. */
 export function Decor({ kind }: { kind: DecorKind | string }) {
   switch (kind) {
@@ -104,6 +145,20 @@ export function Decor({ kind }: { kind: DecorKind | string }) {
       return <Cactus />;
     case "bonsai":
       return <Bonsai />;
+    case "monstera":
+      return <Monstera />;
+    case "fern":
+      return <Fern />;
+    case "hanging-philodendron":
+      return <HangingPhilodendron />;
+    case "armillary":
+      return <Armillary />;
+    case "pen-mug":
+      return <PenMug />;
+    case "lantern-stems":
+      return <LanternStems />;
+    case "calvin-hobbes-bookends":
+      return <CalvinHobbesBookends />;
     default:
       return null;
   }

@@ -1,20 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { marked } from "marked";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { isStaff } from "@/lib/validation";
+import { renderMarkdown } from "@/lib/markdown";
 import type { Metadata } from "next";
+import { isExternalImage } from "@/lib/images";
 
 // Single post. Renders stored markdown to HTML on the server. Visitors only
 // see published posts; signed-in staff can preview drafts (with a badge).
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
   const post = await prisma.post
     .findUnique({
-      where: { slug: params.slug },
+      where: { slug },
       select: { title: true, excerpt: true, coverImage: true, published: true },
     })
     .catch(() => null);
@@ -31,9 +33,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   // On a DB error, fall through to notFound() rather than crashing the page.
-  const post = await prisma.post.findUnique({ where: { slug: params.slug } }).catch(() => null);
+  const post = await prisma.post.findUnique({ where: { slug } }).catch(() => null);
   if (!post) notFound();
 
   // Draft preview is staff-only.
@@ -42,7 +45,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
     if (!isStaff(session?.user?.role)) notFound();
   }
 
-  const html = marked.parse(post.body, { async: false }) as string;
+  const html = renderMarkdown(post.body);
   const words = post.body.split(/\s+/).length;
 
   return (
@@ -101,6 +104,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
               alt={`${post.title} cover`}
               fill
               sizes="(max-width: 720px) 100vw, 700px"
+              unoptimized={isExternalImage(post.coverImage)}
               style={{ objectFit: "cover" }}
               priority
             />

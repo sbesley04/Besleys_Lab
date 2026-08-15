@@ -8,7 +8,8 @@ import { reviewProblems } from "@/lib/library";
 //   DELETE /api/books/:id/reviews → remove the caller's own review
 // (Admins can also remove any review via ?reviewId=…)
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiSession();
   if (auth instanceof NextResponse) return auth;
 
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (errors.length) return NextResponse.json({ error: errors.join(" ") }, { status: 400 });
 
   const book = await prisma.book.findFirst({
-    where: { id: params.id, published: true },
+    where: { id, published: true },
     select: { id: true },
   });
   if (!book) return NextResponse.json({ error: "Book not found." }, { status: 404 });
@@ -37,19 +38,20 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json(review, { status: 201 });
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiSession();
   if (auth instanceof NextResponse) return auth;
 
   // Admins may pass ?reviewId= to moderate someone else's review.
   const reviewId = req.nextUrl.searchParams.get("reviewId");
   if (reviewId && auth.user.role === "ADMIN") {
-    await prisma.bookReview.deleteMany({ where: { id: reviewId, bookId: params.id } });
+    await prisma.bookReview.deleteMany({ where: { id: reviewId, bookId: id } });
     return NextResponse.json({ ok: true });
   }
 
   const result = await prisma.bookReview.deleteMany({
-    where: { bookId: params.id, userId: auth.user.id },
+    where: { bookId: id, userId: auth.user.id },
   });
   if (result.count === 0) return NextResponse.json({ error: "No review to delete." }, { status: 404 });
   return NextResponse.json({ ok: true });

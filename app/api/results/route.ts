@@ -12,7 +12,14 @@ import { GAME_SLUGS } from "@/lib/saves";
 // scoped to the session user.
 
 const MAX_META = 2_000;
+const MAX_DB_INT = 2_147_483_647;
 const EVENTS = new Set(["deal", "win"]);
+
+function boundedCount(value: unknown): number | null {
+  return Number.isFinite(value)
+    ? Math.min(MAX_DB_INT, Math.max(0, Math.floor(value as number)))
+    : null;
+}
 
 export async function GET(req: NextRequest) {
   const auth = await requireApiSession();
@@ -78,9 +85,9 @@ export async function POST(req: NextRequest) {
 
   const event = typeof body.event === "string" && EVENTS.has(body.event) ? body.event : "win";
   const mode = typeof body.mode === "string" ? body.mode.slice(0, 40) : "";
-  const score = Number.isFinite(body.score) ? Math.max(0, Math.floor(body.score)) : 0;
-  const timeMs = Number.isFinite(body.timeMs) ? Math.max(0, Math.floor(body.timeMs)) : null;
-  const moves = Number.isFinite(body.moves) ? Math.max(0, Math.floor(body.moves)) : null;
+  const score = boundedCount(body.score) ?? 0;
+  const timeMs = boundedCount(body.timeMs);
+  const moves = boundedCount(body.moves);
 
   let meta = "{}";
   if (body.meta !== undefined) {

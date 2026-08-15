@@ -4,7 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { useOnGrid } from "@/lib/grid";
 import styles from "./siteHeader.module.css";
+
+// Seeded so the Grid HUD reads as an already-running session, not 00:00:00.
+const HUD_UPTIME_SEED = 3 * 3600 + 41 * 60 + 7;
+function fmtUptime(s: number): string {
+  const hh = String(Math.floor(s / 3600)).padStart(2, "0");
+  const mm = String(Math.floor(s / 60) % 60).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return `${hh}:${mm}:${ss}`;
+}
 
 // Site-wide top bar: brand, primary navigation, and the account menu. Reads
 // the session on the client; shows sign-in/up links to guests and a profile
@@ -24,7 +34,18 @@ export default function SiteHeader() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Grid HUD: a live-ish telemetry readout that only exists on the Grid.
+  const onGrid = useOnGrid();
+  const [uptime, setUptime] = useState(HUD_UPTIME_SEED);
+  useEffect(() => {
+    if (!onGrid) return;
+    const id = setInterval(() => setUptime((u) => u + 1), 1000);
+    return () => clearInterval(id);
+  }, [onGrid]);
+  const sector = pathname === "/" ? "ROOT" : (pathname?.split("/")[1] || "ROOT").toUpperCase();
 
   // Close the dropdown on outside click or Escape.
   useEffect(() => {
@@ -53,7 +74,17 @@ export default function SiteHeader() {
         Besley&rsquo;s Lab
       </Link>
 
-      <nav className={styles.nav} aria-label="Primary">
+      <button
+        type="button"
+        className={styles.navToggle}
+        aria-expanded={navOpen}
+        aria-controls="primary-navigation"
+        onClick={() => setNavOpen((shown) => !shown)}
+      >
+        {navOpen ? "Close" : "Menu"}
+      </button>
+
+      <nav id="primary-navigation" className={`${styles.nav} ${navOpen ? styles.navOpen : ""}`} aria-label="Primary">
         {NAV.map((item) => {
           const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
           return (
@@ -62,6 +93,7 @@ export default function SiteHeader() {
               href={item.href}
               className={active ? styles.navLinkActive : styles.navLink}
               aria-current={active ? "page" : undefined}
+              onClick={() => setNavOpen(false)}
             >
               {item.label}
             </Link>
@@ -70,6 +102,16 @@ export default function SiteHeader() {
       </nav>
 
       <div className={styles.right}>
+        {onGrid && (
+          <span className="grid-hud" aria-hidden="true">
+            <span className="grid-hud__dot" />
+            SYS:NOMINAL
+            <span className="grid-hud__sep">·</span>
+            {sector}
+            <span className="grid-hud__sep">·</span>
+            UP {fmtUptime(uptime)}
+          </span>
+        )}
         {status === "loading" ? null : user ? (
           <div className={styles.profileWrap} ref={wrapRef}>
             <button

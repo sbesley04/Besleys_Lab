@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { marked } from "marked";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { isStaff } from "@/lib/validation";
+import { renderMarkdown } from "@/lib/markdown";
 import { Spine } from "../_components/BookSpine";
 import ReviewSection, { type ReviewItem } from "./ReviewSection";
 import type { Metadata } from "next";
@@ -11,10 +11,11 @@ import type { Metadata } from "next";
 // A single book: the spine, the owner's review, and reader reviews below.
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
   const book = await prisma.book
     .findUnique({
-      where: { slug: params.slug },
+      where: { slug },
       select: { title: true, author: true, published: true },
     })
     .catch(() => null);
@@ -25,11 +26,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function BookPage({ params }: { params: { slug: string } }) {
+export default async function BookPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const [book, session] = await Promise.all([
     prisma.book
       .findUnique({
-        where: { slug: params.slug },
+        where: { slug },
         include: {
           reviews: {
             orderBy: { createdAt: "desc" },
@@ -46,7 +48,7 @@ export default async function BookPage({ params }: { params: { slug: string } })
   if (!book.published && !staff) notFound();
 
   const reviewHtml = book.review.trim()
-    ? (marked.parse(book.review, { async: false }) as string)
+    ? renderMarkdown(book.review)
     : null;
 
   const reviews: ReviewItem[] = book.reviews.map((r) => ({

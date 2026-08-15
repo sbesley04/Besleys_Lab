@@ -8,9 +8,6 @@
    visually consistent without hardcoding colors.
    =========================================================================== */
 
-/* Fallback Google Fonts import (next/font is preferred — see layout.tsx) */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Caveat:wght@500;600&display=swap');
-
 /* --- Design tokens -------------------------------------------------------- */
 :root {
   /* Color */
@@ -19,7 +16,7 @@
   --ink:          #1A1A1A; /* deep ink black, primary type  */
   --ink-soft:     #4A463E; /* secondary text                */
   --accent:       #7A6A52; /* muted rust / aged-green        */
-  --accent-warm:  #8C7456; /* hover warmth                   */
+  --accent-warm:  #6A5B45; /* hover warmth — keeps text AA   */
   --line:         rgba(0, 0, 0, 0.12); /* pencil-stroke border */
 
   /* Typography */
@@ -41,7 +38,7 @@
 
 /* --- Secret themes ---------------------------------------------------------
    data-theme is set on <html> by the arcade's hidden terminal (persists in
-   localStorage); data-egg="konami" is the ↑↑↓↓←→←→BA mode (session only).
+   localStorage); data-egg="tron" is the ↑↑↓↓←→←→BA "Grid" mode (session only).
    Both work purely by re-mapping the design tokens above. */
 
 /* "Blueprint" — the lab after dark: cyanotype paper, chalk-white ink. */
@@ -58,47 +55,602 @@
   --shadow-rest:  0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-lift:  0 8px 20px rgba(0, 0, 0, 0.5);
 }
+:root[data-theme='blueprint'] body {
+  background-image:
+    linear-gradient(rgba(22, 38, 62, 0.68), rgba(22, 38, 62, 0.68)),
+    url('/artifacts/blueprint-paper-optimized.jpg');
+  background-size: auto, 760px 760px;
+  background-repeat: repeat;
+}
+/* Terminal palettes: each remaps the same paper-lab tokens, so every page,
+   game, card, and focus treatment stays readable without special cases. */
+:root[data-theme='copper'] {
+  --paper: #2b1d17; --paper-deep: #3a271d; --ink: #f5e7d1; --ink-soft: #d5b99a;
+  --accent: #e29a5b; --accent-warm: #f2bd7d; --line: rgba(245, 231, 209, 0.2);
+  --print: #422c20; --tape: rgba(226, 154, 91, 0.28);
+  --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.4); --shadow-lift: 0 8px 20px rgba(0, 0, 0, 0.52);
+}
+:root[data-theme='copper'] body {
+  background-image: linear-gradient(rgba(43, 29, 23, 0.63), rgba(43, 29, 23, 0.63)), url('/artifacts/copper-workshop-paper-optimized.jpg');
+  background-size: auto, 820px 820px;
+  background-repeat: repeat;
+}
+:root[data-theme='forest'] {
+  --paper: #1c2a22; --paper-deep: #27382d; --ink: #edf1d8; --ink-soft: #bdc9a8;
+  --accent: #b7c970; --accent-warm: #d5df9b; --line: rgba(237, 241, 216, 0.18);
+  --print: #304334; --tape: rgba(183, 201, 112, 0.27);
+  --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.38); --shadow-lift: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme='forest'] body {
+  background-image: linear-gradient(rgba(28, 42, 34, 0.81), rgba(28, 42, 34, 0.81)), url('/artifacts/forest-field-notebook-optimized.jpg');
+  background-size: auto, 780px 780px;
+  background-repeat: repeat;
+}
+:root[data-theme='plum'] {
+  --paper: #2c2034; --paper-deep: #392846; --ink: #f2e9f0; --ink-soft: #d2bfd0;
+  --accent: #d9a7cc; --accent-warm: #ebc7e2; --line: rgba(242, 233, 240, 0.18);
+  --print: #463351; --tape: rgba(217, 167, 204, 0.27);
+  --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.38); --shadow-lift: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme='plum'] body {
+  background-image: linear-gradient(rgba(44, 32, 52, 0.7), rgba(44, 32, 52, 0.7)), url('/artifacts/plum-observatory-paper-optimized.jpg');
+  background-size: auto, 820px 820px;
+  background-repeat: repeat;
+}
+:root[data-theme='frost'] {
+  --paper: #e8f1f2; --paper-deep: #d9e8ea; --ink: #203b44; --ink-soft: #496670;
+  --accent: #2a6375; --accent-warm: #1f5060; --line: rgba(32, 59, 68, 0.16);
+  --print: #f6fbfb; --tape: rgba(101, 166, 184, 0.3);
+  --shadow-rest: 0 1px 2px rgba(28, 59, 68, 0.08); --shadow-lift: 0 8px 20px rgba(28, 59, 68, 0.16);
+}
+:root[data-theme='sunset'] {
+  --paper: #f8e7dc; --paper-deep: #f0d6c6; --ink: #402b29; --ink-soft: #6d4b44;
+  --accent: #94463d; --accent-warm: #74342f; --line: rgba(64, 43, 41, 0.16);
+  --print: #fff8f2; --tape: rgba(211, 129, 93, 0.32);
+  --shadow-rest: 0 1px 2px rgba(82, 44, 36, 0.08); --shadow-lift: 0 8px 20px rgba(82, 44, 36, 0.16);
+}
+:root[data-theme='slate'] {
+  --paper: #e8ecef; --paper-deep: #dce2e6; --ink: #29363e; --ink-soft: #51636d;
+  --accent: #516f81; --accent-warm: #344f5f; --line: rgba(41, 54, 62, 0.16);
+  --print: #f8fafb; --tape: rgba(112, 139, 154, 0.28);
+  --shadow-rest: 0 1px 2px rgba(30, 45, 53, 0.08); --shadow-lift: 0 8px 20px rgba(30, 45, 53, 0.16);
+}
+:root[data-theme='rose'] {
+  --paper: #f8e9ee; --paper-deep: #f0d8e0; --ink: #482f3a; --ink-soft: #73515f;
+  --accent: #913d5c; --accent-warm: #703047; --line: rgba(72, 47, 58, 0.16);
+  --print: #fff9fb; --tape: rgba(198, 120, 148, 0.29);
+  --shadow-rest: 0 1px 2px rgba(77, 38, 52, 0.08); --shadow-lift: 0 8px 20px rgba(77, 38, 52, 0.15);
+}
+:root[data-theme='noir'] {
+  --paper: #151515; --paper-deep: #242322; --ink: #f4eee2; --ink-soft: #c6beb0;
+  --accent: #d3aa59; --accent-warm: #efcc83; --line: rgba(244, 238, 226, 0.18);
+  --print: #302e2b; --tape: rgba(211, 170, 89, 0.24);
+  --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.48); --shadow-lift: 0 8px 20px rgba(0, 0, 0, 0.58);
+}
 
-/* Konami: something went very wrong in the lab. Green phosphor ink,
-   scorched page edges, faint CRT scanlines. */
-:root[data-egg='konami'] {
-  --paper:        #0c110c;
-  --paper-deep:   #101710;
-  --ink:          #46e05a;
-  --ink-soft:     #2f9e40;
-  --accent:       #6cf07e;
-  --accent-warm:  #98f5a4;
-  --line:         rgba(70, 224, 90, 0.25);
-  --print:        #101910;
-  --tape:         rgba(70, 224, 90, 0.18);
+/* ===========================================================================
+   "The Grid" — the Konami hyperspace mode. White-hot core, cyan bloom, an
+   animated perspective grid floor, mono/techno type. Everything is a token
+   remap plus a few pseudo-element layers, so every page transforms for free.
+   The jump cinematic itself is CSS-driven below (#bl-stage warp + overlay).
+   =========================================================================== */
+:root[data-egg='tron'] {
+  --paper:        #03060A;
+  --paper-deep:   #060F17;
+  --ink:          #EAF9FF;
+  --ink-soft:     #7FD4E8;
+  --accent:       #7DF9FF;
+  --accent-warm:  #B8FBFF;
+  --line:         rgba(125, 249, 255, 0.32);
+  --print:        #06121A;
+  --tape:         rgba(125, 249, 255, 0.16);
+  --shadow-rest:  0 0 0 1px rgba(125, 249, 255, 0.08);
+  --shadow-lift:  0 0 22px rgba(0, 184, 212, 0.4), 0 0 2px rgba(125, 249, 255, 0.7);
+
+  /* Techno display + mono body, loaded via next/font in layout.tsx. */
+  --font-display: var(--font-grid-display), 'Michroma', ui-sans-serif, sans-serif;
+  --font-body:    var(--font-grid-body), 'IBM Plex Mono', ui-monospace, monospace;
+  --font-hand:    var(--font-grid-body), ui-monospace, monospace; /* no handwriting on the Grid */
+
+  color-scheme: dark;
 }
-:root[data-egg='konami'] body {
-  box-shadow:
-    inset 0 0 60px 18px rgba(0, 0, 0, 0.85),
-    inset 0 0 160px 40px rgba(120, 60, 10, 0.35); /* scorched edges */
+
+/* Space above, glow + a faint flat grid everywhere for cohesion. */
+:root[data-egg='tron'] body {
+  background-color: #03060A;
+  background-image:
+    radial-gradient(125% 85% at 50% 118%, rgba(0, 150, 190, 0.32), transparent 60%),
+    linear-gradient(rgba(125, 249, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 249, 255, 0.05) 1px, transparent 1px);
+  background-size: auto, 40px 40px, 40px 40px;
+  background-attachment: fixed;
+  text-shadow: 0 0 3px rgba(125, 249, 255, 0.22);
 }
-:root[data-egg='konami'] body::after {
+
+/* The bright perspective floor — a plane laid flat and scrolling toward the
+   horizon. body::before (normally the paper grain) is repurposed here.
+
+   Geometry note, because it is fiddly and easy to break: with the origin at
+   the plane's near edge, everything projects into a band of exactly
+   perspective / tan(74deg) above that edge. At the old perspective(340px) that
+   band was ~98px tall and the near edge sat at 112vh, which put the entire
+   floor *below* the fold on any viewport taller than ~810px — it was drawing
+   nothing. Sizing the perspective in vh instead (98vh / tan74 ≈ 28vh) keeps the
+   band a constant fraction of the screen at every window size, and pulling the
+   near edge up to -2% lands the visible, unmasked part of the floor across the
+   bottom ~12vh with the mask dissolving it at ~88vh. That dissolve line is the
+   apparent horizon, and --bl-horizon on the jump overlay is pinned to it. */
+:root[data-egg='tron'] body::before {
+  content: '';
+  position: fixed;
+  left: 50%;
+  bottom: -2%;
+  width: 320vw;
+  height: 150vh;
+  transform: translateX(-50%) perspective(98vh) rotateX(74deg);
+  transform-origin: 50% 100%;
+  opacity: 0.55;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(125, 249, 255, 0.55) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 249, 255, 0.55) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 28%, transparent 72%);
+  mask-image: linear-gradient(to top, #000 0%, #000 28%, transparent 72%);
+  animation: grid-scroll 16s linear infinite;
+}
+@keyframes grid-scroll {
+  from { background-position: 0 0; }
+  to   { background-position: 0 46px; }
+}
+
+/* Scanlines + vignette + a slow phosphor flicker. */
+:root[data-egg='tron'] body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 90;
   pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0 2px,
-    rgba(0, 0, 0, 0.22) 2px 4px
-  );
-  animation: crt-flicker 4s infinite;
+  background:
+    radial-gradient(135% 100% at 50% 42%, transparent 55%, rgba(0, 0, 0, 0.62) 100%),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.12) 2px 3px);
+  animation: crt-flicker 5s infinite;
 }
 @keyframes crt-flicker {
   0%, 100% { opacity: 1; }
   97% { opacity: 1; }
-  98% { opacity: 0.7; }
+  98% { opacity: 0.72; }
   99% { opacity: 1; }
 }
-:root[data-egg='konami'] img { filter: sepia(1) hue-rotate(60deg) saturate(1.6) brightness(0.8); }
+
+/* Emissive type — headings glow hot, links pulse cyan, body stays legible. */
+:root[data-egg='tron'] h1,
+:root[data-egg='tron'] h2,
+:root[data-egg='tron'] h3,
+:root[data-egg='tron'] h4 {
+  text-shadow: 0 0 6px rgba(125, 249, 255, 0.55), 0 0 20px rgba(0, 184, 212, 0.45);
+  letter-spacing: 0.02em;
+}
+:root[data-egg='tron'] a { text-shadow: 0 0 6px rgba(125, 249, 255, 0.35); }
+
+/* Photos read as cyan holograms rather than warm prints. */
+:root[data-egg='tron'] img {
+  filter: grayscale(1) brightness(0.92) sepia(1) hue-rotate(150deg) saturate(3.2) contrast(1.05);
+}
+
+/* Cards become faint glass panels with a cyan hairline; the primary button's
+   hardcoded paper-brown hover would look wrong on black, so override it. */
+:root[data-egg='tron'] .paper-card {
+  background: rgba(6, 18, 26, 0.5);
+  border-color: rgba(125, 249, 255, 0.28);
+  box-shadow: 0 0 0 1px rgba(125, 249, 255, 0.06), inset 0 0 22px rgba(0, 120, 150, 0.07);
+}
+:root[data-egg='tron'] .button-primary { color: #03060A; }
+:root[data-egg='tron'] .button-primary:hover { background: var(--accent-warm); color: #03060A; }
+
+/* --- The hyperspace jump cinematic ----------------------------------------
+   #bl-stage holds the whole visible page; during a jump it warps away while
+   the starfield <canvas> (a sibling, above) streaks. The attribute flip that
+   swaps paper→Grid happens mid-flash, hidden by the white overlay.
+
+   HyperspaceJump.tsx owns the clock and raises one-shot flags on .hyperspace as
+   it passes each beat: data-punch at the stretch, data-boom at the flash,
+   data-land at the arrival. They are only ever set (never cleared until
+   teardown), so every keyframe below fires exactly once and nothing restarts or
+   snaps back halfway through. Durations here mirror the milestones in that
+   file — if you retime one, retime the other.
+
+   Nothing in this section exists outside a jump: .hyperspace is inert until
+   data-active flips, the .bl-* classes are added and removed by the same code
+   path, and the arrival rules are additionally scoped to the Grid. Paper mode
+   at rest is untouched. */
+html.bl-jumping { overflow: hidden; }
+
+/* The page falls away over the whole run-up and is fully gone by the flash
+   (1760ms in / 700ms out). The bezier is back-loaded on purpose: the page hangs
+   almost still through the charge beat, then drops, which is what sells the
+   starfield's acceleration as the camera moving rather than the stars. */
+.bl-stage--warp-in {
+  will-change: filter, transform, opacity;
+  animation: bl-warp-in 1760ms cubic-bezier(0.52, 0, 0.86, 0.22) forwards;
+}
+.bl-stage--warp-out {
+  will-change: filter, transform, opacity;
+  animation: bl-warp-out 700ms cubic-bezier(0.52, 0, 0.86, 0.22) forwards;
+}
+@keyframes bl-warp-in {
+  0%   { filter: blur(0px);  transform: scale(1);    opacity: 1; }
+  55%  { filter: blur(2px);  transform: scale(1.05); opacity: 0.86; }
+  100% { filter: blur(12px); transform: scale(1.34); opacity: 0.22; }
+}
+@keyframes bl-warp-out {
+  0%   { filter: blur(0px); transform: scale(1);    opacity: 1; }
+  55%  { filter: blur(2px); transform: scale(0.94); opacity: 0.8; }
+  100% { filter: blur(9px); transform: scale(0.78); opacity: 0.14; }
+}
+
+/* Arrival: the page rushes back to 1:1 from the far side of the flash. These
+   deliberately do NOT use `forwards` — their end state is the element's natural
+   state, so tearing the class off (Esc, unmount, a jump cut short) can never
+   strand the page blurred and half-scaled. */
+.bl-stage--land-in {
+  will-change: filter, transform, opacity;
+  animation: bl-land-in 460ms cubic-bezier(0.16, 0.86, 0.24, 1);
+}
+.bl-stage--land-out {
+  will-change: filter, transform, opacity;
+  animation: bl-land-out 380ms cubic-bezier(0.16, 0.86, 0.24, 1);
+}
+@keyframes bl-land-in {
+  0%   { filter: blur(12px); transform: scale(1.34); opacity: 0.22; }
+  55%  { filter: blur(2px);  transform: scale(1.05); opacity: 1; }
+  100% { filter: blur(0px);  transform: scale(1);    opacity: 1; }
+}
+@keyframes bl-land-out {
+  0%   { filter: blur(9px); transform: scale(0.78); opacity: 0.14; }
+  55%  { filter: blur(2px); transform: scale(0.95); opacity: 1; }
+  100% { filter: blur(0px); transform: scale(1);    opacity: 1; }
+}
+
+.hyperspace {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  /* The overlay can never influence page layout, and its children are clipped
+     to the viewport — worth stating so the browser can skip the work. */
+  contain: layout paint;
+  /* Where the Grid floor's mask dissolves it; see the body::before note above.
+     The landing horizon is pinned here so the floor appears to unfurl out of
+     the line rather than beside it. */
+  --bl-horizon: 88%;
+}
+.hyperspace[data-active='1'] { pointer-events: auto; }
+
+/* The veil — what actually takes the screen to space. The canvas only erases
+   its own trails (destination-out), so this is the layer that swallows the
+   page, and it does so on its own slower curve, which keeps the page's
+   blur-and-fall readable for most of the charge beat instead of it being
+   painted over in a tenth of a second. The gradient is darkest at the rim, so
+   however far through the fade you are the eye is pulled to the vanishing
+   point.
+
+   It lives on ::before so it paints below every child. That's deliberate — the
+   flash sits above it and has to reach a true white-out, because a veiled
+   corner is a corner where the paper→Grid repaint would show through.
+
+   The transition is declared on the *active* rule, not the base one, so turning
+   the overlay off has no transition to run: Esc has to be instant. */
+.hyperspace::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(118% 88% at 50% 50%, #06101a 0%, #03060a 52%, #000205 100%);
+}
+.hyperspace[data-active='1']::before {
+  opacity: 1;
+  transition: opacity 820ms cubic-bezier(0.5, 0.08, 0.36, 1);
+}
+/* The reverse jump reaches its flash in 700ms, so the veil has to keep up. */
+.hyperspace[data-active='1'][data-dir='out']::before { transition-duration: 380ms; }
+/* Lifted at the arrival so the landing isn't watched through smoked glass —
+   as a transition rather than an animation, so there is no question about
+   which one the cascade hands the property to. */
+.hyperspace[data-active='1'][data-land='1']::before {
+  opacity: 0;
+  transition: opacity 340ms ease-out;
+}
+
+.hyperspace-field {
+  position: absolute;
+  inset: 0;
+}
+.hyperspace canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* will-change only while a jump is actually in flight — these layers are
+   promoted for ~2.5s a session, not permanently. */
+.hyperspace[data-active='1'] .hyperspace-field { will-change: transform; }
+.hyperspace[data-active='1'] canvas { will-change: opacity; }
+
+/* The stretch beat: the field lunges at the viewer for a breath and settles a
+   touch wide, so the flash inherits a stable transform instead of a snap-back. */
+.hyperspace[data-punch='1'] .hyperspace-field {
+  animation: bl-hs-punch 760ms cubic-bezier(0.2, 0.64, 0.28, 1) forwards;
+}
+@keyframes bl-hs-punch {
+  0%   { transform: scale(1); }
+  26%  { transform: scale(1.18); }
+  100% { transform: scale(1.06); }
+}
+
+/* Past the arrival the starfield is spent. JS stops painting at the same
+   moment; this just takes the frozen last frame off the screen. */
+.hyperspace[data-land='1'] canvas {
+  animation: bl-hs-derez 300ms ease-out forwards;
+}
+@keyframes bl-hs-derez {
+  to { opacity: 0; }
+}
+
+/* The white-out. Opacity is driven from JS (rise / hold / fade), because the
+   theme swap has to happen inside the hold and that timing is not something to
+   leave to two clocks agreeing with each other. */
+.hyperspace-flash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 50%,
+    #ffffff 0%, #f4feff 26%, #b8fbff 58%, #7df9ff 100%);
+}
+
+/* …and the core of it, which outlives the sheet: a hot disc that expands and
+   dies as the flash fades, so the white doesn't simply dim out. */
+.hyperspace-bloom {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(58vmax, 900px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.12);
+  background: radial-gradient(circle,
+    #ffffff 0%, rgba(184, 251, 255, 0.85) 34%, rgba(125, 249, 255, 0) 70%);
+}
+.hyperspace[data-boom='1'] .hyperspace-bloom {
+  will-change: transform, opacity;
+  animation: bl-hs-bloom 620ms cubic-bezier(0.12, 0.8, 0.24, 1) forwards;
+}
+@keyframes bl-hs-bloom {
+  0%   { transform: translate(-50%, -50%) scale(0.12); opacity: 0; }
+  16%  { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2.6);  opacity: 0; }
+}
+
+/* First thing you see on the other side: a horizon snaps across the screen,
+   holds, and dissolves as the real floor grows out from under it. Inbound only
+   — landing back on paper gets a plain settle, not a neon skyline. */
+.hyperspace-horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--bl-horizon, 88%);
+  height: 2px;
+  opacity: 0;
+  transform: scaleX(0);
+  background: linear-gradient(90deg,
+    rgba(125, 249, 255, 0) 0%, #eaf9ff 22%, #ffffff 50%, #eaf9ff 78%, rgba(125, 249, 255, 0) 100%);
+  box-shadow: 0 0 22px rgba(0, 184, 212, 0.75), 0 0 3px rgba(125, 249, 255, 0.9);
+}
+.hyperspace[data-dir='in'][data-land='1'] .hyperspace-horizon {
+  will-change: transform, opacity;
+  animation: bl-hs-horizon 520ms cubic-bezier(0.1, 0.82, 0.2, 1) forwards;
+}
+@keyframes bl-hs-horizon {
+  0%   { transform: scaleX(0);    opacity: 0; }
+  14%  { transform: scaleX(1);    opacity: 1; }
+  46%  { transform: scaleX(1);    opacity: 1; }
+  100% { transform: scaleX(1.02); opacity: 0; }
+}
+
+/* --- Arrival on the Grid ---------------------------------------------------
+   html.bl-landing is added at the same instant as data-egg='tron' and removed
+   when the overlay tears down. Every selector here also requires the Grid, so
+   the reverse jump (data-egg already gone) matches nothing and paper mode
+   lands untouched.
+
+   The floor unfurls out of the horizon the overlay just drew. scaleY sits to
+   the LEFT of perspective() in the list, so it scales the already-projected
+   plane in screen space, and the translateY pair moves the scaling origin from
+   the near edge up to the dissolve line (28vh above the near edge is the true
+   vanishing line; 14vh is where the mask actually fades the floor out, which is
+   the horizon you can see). Both keyframes carry the identical function list so
+   the browser interpolates per-function instead of falling back to matrix
+   decomposition, and the 100% state is arithmetically the base transform. */
+:root[data-egg='tron'].bl-landing body::before {
+  animation:
+    grid-scroll 16s linear infinite,
+    bl-floor-rezz 380ms 160ms cubic-bezier(0.14, 0.8, 0.26, 1) backwards;
+}
+@keyframes bl-floor-rezz {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-14vh) scaleY(0.02) translateY(14vh)
+               perspective(98vh) rotateX(74deg);
+  }
+  45% {
+    opacity: 0.9;
+    transform: translateX(-50%) translateY(-14vh) scaleY(0.62) translateY(14vh)
+               perspective(98vh) rotateX(74deg);
+  }
+  100% {
+    opacity: 0.55;
+    transform: translateX(-50%) translateY(-14vh) scaleY(1) translateY(14vh)
+               perspective(98vh) rotateX(74deg);
+  }
+}
+
+/* Scanlines and vignette snap on a beat behind the floor. crt-flicker is listed
+   first so the one-shot wins the opacity while it runs, then hands it back. */
+:root[data-egg='tron'].bl-landing body::after {
+  animation:
+    crt-flicker 5s infinite,
+    bl-crt-rez 460ms 60ms ease-out backwards;
+}
+@keyframes bl-crt-rez {
+  0%   { opacity: 0.08; }
+  34%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  :root[data-egg='konami'] body::after { animation: none; }
+  /* EggEffects skips the cinematic entirely under reduced motion, so this is a
+     belt-and-braces path for anything that dispatches the event directly.
+     Every element here reads correctly with no animation at all — the page
+     simply never warps, and the overlay's decorative layers stay at the
+     opacity: 0 they are declared with. The selectors repeat the trigger
+     selectors verbatim rather than being shortened, because a looser selector
+     would lose on specificity and the animation would run anyway. */
+  .bl-stage--warp-in,
+  .bl-stage--warp-out,
+  .bl-stage--land-in,
+  .bl-stage--land-out,
+  .hyperspace[data-punch='1'] .hyperspace-field,
+  .hyperspace[data-land='1'] canvas,
+  .hyperspace[data-boom='1'] .hyperspace-bloom,
+  .hyperspace[data-dir='in'][data-land='1'] .hyperspace-horizon { animation: none; }
+  .hyperspace[data-active='1']::before,
+  .hyperspace[data-active='1'][data-dir='out']::before,
+  .hyperspace[data-active='1'][data-land='1']::before { transition: none; }
+  :root[data-egg='tron'].bl-landing body::before,
+  :root[data-egg='tron'].bl-landing body::after { animation: none; }
+}
+
+/* --- The Grid, deep restyle (Stage 2) -------------------------------------
+   Cards → wireframe panels with corner brackets + a derezz-glitch hover.
+   Header → a HUD telemetry readout and bracketed nav. Photos → cyan holograms
+   with scanlines and an occasional tear. */
+
+/* Cards: corner brackets drawn on ::after, plus a one-shot glitch on hover. */
+:root[data-egg='tron'] .paper-card { position: relative; }
+:root[data-egg='tron'] .paper-card::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  z-index: 1;
+  --b: 14px; /* bracket arm length */
+  --w: 2px;  /* bracket thickness  */
+  --c: rgba(125, 249, 255, 0.6);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / var(--w) var(--b) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--w) var(--b) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--w) var(--b) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--b) no-repeat;
+}
+:root[data-egg='tron'] .paper-card:hover {
+  transform: none;
+  border-color: rgba(125, 249, 255, 0.6);
+  box-shadow: 0 0 0 1px rgba(125, 249, 255, 0.28), 0 0 26px rgba(0, 184, 212, 0.42);
+  animation: derezz 0.3s steps(2, end) 1;
+}
+@keyframes derezz {
+  0%   { clip-path: inset(0 0 0 0); transform: translateX(0); }
+  25%  { clip-path: inset(12% 0 40% 0); transform: translateX(-3px); }
+  50%  { clip-path: inset(58% 0 8% 0); transform: translateX(3px); }
+  75%  { clip-path: inset(30% 0 30% 0); transform: translateX(-1px); }
+  100% { clip-path: inset(0 0 0 0); transform: translateX(0); }
+}
+
+/* Header HUD: live-ish telemetry, only rendered on the Grid (SiteHeader). */
+:root[data-egg='tron'] .grid-hud {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.6rem;
+  margin-right: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(6, 18, 26, 0.5);
+  font: 500 0.64rem/1 var(--font-grid-body), ui-monospace, monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.grid-hud__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  animation: hud-pulse 1.8s ease-in-out infinite;
+}
+.grid-hud__sep { opacity: 0.4; }
+@keyframes hud-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@media (max-width: 860px) { :root[data-egg='tron'] .grid-hud { display: none; } }
+
+/* Nav items read as a system menu: [ blog ] [ lab ] … */
+:root[data-egg='tron'] #primary-navigation a::before {
+  content: '[';
+  margin-right: 0.2em;
+  color: var(--accent);
+  opacity: 0.4;
+}
+:root[data-egg='tron'] #primary-navigation a::after {
+  content: ']';
+  margin-left: 0.2em;
+  color: var(--accent);
+  opacity: 0.4;
+}
+:root[data-egg='tron'] #primary-navigation a:hover::before,
+:root[data-egg='tron'] #primary-navigation a:hover::after { opacity: 0.9; }
+
+/* Photos: cyan holograms — tape stripped, scanline overlay, occasional tear. */
+:root[data-egg='tron'] .snapshot {
+  background: rgba(6, 18, 26, 0.6);
+  border-color: rgba(125, 249, 255, 0.28);
+  box-shadow: 0 0 0 1px rgba(125, 249, 255, 0.08), 0 0 22px rgba(0, 150, 190, 0.16);
+}
+:root[data-egg='tron'] .snapshot--taped::before { display: none; } /* no masking tape on the Grid */
+:root[data-egg='tron'] .snapshot-frame { box-shadow: inset 0 0 0 1px rgba(125, 249, 255, 0.22); }
+:root[data-egg='tron'] .snapshot-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.22) 2px 3px),
+    linear-gradient(rgba(125, 249, 255, 0.05), rgba(0, 150, 190, 0.06));
+}
+:root[data-egg='tron'] .snapshot-caption { letter-spacing: 0.06em; }
+:root[data-egg='tron'] .snapshot-frame img { animation: photo-tear 8s infinite; }
+:root[data-egg='tron'] .snapshot:nth-child(even) .snapshot-frame img { animation-delay: -4.3s; }
+@keyframes photo-tear {
+  0%, 90%, 100% { transform: translateX(0); clip-path: inset(0 0 0 0); }
+  91%   { transform: translateX(-3px); clip-path: inset(18% 0 62% 0); }
+  92.5% { transform: translateX(4px);  clip-path: inset(58% 0 22% 0); }
+  94%   { transform: translateX(0);    clip-path: inset(0 0 0 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-egg='tron'] body::before,
+  :root[data-egg='tron'] body::after,
+  :root[data-egg='tron'] .snapshot-frame img,
+  :root[data-egg='tron'] .grid-hud__dot { animation: none; }
+  :root[data-egg='tron'] .paper-card:hover { animation: none; }
 }
 
 /* --- Reset ---------------------------------------------------------------- */
@@ -164,6 +716,98 @@ a:hover { color: var(--accent-warm); }
 .paper-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lift);
+}
+
+/* A clear but still notebook-like directional CTA for the home page. */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-top: 1.55rem;
+}
+.button-primary,
+.button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.58rem 0.95rem;
+  border-radius: 4px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.button-primary {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: var(--paper);
+  box-shadow: var(--shadow-rest);
+}
+.button-primary:hover { background: #6a5b45; color: var(--paper); }
+.button-secondary { border: 1px solid var(--line); color: var(--ink); background: var(--paper-deep); }
+.button-secondary:hover { border-color: var(--accent); color: var(--ink); }
+.section-card { position: relative; overflow: hidden; }
+.section-card-featured {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: linear-gradient(135deg, var(--paper-deep), color-mix(in srgb, var(--paper-deep) 78%, var(--accent) 22%));
+}
+.section-kicker {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--accent);
+  font: 600 0.66rem var(--font-body);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+/* Project cards receive a small visual dossier mark so text-heavy case studies
+   are easier to scan without inventing screenshots of products. */
+.project-card { position: relative; padding-left: clamp(1.5rem, 9vw, 8rem) !important; }
+.project-dossier {
+  position: absolute;
+  top: 1.45rem;
+  left: 1.3rem;
+  display: grid;
+  place-items: center;
+  width: 82px;
+  height: 96px;
+  padding: 0.5rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--dossier-accent) 65%, var(--line));
+  border-radius: 3px;
+  background:
+    linear-gradient(140deg, color-mix(in srgb, var(--dossier-accent) 22%, var(--paper-deep)), var(--paper));
+  color: var(--dossier-accent);
+  font: 700 0.72rem var(--font-body);
+  letter-spacing: 0.08em;
+  box-shadow: 3px 4px 0 color-mix(in srgb, var(--dossier-accent) 14%, transparent);
+}
+.project-dossier span { z-index: 1; }
+.project-dossier i {
+  position: absolute;
+  left: 0.55rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.38;
+}
+.project-dossier i:nth-of-type(1) { bottom: 1.25rem; width: 58%; }
+.project-dossier i:nth-of-type(2) { bottom: 0.93rem; width: 74%; }
+.project-dossier i:nth-of-type(3) { bottom: 0.61rem; width: 43%; }
+.project-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--ink);
+  font-weight: 600;
+}
+.project-action:hover { background: var(--accent); color: var(--paper); }
+@media (max-width: 560px) {
+  .project-card { padding-left: 1.35rem !important; padding-top: 5.8rem !important; }
+  .project-dossier { top: 1.25rem; left: 1.35rem; width: 72px; height: 58px; }
 }
 
 /* Faint graph-paper grid, used by the Games board and any "lab" surface */
@@ -383,8 +1027,14 @@ a:hover { color: var(--accent-warm); }
   font-size: 0.85rem;
   color: var(--ink-soft);
 }
-.site-footer a { color: var(--ink-soft); }
+.site-footer a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-soft); }
 .site-footer a:hover { color: var(--accent); }
+.theme-atmosphere {
+  display: inline-block;
+  margin-right: 0.55rem;
+  color: var(--accent);
+}
+.theme-atmosphere::after { content: "·"; margin-left: 0.55rem; color: var(--ink-soft); }
 
 /* --- Rendered markdown ("prose") -------------------------------------------
    Applied to blog post bodies and the editor preview so both match. */
@@ -438,7 +1088,7 @@ a:hover { color: var(--accent-warm); }
   cursor: pointer;
   animation: zote-in 0.35s ease;
 }
-.zote-head { flex-shrink: 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+.zote-head { flex-shrink: 0; width: 66px; height: 66px; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.28)); }
 .zote-bubble {
   background: var(--print);
   border: 1px solid var(--ink);
@@ -463,6 +1113,14 @@ a:hover { color: var(--accent-warm); }
   align-items: flex-start;
   padding: 0.8rem 1rem;
   animation: toast-in 0.3s ease, toast-out 0.4s ease 4.8s forwards;
+}
+.achievement-artifact {
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 4px;
 }
 @keyframes toast-in {
   from { opacity: 0; transform: translateX(24px) rotate(1.5deg); }

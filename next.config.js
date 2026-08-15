@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
   // This repo lives in an iCloud-synced Documents folder. iCloud evicts and
   // re-syncs files inside the default `.next` build dir while the dev server
   // runs, which corrupts the cache mid-session (symptom: routes that worked
@@ -10,12 +11,28 @@ const nextConfig = {
   // standard `.next` output path (and has no iCloud), so only rename it off
   // the Vercel platform.
   distDir: process.env.VERCEL ? ".next" : ".next.nosync",
-  images: {
-    // Local thumbnails (/uploads/*) are optimized automatically. Allow any
-    // HTTPS host too, since project thumbnails may be pasted as external URLs.
-    // EXTEND HERE: tighten `hostname` to specific domains if you want to
-    // restrict where images can be loaded from.
-    remotePatterns: [{ protocol: "https", hostname: "**" }],
+  turbopack: {
+    // The repository lives below another package-lock in the home directory;
+    // pinning the root prevents Turbopack from treating that unrelated file as
+    // the workspace boundary.
+    root: __dirname,
+  },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          {
+            key: "Content-Security-Policy",
+            value: "base-uri 'self'; frame-ancestors 'none'; form-action 'self'; object-src 'none'",
+          },
+        ],
+      },
+    ];
   },
 };
 

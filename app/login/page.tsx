@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { field, input, primaryButton } from "../admin/_components/formStyles";
+import { safeCallbackPath } from "@/lib/navigation";
 
 // General sign-in for everyone (USER/EDITOR/ADMIN). Accepts an email OR a
 // username in a single field. useSearchParams is isolated in LoginForm and
@@ -22,7 +23,9 @@ export default function LoginPage() {
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = params.get("callbackUrl") || "/";
+  // Keep post-login navigation on this site. Protocol-relative, backslash and
+  // absolute URL variants would otherwise turn sign-in into an open redirect.
+  const callbackUrl = safeCallbackPath(params.get("callbackUrl"));
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");

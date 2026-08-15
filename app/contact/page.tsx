@@ -46,9 +46,9 @@ export default function ContactPage() {
         Contact
       </h1>
       <p style={{ color: "var(--ink-soft)", marginBottom: "2rem", maxWidth: "50ch" }}>
-        I&rsquo;m Sam — a data scientist and full-stack developer based in Atlanta, graduated from
-        Emory in May 2026 and looking for data science roles (although I am open to other roles). If something here
-        caught your eye, I&rsquo;d genuinely love to hear from you.
+        I&rsquo;m Sam — a data scientist and full-stack developer based in Atlanta. I&rsquo;m looking for
+        data science roles and adjacent technical opportunities. If something here caught your
+        eye, I&rsquo;d genuinely love to hear from you.
       </p>
 
       <div style={{ display: "grid", gap: "1rem" }}>

@@ -41,7 +41,10 @@
 
 .table {
   --card-w: clamp(44px, 9.5vw, 72px);
-  background: var(--paper-deep);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--paper-deep) 88%, transparent), color-mix(in srgb, var(--paper) 55%, transparent)),
+    repeating-linear-gradient(90deg, transparent 0 27px, color-mix(in srgb, var(--line) 17%, transparent) 27px 28px),
+    var(--paper-deep);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 0.9rem;
@@ -71,6 +74,7 @@
 .slot {
   width: var(--card-w);
   aspect-ratio: 5 / 7;
+  min-height: 0;
   border: 1.5px dashed var(--line);
   border-radius: 6px;
   display: grid;
@@ -78,22 +82,30 @@
   color: var(--ink-soft);
   font-size: calc(var(--card-w) * 0.34);
   cursor: pointer;
-  background: transparent;
+  background: color-mix(in srgb, var(--paper) 38%, transparent);
   padding: 0;
 }
 
 .card {
   width: var(--card-w);
   aspect-ratio: 5 / 7;
-  border: 1px solid rgba(0, 0, 0, 0.28);
-  border-radius: 6px;
-  background: var(--print);
-  box-shadow: 0 1px 2px rgba(60, 48, 30, 0.18);
+  min-height: 0;
+  border: 1px solid rgba(27, 35, 42, 0.34);
+  border-radius: calc(var(--card-w) * 0.075);
+  background: #fbf8ef;
+  box-shadow:
+    0 1px 2px rgba(38, 31, 22, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.72);
   cursor: pointer;
   position: relative;
   font-family: var(--font-body);
   padding: 0;
   text-align: left;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: box-shadow 160ms ease, filter 160ms ease;
+  overflow: hidden;
 }
 
 .stacked { margin-top: calc(var(--card-w) * -0.98); }
@@ -102,37 +114,186 @@
 .pile > * + * { }
 
 .faceDown {
-  background:
-    repeating-linear-gradient(45deg, rgba(122, 106, 82, 0.25) 0 3px, transparent 3px 7px),
-    var(--paper);
+  background: #17324d;
+  border-color: rgba(15, 32, 49, 0.72);
+  box-shadow:
+    0 2px 5px color-mix(in srgb, var(--ink) 20%, transparent),
+    inset 0 0 0 1px rgba(255, 250, 235, 0.58);
+}
+
+.faceDown::before {
+  content: "";
+  position: absolute;
+  inset: 5%;
+  border-radius: calc(var(--card-w) * 0.035);
+  background: url("/artifacts/card-back-compass-simple-v2.jpg") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+.flipping {
+  animation: cardFlip 460ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes cardFlip {
+  0% { transform: rotateY(180deg) scale(.96); filter: brightness(.88); }
+  52% { transform: rotateY(88deg) scale(1.05); filter: brightness(1.1); }
+  100% { transform: rotateY(0deg) scale(1); filter: brightness(1); }
 }
 
 .corner {
   position: absolute;
-  top: 2px;
-  left: 4px;
-  font-size: calc(var(--card-w) * 0.26);
-  font-weight: 600;
-  line-height: 1.05;
+  display: flex;
+  width: 18%;
+  flex-direction: column;
+  align-items: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: calc(var(--card-w) * 0.235);
+  font-weight: 700;
+  line-height: 0.86;
+  z-index: 3;
 }
-.pip {
-  position: absolute;
-  bottom: 3px;
-  right: 5px;
-  font-size: calc(var(--card-w) * 0.42);
+.cornerTop {
+  top: 4%;
+  left: 3%;
+}
+.cornerBottom {
+  right: 3%;
+  bottom: 4%;
+  transform: rotate(180deg);
+}
+.cornerSuit {
+  margin-top: 12%;
+  font-size: 0.78em;
   line-height: 1;
 }
-.red { color: #a03c2e; }
-.black { color: var(--ink); }
-.joker { color: #6b4d92; }
+
+.pipField {
+  position: absolute;
+  inset: 17% 22%;
+  display: block;
+  pointer-events: none;
+}
+
+.cardPip {
+  position: absolute;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: calc(var(--card-w) * 0.255);
+  line-height: 1;
+  text-shadow: none;
+}
+.acePip {
+  font-size: calc(var(--card-w) * 0.56);
+}
+.top { top: 0; left: 50%; transform: translateX(-50%); }
+.upperCenter { top: 22%; left: 50%; transform: translateX(-50%); }
+.middleLeft { top: 50%; left: 0; transform: translateY(-50%); }
+.middleRight { top: 50%; right: 0; transform: translateY(-50%); }
+.center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.lowerCenter { bottom: 22%; left: 50%; transform: translateX(-50%) rotate(180deg); }
+.bottom { bottom: 0; left: 50%; transform: translateX(-50%) rotate(180deg); }
+.topLeft { top: 0; left: 0; }
+.topRight { top: 0; right: 0; }
+.bottomLeft { bottom: 0; left: 0; transform: rotate(180deg); }
+.bottomRight { bottom: 0; right: 0; transform: rotate(180deg); }
+
+.courtField {
+  position: absolute;
+  inset: 12% 19%;
+  overflow: hidden;
+  border: 1px solid rgba(24, 49, 72, 0.34);
+  background: #f6efdf;
+  border-radius: 1px;
+  pointer-events: none;
+}
+.courtPortrait {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 53%;
+  background-image: url("/artifacts/solitaire-court-portraits-simple-v2.jpg");
+  background-repeat: no-repeat;
+  background-size: 300% auto;
+  background-position-y: 35%;
+}
+.courtTop { top: -2%; }
+.courtBottom { bottom: -2%; transform: rotate(180deg); }
+.jack { background-position-x: 0%; }
+.queen { background-position-x: 50%; }
+.king { background-position-x: 100%; }
+.courtSuit {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: calc(var(--card-w) * 0.24);
+  aspect-ratio: 1;
+  place-items: center;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border: 1px solid currentColor;
+  background: #fbf8ef;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: calc(var(--card-w) * 0.18);
+  line-height: 1;
+}
+.courtSuit > span {
+  transform: rotate(-45deg);
+}
+
+.jokerArt {
+  position: absolute;
+  inset: 21% 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--card-w) * 0.05);
+  border: 1px solid currentColor;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: calc(var(--card-w) * 0.48);
+  line-height: 1;
+}
+.jokerArt small {
+  font-size: calc(var(--card-w) * 0.105);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.card:hover {
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--ink) 24%, transparent), inset 0 0 0 1px rgba(255, 255, 255, 0.42);
+}
+.red { color: #a33c32; }
+.black { color: #172b3b; }
+.joker { color: #5b4778; }
 .jokerCard {
-  background: linear-gradient(150deg, #f6efff 0%, var(--print) 55%);
+  background: #faf6ee;
   border-color: #6b4d92;
 }
+
+/* Each palette reads the common card illustration differently: cooler
+   blueprint/observatory inks, warmer workshop/field paper, and high contrast
+   monochrome for noir. The art remains a recognizable shared deck. */
+:global(:root[data-theme="blueprint"]) .faceDown { filter: hue-rotate(8deg) saturate(0.86); }
+:global(:root[data-theme="copper"]) .faceDown { filter: sepia(0.25) saturate(1.18) hue-rotate(334deg); }
+:global(:root[data-theme="forest"]) .faceDown { filter: saturate(0.82) hue-rotate(42deg); }
+:global(:root[data-theme="plum"]) .faceDown { filter: hue-rotate(46deg) saturate(0.86); }
+:global(:root[data-theme="frost"]) .faceDown { filter: grayscale(0.22) hue-rotate(155deg) saturate(0.82); }
+:global(:root[data-theme="sunset"]) .faceDown { filter: sepia(0.24) saturate(1.1); }
+:global(:root[data-theme="slate"]) .faceDown { filter: grayscale(0.36) contrast(1.06); }
+:global(:root[data-theme="rose"]) .faceDown { filter: hue-rotate(320deg) saturate(0.92); }
+:global(:root[data-theme="noir"]) .faceDown { filter: grayscale(1) contrast(1.45); }
 
 .selected {
   outline: 2.5px solid var(--accent);
   outline-offset: 1px;
+  box-shadow: 0 5px 12px color-mix(in srgb, var(--accent) 32%, transparent), inset 0 0 0 1px rgba(255, 255, 255, 0.42);
+  transform: translateY(-4px) rotate(-1deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .flipping { animation: none; }
+  .selected { transform: none; }
 }
 
 .winBanner {
@@ -163,4 +324,283 @@
   font-size: 0.82rem;
   color: var(--ink-soft);
   margin: 0;
+}
+
+@media (max-width: 520px) {
+  .table {
+    --card-w: clamp(29px, 9.5vw, 72px);
+    padding: 0.65rem;
+  }
+  .tableWide {
+    --card-w: clamp(22px, 6.2vw, 52px);
+  }
+  .columns,
+  .pileGroup {
+    gap: 0.25rem;
+  }
+  .tableWide .columns {
+    gap: 0.18rem;
+  }
+}
+
+/* ===========================================================================
+   THE GRID — the Konami deck.
+
+   The paper deck is photographic: an engraved compass on the back, painted
+   court portraits on the faces. Both are artefacts from the wrong century once
+   the site goes black-and-cyan, so on the Grid the whole deck is rebuilt out of
+   CSS — a procedural back, geometric courts, neon ink on a dark body. Nothing
+   here is layout: same boxes, same hit targets, only surface.
+
+   Everything below is scoped to :root[data-egg="tron"]. Paper mode and all nine
+   data-theme palettes must stay pixel-identical, so no base rule is edited —
+   only overridden. This block sits last in the file on purpose: several of the
+   per-theme .faceDown filters above match at equal specificity, and source
+   order is what settles them.
+   =========================================================================== */
+
+:global(:root[data-egg="tron"]) .layout {
+  /* Reds go hot magenta, blacks electric cyan — two tones, not four. Klondike
+     is played by reading ALTERNATING COLOUR down a column, and a strict binary
+     makes that read instant; a four-colour deck turns the most important
+     gameplay signal into a lookup. (It is also the only scheme CSS alone can
+     apply consistently here — foundation cards carry no suit in the DOM.) */
+  --g-red: #ff3ca0;
+  --g-black: #7df9ff;
+  --g-joker: #c07dff;
+  --g-face: #050d14; /* card body stays dark so the ink is the light source */
+  --g-edge: rgba(125, 249, 255, 0.38);
+  --g-edge-hot: rgba(125, 249, 255, 0.85);
+  --g-bloom: rgba(0, 184, 212, 0.4);
+}
+
+/* Felt → a lit floor panel, ruled with the same faint cyan grid the rest of the
+   Grid stands on. Static gradients only; the animated floor is body::before. */
+:global(:root[data-egg="tron"]) .table {
+  background:
+    linear-gradient(rgba(125, 249, 255, 0.055) 1px, transparent 1px) 0 0 / 34px 34px,
+    linear-gradient(90deg, rgba(125, 249, 255, 0.055) 1px, transparent 1px) 0 0 / 34px 34px,
+    radial-gradient(120% 90% at 50% -8%, rgba(0, 150, 190, 0.18), transparent 62%) 0 0 / 100% 100% no-repeat,
+    #04080d;
+  border-color: rgba(125, 249, 255, 0.3);
+  box-shadow: 0 0 24px rgba(0, 184, 212, 0.14), inset 0 0 40px rgba(0, 120, 150, 0.1);
+}
+
+/* Empty piles read as unpowered slots waiting to be filled: brighter dashes, a
+   soft inner bloom, and the hint glyph (↻ / A / "3/8") lit rather than muted. */
+:global(:root[data-egg="tron"]) .slot {
+  border-color: rgba(125, 249, 255, 0.5);
+  background: rgba(6, 18, 26, 0.55);
+  color: var(--accent);
+  box-shadow: 0 0 12px rgba(0, 184, 212, 0.18), inset 0 0 14px rgba(0, 184, 212, 0.16);
+  text-shadow: 0 0 6px rgba(125, 249, 255, 0.55);
+}
+:global(:root[data-egg="tron"]) .slot:hover {
+  border-color: var(--accent-warm);
+  box-shadow: 0 0 18px rgba(0, 184, 212, 0.34), inset 0 0 16px rgba(0, 184, 212, 0.24);
+}
+
+:global(:root[data-egg="tron"]) .card {
+  background: linear-gradient(180deg, #071119 0%, var(--g-face) 55%, #030a10 100%);
+  border-color: var(--g-edge);
+  box-shadow: 0 0 10px rgba(0, 184, 212, 0.22), inset 0 0 0 1px rgba(125, 249, 255, 0.07);
+  /* The Grid gives <body> a 3px cyan text-shadow. On a 22px-wide Spider card
+     that smears rank and pips into fuzz, so cards opt out wholesale and only
+     the marks big enough to carry it get glow back individually below. */
+  text-shadow: none;
+}
+:global(:root[data-egg="tron"]) .card:hover {
+  border-color: var(--g-edge-hot);
+  box-shadow: 0 0 18px var(--g-bloom), inset 0 0 0 1px rgba(125, 249, 255, 0.18);
+}
+
+/* Corner index switches to the Grid's mono, but the suit pip is pinned back to
+   the serif face: it is the same glyph shape as paper mode, and Plex Mono has
+   no card suits so the fallback would vary by platform. */
+:global(:root[data-egg="tron"]) .corner {
+  font-family: var(--font-body);
+}
+:global(:root[data-egg="tron"]) .cornerSuit {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+:global(:root[data-egg="tron"]) .red { color: var(--g-red); }
+:global(:root[data-egg="tron"]) .black { color: var(--g-black); }
+:global(:root[data-egg="tron"]) .joker { color: var(--g-joker); }
+
+/* The lone ace pip is large enough to hold a glow without turning to mush; the
+   small repeated pips deliberately get none. */
+:global(:root[data-egg="tron"]) .acePip {
+  text-shadow: 0 0 8px color-mix(in srgb, currentColor 55%, transparent);
+}
+
+:global(:root[data-egg="tron"]) .jokerCard {
+  background: linear-gradient(180deg, #120a1c, #06040b);
+  border-color: rgba(192, 125, 255, 0.55);
+  box-shadow: 0 0 14px rgba(150, 60, 255, 0.32), inset 0 0 0 1px rgba(192, 125, 255, 0.12);
+}
+:global(:root[data-egg="tron"]) .jokerArt {
+  border-color: color-mix(in srgb, currentColor 60%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, currentColor 28%, transparent);
+  text-shadow: 0 0 8px color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* --- Card back ------------------------------------------------------------
+   The compass photograph is dropped for a procedural back: a cyan micro-grid
+   with a bloom at its centre. The cell size is derived from --card-w so the
+   pattern holds its proportions from a 72px Klondike card down to a 22px
+   Spider one, which a fixed-pixel pattern would not. */
+:global(:root[data-egg="tron"]) .card.faceDown {
+  background: linear-gradient(180deg, #061019, #03080d);
+  border-color: rgba(125, 249, 255, 0.42);
+  box-shadow: 0 0 12px rgba(0, 184, 212, 0.3), inset 0 0 0 1px rgba(125, 249, 255, 0.1);
+  /* The nine paper palettes tint the printed back with hue/sepia filters. None
+     of them mean anything over a back that is already pure cyan, and noir's
+     grayscale(1) would kill it outright. */
+  filter: none;
+}
+:global(:root[data-egg="tron"]) .card.faceDown::before {
+  background-color: #04101a;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(125, 249, 255, 0.5), rgba(125, 249, 255, 0) 58%),
+    linear-gradient(rgba(125, 249, 255, 0.32) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 249, 255, 0.32) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    max(4px, calc(var(--card-w) * 0.2)) max(4px, calc(var(--card-w) * 0.2)),
+    max(4px, calc(var(--card-w) * 0.2)) max(4px, calc(var(--card-w) * 0.2));
+  background-position: center;
+  background-repeat: no-repeat, repeat, repeat;
+  box-shadow: inset 0 0 0 1px rgba(125, 249, 255, 0.45);
+}
+
+/* --- Courts ---------------------------------------------------------------
+   No faces. The two portrait plates become a mirrored cyan lattice whose
+   density climbs with rank (jack sparse → king dense), and the suit badge grows
+   into the card's principal mark. A court card then reads as "corner letter +
+   big suit" even at 22px, which the painted portraits never did. The lattice
+   period has a pixel floor so the king does not collapse into a solid wash. */
+:global(:root[data-egg="tron"]) .courtField {
+  background: linear-gradient(180deg, #071119, #040b12);
+  border-color: rgba(125, 249, 255, 0.4);
+  box-shadow: inset 0 0 14px rgba(0, 184, 212, 0.22);
+}
+:global(:root[data-egg="tron"]) .courtPortrait {
+  /* Kept deliberately faint: this is substrate, not the subject. The corner
+     index and the suit badge are what a player actually reads. */
+  background-image:
+    repeating-linear-gradient(45deg, rgba(125, 249, 255, 0.24) 0 1px, transparent 1px var(--g-court-gap)),
+    repeating-linear-gradient(-45deg, rgba(125, 249, 255, 0.24) 0 1px, transparent 1px var(--g-court-gap));
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+:global(:root[data-egg="tron"]) .jack { --g-court-gap: max(7px, calc(var(--card-w) * 0.2)); }
+:global(:root[data-egg="tron"]) .queen { --g-court-gap: max(4.5px, calc(var(--card-w) * 0.12)); }
+:global(:root[data-egg="tron"]) .king { --g-court-gap: max(2.8px, calc(var(--card-w) * 0.075)); }
+
+/* Decorative overlay inside a pointer-events:none, absolutely-centred field —
+   growing it changes no hit target. */
+:global(:root[data-egg="tron"]) .courtSuit {
+  width: calc(var(--card-w) * 0.42);
+  font-size: calc(var(--card-w) * 0.3);
+  background: #03080d;
+  box-shadow:
+    0 0 12px color-mix(in srgb, currentColor 42%, transparent),
+    inset 0 0 8px color-mix(in srgb, currentColor 18%, transparent);
+  text-shadow: 0 0 7px color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* --- Affordances ----------------------------------------------------------
+   Selection has to survive a table that is already glowing, so on the Grid it
+   is louder than on paper: hot outline, a bigger lift, and a pulsing inner ring
+   drawn by ::after. The pulse animates opacity only, and the ring is
+   pointer-events:none so it never eats a click. The paper mode's -1deg tilt is
+   dropped — the Grid is orthogonal. */
+:global(:root[data-egg="tron"]) .selected {
+  outline: 2px solid var(--accent-warm);
+  outline-offset: 2px;
+  border-color: var(--accent-warm);
+  box-shadow: 0 0 22px var(--g-bloom), 0 0 3px rgba(125, 249, 255, 0.8);
+  transform: translateY(-6px);
+}
+:global(:root[data-egg="tron"]) .selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--accent-warm), inset 0 0 12px rgba(0, 184, 212, 0.55);
+  animation: gridSelectPulse 1.2s ease-in-out infinite;
+}
+@keyframes gridSelectPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.34; }
+}
+
+/* .selected above outranks the global `button:focus-visible` ring (0,3,0 beats
+   0,1,1), which would leave a keyboard user with no distinct focus indicator on
+   a card they had just selected. Restore one that wins on both, in white so it
+   never reads as "selected" — the only non-cyan outline on the table. */
+:global(:root[data-egg="tron"]) .card:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* Same 3D turn, but the card crosses edge-on through a glow spike — it reads as
+   powering up rather than being turned over. One-shot, on one card at a time,
+   so the filter is affordable here in a way an always-on layer would not be. */
+:global(:root[data-egg="tron"]) .flipping {
+  animation: gridCardFlip 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes gridCardFlip {
+  0% {
+    transform: rotateY(180deg) scale(0.96);
+    filter: brightness(0.55) saturate(0.7) drop-shadow(0 0 0 rgba(125, 249, 255, 0));
+  }
+  50% {
+    transform: rotateY(90deg) scale(1.08);
+    filter: brightness(2) saturate(1.5) drop-shadow(0 0 12px rgba(125, 249, 255, 0.9));
+  }
+  100% {
+    transform: rotateY(0deg) scale(1);
+    filter: brightness(1) saturate(1) drop-shadow(0 0 0 rgba(125, 249, 255, 0));
+  }
+}
+
+/* Chrome around the table: controls and the win banner pick up the same
+   hairline-and-bloom idiom as the cards. */
+:global(:root[data-egg="tron"]) .button {
+  background: rgba(6, 18, 26, 0.6);
+  border-color: rgba(125, 249, 255, 0.34);
+  letter-spacing: 0.04em;
+}
+:global(:root[data-egg="tron"]) .button:hover {
+  background: rgba(10, 30, 42, 0.75);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(0, 184, 212, 0.28);
+}
+:global(:root[data-egg="tron"]) .buttonActive,
+:global(:root[data-egg="tron"]) .buttonActive:hover {
+  background: var(--accent);
+  color: #03060a;
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(0, 184, 212, 0.5);
+  text-shadow: none;
+}
+:global(:root[data-egg="tron"]) .winBanner {
+  background: rgba(6, 18, 26, 0.6);
+  box-shadow: 0 0 22px rgba(0, 184, 212, 0.3), inset 0 0 0 1px rgba(125, 249, 255, 0.1);
+}
+
+/* The Grid overrides above outrank the shared reduced-motion block near the top
+   of this file, so they have to opt out again on their own terms. */
+@media (prefers-reduced-motion: reduce) {
+  :global(:root[data-egg="tron"]) .card { transition: none; }
+  :global(:root[data-egg="tron"]) .flipping { animation: none; }
+  :global(:root[data-egg="tron"]) .selected { transform: none; }
+  :global(:root[data-egg="tron"]) .selected::after {
+    animation: none;
+    opacity: 1;
+  }
 }

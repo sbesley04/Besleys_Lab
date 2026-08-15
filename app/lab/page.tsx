@@ -7,7 +7,7 @@ import { demos, TOPIC_LABELS, type DemoMeta } from "./registry";
 export const metadata = {
   title: "Lab",
   description:
-    "Interactive machine-learning demos: gradient descent, k-means, SVMs, neural nets, Bayes, and reinforcement learning — all running in your browser.",
+    "Interactive machine-learning demos: gradient descent, k-means, SVMs, neural nets, Bayes, and reinforcement learning",
 };
 
 const TOPIC_ORDER: DemoMeta["topic"][] = [
@@ -38,7 +38,7 @@ export default function LabPage() {
         const inTopic = demos.filter((d) => d.topic === topic);
         if (inTopic.length === 0) return null;
         return (
-          <section key={topic}>
+          <section key={topic} className={styles.topicSection}>
             <h2 className={styles.topicLabel}>{TOPIC_LABELS[topic]}</h2>
             <div className={styles.hubGrid}>
               {inTopic.map((d) => (

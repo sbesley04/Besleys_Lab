@@ -10,8 +10,8 @@ import { requestOrigin } from "@/lib/baseUrl";
 // .vercel.app URL the .vercel.app one. Each stays self-consistent for Google.
 export const dynamic = "force-dynamic";
 
-export function GET(): Response {
-  const base = requestOrigin();
+export async function GET(): Promise<Response> {
+  const base = await requestOrigin();
   const body = [
     "User-Agent: *",
     "Allow: /",

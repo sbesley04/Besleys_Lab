@@ -76,6 +76,9 @@ export default function Snake() {
   const headKey = `${state.snake[0].x},${state.snake[0].y}`;
   const bodyKeys = new Set(state.snake.slice(1).map((p) => `${p.x},${p.y}`));
   const foodKey = `${state.food.x},${state.food.y}`;
+  // Habitats step forward with the score, so the board gains a little sense of
+  // journey without changing the game rules or distracting from the cells.
+  const habitatStage = Math.min(3, Math.floor(state.score / 5));
 
   const cells = [];
   for (let y = 0; y < ROWS; y++) {
@@ -102,6 +105,11 @@ export default function Snake() {
           role="grid"
           aria-label="Snake board"
           style={{ ["--cell" as string]: "22px" }}
+          data-habitat-stage={habitatStage}
+          // Purely presentational: the Grid skin aims the head's leading edge
+          // off this. The committed dir (not pendingDir) is the one the head
+          // actually travelled this tick.
+          data-dir={state.dir}
         >
           {cells}
         </div>
@@ -145,11 +153,11 @@ export default function Snake() {
 function Bladderfish() {
   return (
     <svg viewBox="0 0 20 20" width="100%" height="100%" aria-label="Bladderfish" style={{ display: "block" }}>
-      <ellipse cx="9" cy="10" rx="6.5" ry="5.5" fill="rgba(238,170,185,0.85)" stroke="#b06a80" strokeWidth="1" />
+      <ellipse cx="9" cy="10" rx="6.5" ry="5.5" fill="var(--fish-fill)" stroke="var(--fish-line)" strokeWidth="1" />
       <ellipse cx="9" cy="8.2" rx="3.4" ry="2.2" fill="rgba(255,255,255,0.5)" />
-      <path d="M15 10 L19 7 L19 13 Z" fill="#b06a80" />
-      <circle cx="6.4" cy="9.4" r="1.1" fill="#3a2530" />
-      <path d="M9 4.6 Q9.6 2.8 11 2.4" fill="none" stroke="#b06a80" strokeWidth="1" strokeLinecap="round" />
+      <path d="M15 10 L19 7 L19 13 Z" fill="var(--fish-line)" />
+      <circle cx="6.4" cy="9.4" r="1.1" fill="var(--fish-eye)" />
+      <path d="M9 4.6 Q9.6 2.8 11 2.4" fill="none" stroke="var(--fish-line)" strokeWidth="1" strokeLinecap="round" />
     </svg>
   );
 }

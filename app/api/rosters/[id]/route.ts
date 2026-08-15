@@ -4,12 +4,13 @@ import { requireApiSession } from "@/lib/api";
 
 // Single saved roster — owner-only. GET returns the parsed players.
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiSession();
   if (auth instanceof NextResponse) return auth;
 
   const roster = await prisma.roster.findFirst({
-    where: { id: params.id, userId: auth.user.id },
+    where: { id, userId: auth.user.id },
   });
   if (!roster) return NextResponse.json({ error: "Roster not found." }, { status: 404 });
 
@@ -20,12 +21,13 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiSession();
   if (auth instanceof NextResponse) return auth;
 
   const result = await prisma.roster.deleteMany({
-    where: { id: params.id, userId: auth.user.id },
+    where: { id, userId: auth.user.id },
   });
   if (result.count === 0) return NextResponse.json({ error: "Roster not found." }, { status: 404 });
   return NextResponse.json({ ok: true });

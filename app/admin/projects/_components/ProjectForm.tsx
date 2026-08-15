@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { isExternalImage } from "@/lib/images";
 import { field, input, textarea, primaryButton, ghostButton, dangerButton } from "../../_components/formStyles";
 
 // Shared create/edit form for projects, with inline thumbnail upload that posts
@@ -135,12 +136,13 @@ export default function ProjectForm({ project }: { project?: ProjectInput }) {
               alt="thumbnail preview"
               width={96}
               height={64}
+              unoptimized={isExternalImage(form.thumbnail)}
               style={{ objectFit: "cover", borderRadius: 4, border: "1px solid var(--line)" }}
             />
           )}
           <input
             type="file"
-            accept="image/png,image/jpeg,image/webp,image/gif"
+            accept="image/png,image/jpeg,image/webp"
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) handleUpload(f);

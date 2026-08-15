@@ -6,12 +6,18 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_RE = /^[a-z0-9][a-z0-9_]{2,19}$/;
 
 export function isValidEmail(email: string): boolean {
-  return EMAIL_RE.test(email);
+  // RFC mailboxes cannot exceed 254 characters. The cap also keeps public
+  // account endpoints from accepting needlessly large values.
+  return email.length <= 254 && EMAIL_RE.test(email);
 }
 
 // Returns an error message, or null if the password is acceptable.
 export function passwordProblem(password: string): string | null {
   if (password.length < 8) return "Password must be at least 8 characters.";
+  // bcrypt only considers the first 72 UTF-8 bytes. Reject longer values so
+  // two visibly different passwords can never produce the same comparison.
+  if (new TextEncoder().encode(password).length > 72)
+    return "Password must be at most 72 bytes.";
   return null;
 }
 

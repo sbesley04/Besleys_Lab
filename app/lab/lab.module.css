@@ -1,5 +1,5 @@
 /* The experiments bench — shared styling for every demo at /lab.
-   Everything is token-driven so the secret themes (blueprint / konami) carry
+   Everything is token-driven so the secret themes (blueprint / tron) carry
    through to the plots without any per-demo work. */
 
 .hubGrid {
@@ -27,7 +27,15 @@
   color: var(--ink-soft);
   margin: 1.6rem 0 0.6rem;
 }
-.topicLabel:first-child { margin-top: 0; }
+.topicSection + .topicSection {
+  margin-top: 2.35rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+.topicSection:first-of-type .topicLabel { margin-top: 0; }
+.topicSection:nth-of-type(even) .hubCard:first-child {
+  border-left: 3px solid var(--accent);
+}
 
 /* --- Demo page chrome ------------------------------------------------------ */
 .layout {

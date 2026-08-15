@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { isExternalImage } from "@/lib/images";
 import { prisma } from "@/lib/prisma";
 import { splitTechStack } from "@/lib/techstack";
 
@@ -20,6 +21,8 @@ interface Featured {
   description: string;
   tech: string[];
   links: { label: string; href: string; external?: boolean }[];
+  mark: string;
+  accent: string;
 }
 
 const featured: Featured[] = [
@@ -30,6 +33,8 @@ const featured: Featured[] = [
       "Full-stack NLP application for exploring events and entities extracted from the publicly released Epstein document corpus. A Python pipeline classified 2,599 events across 787 document threads and surfaced 515 unique entities; a React/TypeScript multi-view dashboard makes the corpus searchable.",
     tech: ["Python", "Transformers", "NLP", "React", "TypeScript", "Vercel"],
     links: [{ label: "Live app", href: "https://eps-tracked.vercel.app", external: true }],
+    mark: "NLP",
+    accent: "#64758a",
   },
   {
     title: "NYC Airbnb price prediction",
@@ -38,6 +43,8 @@ const featured: Featured[] = [
       "Price model over 48,000+ NYC listings combining structured features with NLP signals mined from listing names (luxury keywords, capitalization ratio, word statistics). Benchmarked OLS, Ridge, LASSO, and Random Forest; the text features added real signal beyond location and room type.",
     tech: ["Python", "scikit-learn", "pandas", "Feature engineering"],
     links: [],
+    mark: "48K",
+    accent: "#9a684d",
   },
   {
     title: "Hunger Games simulator",
@@ -46,6 +53,8 @@ const featured: Featured[] = [
       "A deterministic, trait-driven arena simulation: procedural biome terrain, weather systems, alliances and betrayals, and a narrative event feed. Started life as a Python prototype; now a TypeScript engine you can play right here — bring your own roster.",
     tech: ["TypeScript", "Simulation", "Procedural generation", "React"],
     links: [{ label: "Run it in the arcade", href: "/games/hunger-games" }],
+    mark: "SIM",
+    accent: "#647a55",
   },
   {
     title: "This website",
@@ -54,6 +63,8 @@ const featured: Featured[] = [
       "The lab itself: Next.js App Router, Prisma, and NextAuth with role-based admin, a markdown blog with live-preview editor, an arcade with per-user save states, and the photo-notebook design system you're looking at.",
     tech: ["Next.js", "TypeScript", "Prisma", "NextAuth"],
     links: [{ label: "Read the about page", href: "/about" }],
+    mark: "LAB",
+    accent: "#786251",
   },
 ];
 
@@ -89,7 +100,13 @@ export default async function ProjectsIndex() {
       {/* --- Featured lab work --- */}
       <section aria-label="Featured lab work" style={{ display: "grid", gap: "1.25rem" }}>
         {featured.map((f) => (
-          <article key={f.title} className="paper-card" style={{ padding: "1.5rem 1.6rem" }}>
+          <article key={f.title} className="paper-card project-card" style={{ padding: "1.5rem 1.6rem" }}>
+            <div className="project-dossier" style={{ "--dossier-accent": f.accent } as React.CSSProperties} aria-hidden>
+              <span>{f.mark}</span>
+              <i />
+              <i />
+              <i />
+            </div>
             <div
               style={{
                 display: "flex",
@@ -124,14 +141,14 @@ export default async function ProjectsIndex() {
               ))}
             </ul>
             {f.links.length > 0 && (
-              <p style={{ margin: "0.9rem 0 0", fontSize: "0.9rem", display: "flex", gap: "1.25rem" }}>
+              <p style={{ margin: "1rem 0 0", fontSize: "0.9rem", display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
                 {f.links.map((l) =>
                   l.external ? (
-                    <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer">
+                    <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="project-action">
                       {l.label} ↗
                     </a>
                   ) : (
-                    <Link key={l.href} href={l.href}>
+                    <Link key={l.href} href={l.href} className="project-action">
                       {l.label} →
                     </Link>
                   ),
@@ -179,6 +196,7 @@ export default async function ProjectsIndex() {
                         alt={`${p.title} thumbnail`}
                         fill
                         sizes="(max-width: 600px) 100vw, 260px"
+                        unoptimized={isExternalImage(p.thumbnail)}
                         style={{ objectFit: "cover" }}
                       />
                     </div>

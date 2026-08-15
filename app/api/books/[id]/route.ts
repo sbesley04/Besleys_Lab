@@ -10,14 +10,15 @@ import { bookProblems } from "@/lib/library";
 //          the shelf manager (send `move: true` to skip full validation)
 //   DELETE /api/books/:id → remove the book (reviews cascade)
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiStaff();
   if (auth instanceof NextResponse) return auth;
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
 
-  const existing = await prisma.book.findUnique({ where: { id: params.id } });
+  const existing = await prisma.book.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Book not found." }, { status: 404 });
 
   // Shelf-manager moves: only bookcase/shelf/position change, no other validation.
@@ -26,7 +27,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const shelf = Number.isInteger(body.shelf) ? body.shelf : existing.shelf;
     const position = Number.isInteger(body.position) ? body.position : existing.position;
     const book = await prisma.book.update({
-      where: { id: params.id },
+      where: { id },
       data: { bookcase, shelf, position },
     });
     return NextResponse.json(book);
@@ -39,7 +40,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   try {
     const book = await prisma.book.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         slug,
         title: body.title.trim(),
@@ -64,10 +65,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiStaff();
   if (auth instanceof NextResponse) return auth;
 
-  await prisma.book.delete({ where: { id: params.id } }).catch(() => null);
+  await prisma.book.delete({ where: { id } }).catch(() => null);
   return NextResponse.json({ ok: true });
 }

@@ -1,6 +1,9 @@
 import Link from "next/link";
 import Snapshot from "./_components/Snapshot";
 import FieldNotebook from "./_components/FieldNotebook";
+import GridText from "./_components/eggs/GridText";
+import GridSwitch from "./_components/eggs/GridSwitch";
+import GridHome from "./_components/eggs/GridHome";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_FIELD_NOTES, type FieldNoteEntry } from "@/lib/fieldNotes";
 
@@ -24,7 +27,9 @@ type Section = {
   href: string;
   title: string;
   blurb: string;
+  gridBlurb: string; // in-world copy shown on the Grid (Konami egg)
   glyph: string; // simple typographic mark, keeps the "ink on paper" feel
+  featured?: boolean;
 };
 
 const sections: Section[] = [
@@ -32,30 +37,36 @@ const sections: Section[] = [
     href: "/blog",
     title: "Blog",
     blurb: "Markdown notes on data, models, and building things.",
+    gridBlurb: "Transmissions on data, models, and building things.",
     glyph: "♟",
   },
   {
     href: "/projects",
     title: "Projects",
     blurb: "Writeups with tech stacks, thumbnails, and GitHub links.",
+    gridBlurb: "Compiled dossiers — stacks, thumbnails, source links.",
     glyph: "♜",
+    featured: true,
   },
   {
     href: "/games",
     title: "Games",
     blurb: "A small arcade — including the Hunger Games simulator.",
+    gridBlurb: "The arcade sector — the Hunger Games simulator runs here.",
     glyph: "♞",
   },
   {
     href: "/library",
     title: "Library",
     blurb: "A digital bookshelf: what I'm reading, with reviews.",
+    gridBlurb: "The archive stacks — what I'm reading, logged.",
     glyph: "♛",
   },
   {
     href: "/about",
     title: "About",
     blurb: "Data scientist & full-stack developer. ML, analytics, web.",
+    gridBlurb: "Identity disc — data scientist & full-stack developer.",
     glyph: "♚",
   },
 ];
@@ -70,6 +81,9 @@ export default async function HomePage() {
       ? dbNotes.map((n) => ({ id: n.id, image: n.image, alt: n.alt, caption: n.caption, tilt: n.tilt }))
       : DEFAULT_FIELD_NOTES;
   return (
+    <GridSwitch
+      grid={<GridHome />}
+      paper={
     <main
       style={{
         maxWidth: 1040,
@@ -92,7 +106,7 @@ export default async function HomePage() {
             className="margin-note"
             style={{ margin: "0 0 0.25rem" }}
           >
-            a personal site &amp; workshop
+            <GridText paper="a personal site & workshop" grid="PROGRAM // BESLEY-1 · ACTIVE ON THE GRID" />
           </p>
           <h1
             style={{
@@ -113,18 +127,19 @@ export default async function HomePage() {
               maxWidth: "42ch",
             }}
           >
-            Data science, full-stack development, and a few fun experiments. Feel free to explore!
+            <GridText
+              paper="Explore projects, interactive demos, and games."
+              grid="You're on the Grid now. Everything still runs — it just runs brighter."
+            />
           </p>
-          <div
-            aria-hidden
-            style={{
-              width: 64,
-              height: 2,
-              background: "var(--accent)",
-              marginTop: "1.5rem",
-              opacity: 0.7,
-            }}
-          />
+          <div className="hero-actions">
+            <Link href="/projects" className="button-primary">
+              <GridText paper="Explore my work" grid="Access my work" /> <span aria-hidden>→</span>
+            </Link>
+            <Link href="/lab" className="button-secondary">
+              <GridText paper="Try an ML demo" grid="Run a demo" />
+            </Link>
+          </div>
         </div>
 
         <div className="photo-cluster" style={{ padding: "0.75rem 0.5rem" }}>
@@ -165,7 +180,7 @@ export default async function HomePage() {
             <li key={s.href} style={{ display: "flex" }}>
               <Link
                 href={s.href}
-                className="paper-card"
+                className={`paper-card section-card${s.featured ? " section-card-featured" : ""}`}
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -193,6 +208,7 @@ export default async function HomePage() {
                     fontWeight: 600,
                   }}
                 >
+                  {s.featured && <span className="section-kicker">Start here</span>}
                   {s.title}
                 </span>
                 <span
@@ -202,7 +218,7 @@ export default async function HomePage() {
                     color: "var(--ink-soft)",
                   }}
                 >
-                  {s.blurb}
+                  <GridText paper={s.blurb} grid={s.gridBlurb} />
                 </span>
               </Link>
             </li>
@@ -222,13 +238,18 @@ export default async function HomePage() {
             marginBottom: "0.15rem",
           }}
         >
-          From the field notebook
+          <GridText paper="From the field notebook" grid="Recovered frames" />
         </h2>
         <p style={{ color: "var(--ink-soft)", fontSize: "0.95rem", margin: 0 }}>
-          Proof that the laptop does occasionally get closed. Click a print to take a closer look.
+          <GridText
+            paper="Proof that the laptop does occasionally get closed. Click a print to take a closer look."
+            grid="Cached stills pulled from the archive. Select a frame to render it full-resolution."
+          />
         </p>
         <FieldNotebook notes={fieldNotes} />
       </section>
     </main>
+      }
+    />
   );
 }

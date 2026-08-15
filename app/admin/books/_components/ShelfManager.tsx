@@ -249,7 +249,7 @@ export default function ShelfManager() {
         </label>
 
         <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--ink-soft)" }}>
-          Add plant
+          Add shelf decor
           <select style={inputStyle} value={decorKind} onChange={(e) => setDecorKind(e.target.value as DecorKind)}>
             {DECOR_KINDS.map((k) => (
               <option key={k} value={k}>
@@ -282,7 +282,7 @@ export default function ShelfManager() {
         <div className="paper-card" style={{ padding: "2rem", textAlign: "center" }}>
           <p style={{ margin: 0, color: "var(--ink-soft)" }}>
             This bookcase is empty. <Link href="/admin/books/new">Add a book</Link> (pick this
-            bookcase in the editor) or add a plant above.
+            bookcase in the editor) or add shelf decor above.
           </p>
         </div>
       ) : (
@@ -380,7 +380,7 @@ export default function ShelfManager() {
       )}
 
       <p style={{ color: "var(--ink-soft)", fontSize: "0.82rem", margin: 0 }}>
-        ← → reorder within a shelf · ↑ ↓ move between shelves. Plants move with the same controls.
+        ← → reorder within a shelf · ↑ ↓ move between shelves. Shelf decor moves with the same controls.
         To move a book to another bookcase, open its editor and change the bookcase there.
       </p>
     </div>

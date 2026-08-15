@@ -11,8 +11,8 @@ import { headers } from "next/headers";
 // domain and scheme; only configured project domains ever reach the app, so this
 // can't be spoofed to an outside host. Falls back to NEXT_PUBLIC_SITE_URL (then
 // localhost) when no request headers are available.
-export function requestOrigin(): string {
-  const h = headers();
+export async function requestOrigin(): Promise<string> {
+  const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host");
   if (host) {
     const proto = h.get("x-forwarded-proto") ?? "https";

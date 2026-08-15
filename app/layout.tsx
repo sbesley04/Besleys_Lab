@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Playfair_Display, Inter, Caveat } from "next/font/google";
+import Script from "next/script";
+import { Playfair_Display, Inter, Caveat, Michroma, IBM_Plex_Mono } from "next/font/google";
 import Providers from "./providers";
 import SiteHeader from "./_components/SiteHeader";
 import AchievementToaster from "./_components/AchievementToaster";
 import EggEffects from "./_components/eggs/EggEffects";
 import ZoteHeckler from "./_components/eggs/ZoteHeckler";
+import ThemeAtmosphere from "./_components/ThemeAtmosphere";
+import SecretTerminal from "./_components/eggs/SecretTerminal";
+import HyperspaceJump from "./_components/eggs/HyperspaceJump";
+import GridText from "./_components/eggs/GridText";
 import "./globals.css";
+// Grid-only global styles (scoped under :root[data-egg='tron']).
+import "./_styles/grid-motion.css";
+import "./_styles/grid-hud.css";
 
 // next/font self-hosts the fonts and exposes them as CSS variables that
 // globals.css references (--font-display / --font-body / --font-hand).
@@ -29,6 +37,22 @@ const caveat = Caveat({
   subsets: ["latin"],
   weight: ["500", "600"],
   variable: "--font-hand",
+  display: "swap",
+});
+
+// Secret "Grid" (Konami) faces — swapped in via tokens under data-egg="tron".
+// Michroma: wide geometric display. IBM Plex Mono: readable mono body.
+const michroma = Michroma({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-grid-display",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-grid-body",
   display: "swap",
 });
 
@@ -61,23 +85,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // <html> before hydration, which React would otherwise flag in dev.
     <html
       lang="en"
-      className={`${playfair.variable} ${inter.variable} ${caveat.variable}`}
+      className={`${playfair.variable} ${inter.variable} ${caveat.variable} ${michroma.variable} ${plexMono.variable}`}
       suppressHydrationWarning
     >
       <body>
-        {/* Restore the saved secret theme before first paint (no flash). */}
-        <script
+        {/* Restore the saved theme + Grid egg before first paint (no flash). */}
+        <Script
+          id="restore-paper-lab-theme"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html:
-              "try{var t=localStorage.getItem('bl:theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}",
+              "try{var t=localStorage.getItem('bl:theme');if(t)document.documentElement.dataset.theme=t;var e=sessionStorage.getItem('bl:egg');if(e)document.documentElement.dataset.egg=e;}catch(e){}",
           }}
         />
         <Providers>
+          {/* Everything visible lives in #bl-stage so the hyperspace jump can
+              blur/scale the whole page away while the starfield canvas (a
+              sibling, below) stays sharp on top. */}
+          <div id="bl-stage">
           <SiteHeader />
           {children}
           <footer className="site-footer">
             <span>
-              Besley&rsquo;s Lab — built by hand, one commit at a time.
+              <GridText
+                paper={<>Besley&rsquo;s Lab — built by hand, one commit at a time.</>}
+                grid="BESLEY'S LAB // COMPILED BY HAND — END OF LINE"
+              />
             </span>
             <nav aria-label="Footer" style={{ display: "flex", gap: "1.1rem", flexWrap: "wrap" }}>
               <Link href="/contact">Contact</Link>
@@ -86,11 +119,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 GitHub
               </a>
             </nav>
-            <span className="margin-note">thanks for stopping by ✌︎</span>
+            <span className="margin-note"><ThemeAtmosphere /><GridText paper="thanks for stopping by ✌︎" grid="end of line ▮" /></span>
           </footer>
+          </div>
           <AchievementToaster />
           <EggEffects />
           <ZoteHeckler />
+          <SecretTerminal />
+          <HyperspaceJump />
         </Providers>
       </body>
     </html>

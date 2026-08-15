@@ -21,8 +21,7 @@ export default function Error({
         Something went wrong
       </h1>
       <p style={{ color: "var(--ink-soft)", margin: "0 auto 1.5rem", maxWidth: "40ch" }}>
-        This page hit an unexpected error. Your data is fine — try again, or head back to the
-        desk.
+        This page couldn&rsquo;t load. Try again or return home.
       </p>
       {error.digest && (
         <p style={{ color: "var(--ink-soft)", fontSize: "0.75rem", margin: "0 0 1.5rem" }}>

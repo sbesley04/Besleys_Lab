@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import styles from "./arcade.module.css";
 import { games } from "./registry";
-import { unlock, localUnlocked } from "@/lib/arcade";
-import { ACHIEVEMENTS } from "@/lib/achievements";
+import { unlock } from "@/lib/arcade";
 import { baa } from "@/lib/sound";
+import GridText from "@/app/_components/eggs/GridText";
 
 // The arcade hub, client-side: the game-card grid plus its residents —
 // a Junimo asleep behind one of the cards, a sheep grazing in the margin,
@@ -19,7 +19,7 @@ export default function ArcadeHub() {
       <GliderSalute />
       <GameGrid />
       <Sheep />
-      <Terminal />
+      <ArcadeTerminalSummon />
     </>
   );
 }
@@ -70,7 +70,7 @@ function GameGrid() {
               {g.title}
             </h2>
             <p style={{ color: "var(--ink-soft)", margin: "0.4rem 0 0", fontSize: "0.92rem" }}>
-              {g.blurb}
+              <GridText paper={g.blurb} grid={g.gridBlurb} />
             </p>
           </Link>
         </div>
@@ -79,16 +79,18 @@ function GameGrid() {
   );
 }
 
-// A small forest spirit, very much asleep on the job.
+// A small original moss sprite, very much asleep on the job.
 function Junimo() {
   return (
-    <svg viewBox="0 0 30 30" width="30" height="30" aria-hidden>
-      <path d="M15 6 Q15 2 18 1" fill="none" stroke="#3d7a33" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="18.6" cy="1.4" r="1.6" fill="#57a344" />
-      <path d="M4 22 Q4 8 15 8 Q26 8 26 22 Q26 27 15 27 Q4 27 4 22 Z" fill="#57a344" stroke="#3d7a33" strokeWidth="1.4" />
-      <circle cx="11" cy="16" r="1.3" fill="#1c3a17" />
-      <circle cx="19" cy="16" r="1.3" fill="#1c3a17" />
-      <path d="M12.5 20 Q15 21.8 17.5 20" fill="none" stroke="#1c3a17" strokeWidth="1.1" strokeLinecap="round" />
+    <svg viewBox="0 0 38 36" width="38" height="36" aria-hidden>
+      <path d="M18 9 C16 4 19 1 23 1" fill="none" stroke="#49683f" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M23 2 C29 1 30 6 25 8" fill="#88a953" stroke="#49683f" strokeWidth="1.1" />
+      <path d="M5 27 C3 17 8 9 18 8 C29 8 35 17 33 27 C31 33 8 34 5 27Z" fill="#789a4d" stroke="#3e5d39" strokeWidth="1.6" />
+      <path d="M8 20 C11 14 15 12 18 12 C24 12 28 15 30 20" fill="none" stroke="#b5cb76" strokeWidth="1" opacity=".85" />
+      <ellipse cx="13.5" cy="21" rx="2.1" ry="1.35" fill="#253526" />
+      <ellipse cx="23.5" cy="21" rx="2.1" ry="1.35" fill="#253526" />
+      <path d="M15 26 Q18.5 28 22 26" fill="none" stroke="#253526" strokeWidth="1.25" strokeLinecap="round" />
+      <circle cx="8" cy="27" r="1.2" fill="#d8ba62" opacity=".8" />
     </svg>
   );
 }
@@ -167,261 +169,57 @@ function Sheep() {
         aria-label="A sheep, inexplicably"
         title="baa"
       >
-        <svg viewBox="0 0 48 34" width="72" height="51">
-          {/* legs */}
-          <rect x="14" y="26" width="4" height="8" fill="#4a463e" />
-          <rect x="30" y="26" width="4" height="8" fill="#4a463e" />
-          {/* body wool (blocky, like a certain sandbox game) */}
+        <svg viewBox="0 0 68 46" width="86" height="58" aria-hidden>
+          {/* legs and small hooves */}
+          <path d="M19 33v8m17-8v8" stroke="#594a3e" strokeWidth="4" strokeLinecap="round" />
+          <path d="M16.5 41h5m11.5 0h5" stroke="#332b25" strokeWidth="2" strokeLinecap="round" />
+          {/* wool, laid up as a loose field sketch rather than square blocks */}
           {!shorn && (
             <g className={`${popping ? styles.woolPop : ""}`}>
-              <rect x="8" y="8" width="32" height="20" rx="2" fill="#f2efe6" stroke="#c9c4b4" strokeWidth="1" className={jeb ? styles.jebWool : ""} />
-              <rect x="12" y="4" width="10" height="8" rx="2" fill="#f2efe6" stroke="#c9c4b4" strokeWidth="1" className={jeb ? styles.jebWool : ""} />
+              <path d="M8 29 C4 25 7 18 12 18 C8 12 14 7 19 10 C21 4 29 5 31 10 C37 5 44 10 43 16 C50 17 52 26 46 30 C42 35 15 35 8 29Z" fill="#f4f0e5" stroke="#b8af9b" strokeWidth="1.3" className={jeb ? styles.jebWool : ""} />
+              <path d="M14 18c4-4 8 2 12-2s8 2 13-1M13 25c4-3 9 2 13-1s8 3 15-1" fill="none" stroke="#d3cab6" strokeWidth="1" opacity=".9" />
             </g>
           )}
           {/* shorn body */}
-          {shorn && <rect x="10" y="12" width="28" height="15" rx="3" fill="#e8c6b8" stroke="#c9a290" strokeWidth="1" />}
+          {shorn && <path d="M10 29C8 20 15 14 29 15c12 0 17 6 15 14-7 5-27 5-34 0Z" fill="#e5bda9" stroke="#bb8d7b" strokeWidth="1.2" />}
           {/* head */}
-          <rect x="36" y="6" width="10" height="10" rx="1.5" fill="#e8ddc8" stroke="#b8ad98" strokeWidth="1" />
-          <rect x="38.5" y="9" width="2.2" height="2.8" fill="#2b2b2b" />
-          <rect x="43" y="9" width="2.2" height="2.8" fill="#2b2b2b" />
-          <rect x="40" y="13.4" width="4" height="2" fill="#d8a8a0" />
+          <path d="M43 14c4-6 13-2 14 4v8c-2 5-10 6-14 1Z" fill="#dfd1b8" stroke="#ad9d86" strokeWidth="1.2" />
+          <path d="M47 14l-1-5m6 5 3-4" stroke="#8b7865" strokeWidth="2" strokeLinecap="round" />
+          <ellipse cx="49" cy="20" rx="1.3" ry="1.7" fill="#2b2b2b" />
+          <ellipse cx="54" cy="20" rx="1.3" ry="1.7" fill="#2b2b2b" />
+          <ellipse cx="52" cy="25" rx="3.2" ry="1.5" fill="#c88888" />
         </svg>
       </button>
     </div>
   );
 }
 
-// --- the terminal ------------------------------------------------------------
-
+// The original access word remains an Arcade-only secret. The site-wide
+// `sudo` shortcut dispatches the same event from EggEffects.
 const SUMMON = "besley";
 
-interface TermLine {
-  text: string;
-  cls?: "dim" | "accent";
-}
-
-function Terminal() {
-  const [open, setOpen] = useState(false);
-  const [lines, setLines] = useState<TermLine[]>([]);
-  const [input, setInput] = useState("");
-  const [rainbow, setRainbow] = useState(false);
-  const bodyRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Summon: type "besley" anywhere on the page (outside form fields).
+function ArcadeTerminalSummon() {
   useEffect(() => {
-    let buf = "";
-    function onKey(e: KeyboardEvent) {
-      const target = e.target as HTMLElement;
-      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable) return;
-      if (e.key.length !== 1) return;
-      buf = (buf + e.key.toLowerCase()).slice(-SUMMON.length);
-      if (buf === SUMMON) {
-        buf = "";
-        setOpen(true);
+    let buffer = "";
+    function onKey(event: KeyboardEvent) {
+      const target = event.target as HTMLElement;
+      if (
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.isContentEditable ||
+        event.key.length !== 1
+      ) {
+        return;
+      }
+      buffer = (buffer + event.key.toLowerCase()).slice(-SUMMON.length);
+      if (buffer === SUMMON) {
+        buffer = "";
+        window.dispatchEvent(new Event("bl:open-terminal"));
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  useEffect(() => {
-    if (open) {
-      if (lines.length === 0) {
-        print([
-          { text: "BESLEY'S LAB terminal v0.53", cls: "accent" },
-          { text: "unauthorized access is mildly encouraged. type 'help'." },
-        ]);
-      }
-      inputRef.current?.focus();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  useEffect(() => {
-    bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight });
-  }, [lines]);
-
-  function print(out: TermLine[]) {
-    setLines((l) => [...l, ...out].slice(-200));
-  }
-
-  function run(raw: string) {
-    const cmd = raw.trim();
-    if (!cmd) return;
-    print([{ text: `> ${cmd}`, cls: "dim" }]);
-    const [head, ...rest] = cmd.toLowerCase().split(/\s+/);
-    const arg = rest.join(" ");
-
-    switch (head) {
-      case "help":
-        print([
-          { text: "help        this" },
-          { text: "motd        message of the day" },
-          { text: "stats       your lab record" },
-          { text: "theme       change the site's paper" },
-          { text: "whoami      identity check" },
-          { text: "clear       wipe the screen" },
-          { text: "exit        close the terminal" },
-          { text: "(some commands are not listed. obviously.)", cls: "dim" },
-        ]);
-        break;
-      case "motd": {
-        const motds = [
-          "the blueprints for this place have to be around here somewhere.",
-          "day 1287 of the experiment. the games are still winning.",
-          "reminder: feed the junimo. it lives behind the cards now.",
-          "a snake, a spider, and 53 cards walk into a lab...",
-          "the sheep is not a bug. the sheep is a feature.",
-        ];
-        print([{ text: motds[Math.floor(Math.random() * motds.length)] }]);
-        break;
-      }
-      case "stats": {
-        const unlocked = localUnlocked();
-        print([
-          { text: `achievements: ${unlocked.size}/${ACHIEVEMENTS.length} unlocked` },
-          { text: unlocked.size === ACHIEVEMENTS.length ? "completionist detected. impressive." : "keep digging.", cls: "dim" },
-        ]);
-        break;
-      }
-      case "whoami":
-        print([{ text: "a scientist, probably. the lab coat suits you." }]);
-        break;
-      case "theme":
-        if (arg === "blueprint") {
-          applyTheme("blueprint");
-          print([{ text: "switching to blueprint. mind the wet ink.", cls: "accent" }]);
-        } else if (arg === "paper" || arg === "default" || arg === "reset") {
-          applyTheme(null);
-          print([{ text: "back to paper. cozy." }]);
-        } else {
-          print([
-            { text: "available: paper, ??????" },
-            { text: "(the second one is written on the back of this terminal)", cls: "dim" },
-          ]);
-        }
-        break;
-      case "blueprint":
-        applyTheme("blueprint");
-        print([{ text: "ah — found the blueprints. switching.", cls: "accent" }]);
-        break;
-      case "clear":
-        setLines([]);
-        break;
-      case "exit":
-      case "quit":
-        setOpen(false);
-        break;
-
-      // --- unlisted ---------------------------------------------------------
-      case "synthesize":
-      case "zni2":
-      case "zn+i2": {
-        print([
-          { text: "loading crucible... Zn (powdered) + I₂ (crystals)" },
-          { text: "adding a few drops of H₂O as catalyst..." },
-          { text: "⚗️  Zn + I₂ → ZnI₂        ΔH < 0 (vigorously)", cls: "accent" },
-          { text: "purple vapor everywhere. the fume hood judges you. lab report due friday." },
-        ]);
-        unlock("egg-chemist");
-        break;
-      }
-      case "train": {
-        print([
-          { text: "initializing model... optimizer=adam lr=3e-4" },
-          { text: "epoch 1/3  loss 0.6931  val_loss 0.6928" },
-          { text: "epoch 2/3  loss 0.2107  val_loss 0.2411" },
-          { text: "epoch 3/3  loss 0.0001  val_loss 4.7182", cls: "accent" },
-          { text: "training accuracy 100.00%. that is not the flex you think it is." },
-          { text: "(did... did you leak the test set into the training data?)", cls: "dim" },
-        ]);
-        unlock("egg-overfit");
-        break;
-      }
-      case "lake":
-      case "rustylake": {
-        print([
-          { text: "the lake is quiet today." },
-          { text: "a crow watches from the mill. it seems to remember you.", cls: "dim" },
-          { text: "🦌  \"we will meet again at the bottom of the lake.\"", cls: "accent" },
-        ]);
-        unlock("egg-rusty");
-        break;
-      }
-      case "jeb_": {
-        setRainbow(true);
-        try {
-          localStorage.setItem("bl:jeb", "1");
-        } catch { /* ignore */ }
-        print([{ text: "an old name tag glows. the sheep on this page will remember this.", cls: "accent" }]);
-        unlock("egg-jeb");
-        break;
-      }
-      case "sudo":
-        print([{ text: "nice try. this incident will be reported (to the sheep)." }]);
-        break;
-      case "konami":
-        print([{ text: "↑ ↑ ↓ ↓ ... you know the rest. anywhere on the site.", cls: "dim" }]);
-        break;
-      default:
-        print([{ text: `command not found: ${head}`, cls: "dim" }]);
-    }
-  }
-
-  function applyTheme(theme: string | null) {
-    const html = document.documentElement;
-    if (theme) html.dataset.theme = theme;
-    else delete html.dataset.theme;
-    try {
-      if (theme) localStorage.setItem("bl:theme", theme);
-      else localStorage.removeItem("bl:theme");
-    } catch { /* ignore */ }
-  }
-
-  if (!open) return null;
-
-  return (
-    <div className={styles.termBackdrop} onClick={() => setOpen(false)}>
-      <div
-        className={`${styles.terminal} ${rainbow ? styles.termRainbow : ""}`}
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-label="Lab terminal"
-      >
-        <div className={styles.termHeader}>
-          <span>sam@besleys-lab — /dev/arcade</span>
-          <button type="button" className={styles.termClose} onClick={() => setOpen(false)} aria-label="Close terminal">
-            ✕
-          </button>
-        </div>
-        <div className={styles.termBody} ref={bodyRef}>
-          {lines.map((l, i) => (
-            <div key={i} className={l.cls === "dim" ? styles.termDim : l.cls === "accent" ? styles.termAccent : undefined}>
-              {l.text}
-            </div>
-          ))}
-        </div>
-        <form
-          className={styles.termInputRow}
-          onSubmit={(e) => {
-            e.preventDefault();
-            run(input);
-            setInput("");
-          }}
-        >
-          <span aria-hidden>&gt;</span>
-          <input
-            ref={inputRef}
-            className={styles.termInput}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            aria-label="Terminal command"
-            autoComplete="off"
-            spellCheck={false}
-          />
-        </form>
-      </div>
-    </div>
-  );
+  return null;
 }

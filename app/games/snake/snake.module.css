@@ -22,11 +22,21 @@
   grid-template-rows: repeat(20, var(--cell, 22px));
   background-color: var(--paper);
   background-image:
+    linear-gradient(color-mix(in srgb, var(--paper) 22%, transparent), color-mix(in srgb, var(--paper) 22%, transparent)),
     linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: var(--cell, 22px) var(--cell, 22px);
+    linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    url("/artifacts/snake-habitats-optimized.jpg");
+  background-size:
+    100% 100%,
+    var(--cell, 22px) var(--cell, 22px),
+    var(--cell, 22px) var(--cell, 22px),
+    200% 200%;
+  background-position: 0 0, 0 0, 0 0, 0 0;
   border: 1px solid rgba(0, 0, 0, 0.18);
 }
+.board[data-habitat-stage="1"] { background-position: 0 0, 0 0, 0 0, 100% 0; }
+.board[data-habitat-stage="2"] { background-position: 0 0, 0 0, 0 0, 0 100%; }
+.board[data-habitat-stage="3"] { background-position: 0 0, 0 0, 0 0, 100% 100%; }
 
 .cell {
   width: var(--cell, 22px);
@@ -35,21 +45,55 @@
 }
 
 .body {
-  background: #2b2b2b;
-  border: 1px solid rgba(245, 240, 232, 0.18);
-  border-radius: 2px;
+  background: linear-gradient(135deg, var(--snake-body-light), var(--snake-body));
+  border: 1px solid color-mix(in srgb, var(--paper) 24%, transparent);
+  border-radius: 45% 36% 42% 32%;
+  box-shadow: inset -2px -2px 0 color-mix(in srgb, var(--ink) 18%, transparent), inset 2px 2px 0 color-mix(in srgb, white 14%, transparent);
 }
 
 .head {
-  background: var(--ink);
-  border-radius: 3px;
+  background: radial-gradient(circle at 33% 33%, var(--snake-eye) 0 8%, transparent 9%), linear-gradient(135deg, var(--snake-head-light), var(--snake-head));
+  border: 1px solid color-mix(in srgb, var(--paper) 24%, transparent);
+  border-radius: 50% 42% 48% 35%;
+  box-shadow: inset -2px -2px 0 color-mix(in srgb, var(--ink) 22%, transparent);
 }
 
 .food {
-  background: var(--accent);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, white 55%, var(--accent)), var(--accent) 56%, color-mix(in srgb, var(--ink) 38%, var(--accent)) 100%);
   border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2), 0 0 8px color-mix(in srgb, var(--accent) 50%, transparent);
 }
+
+.boardWrap {
+  --snake-body: #314a3a;
+  --snake-body-light: #6f8c56;
+  --snake-head: #1e352b;
+  --snake-head-light: #668654;
+  --snake-eye: #f4d36c;
+  --fish-fill: #e5a4a4;
+  --fish-line: #8c475a;
+  --fish-eye: #2a1d23;
+}
+
+:global(:root[data-theme="blueprint"]) .boardWrap { --snake-body: #285165; --snake-body-light: #75a9ae; --snake-head: #19364c; --snake-head-light: #5d96a0; --snake-eye: #f4ce6e; --fish-fill: #d58b80; --fish-line: #803d48; }
+:global(:root[data-theme="copper"]) .boardWrap { --snake-body: #6b3f27; --snake-body-light: #b67236; --snake-head: #472317; --snake-head-light: #9f5628; --snake-eye: #f4d36c; --fish-fill: #c9775c; --fish-line: #6c332d; }
+:global(:root[data-theme="forest"]) .boardWrap { --snake-body: #315940; --snake-body-light: #84a65c; --snake-head: #1f3c30; --snake-head-light: #658c50; --snake-eye: #f0d467; --fish-fill: #d78170; --fish-line: #73433a; }
+:global(:root[data-theme="plum"]) .boardWrap { --snake-body: #583d69; --snake-body-light: #a17bac; --snake-head: #352440; --snake-head-light: #775781; --snake-eye: #f5d178; --fish-fill: #cf7d9d; --fish-line: #713b58; }
+:global(:root[data-theme="frost"]) .boardWrap { --snake-body: #2c6672; --snake-body-light: #8bc4ca; --snake-head: #1c4757; --snake-head-light: #5f9fa6; --snake-eye: #f4d36c; }
+:global(:root[data-theme="sunset"]) .boardWrap { --snake-body: #96473c; --snake-body-light: #d47b5d; --snake-head: #642f2b; --snake-head-light: #b85b48; --snake-eye: #f4d36c; }
+:global(:root[data-theme="slate"]) .boardWrap { --snake-body: #40536a; --snake-body-light: #8497ad; --snake-head: #26384c; --snake-head-light: #63768d; --snake-eye: #f1d46d; }
+:global(:root[data-theme="rose"]) .boardWrap { --snake-body: #8a4667; --snake-body-light: #cb7797; --snake-head: #56293f; --snake-head-light: #a45978; --snake-eye: #f3d46f; }
+:global(:root[data-theme="noir"]) .boardWrap { --snake-body: #4b4b4b; --snake-body-light: #aaaaaa; --snake-head: #1e1e1e; --snake-head-light: #777777; --snake-eye: #ededed; --fish-fill: #b1b1b1; --fish-line: #454545; --fish-eye: #111; }
+
+:global(:root[data-theme="blueprint"]) .board { filter: saturate(0.88) hue-rotate(4deg); }
+:global(:root[data-theme="copper"]) .board { filter: sepia(0.2) saturate(1.12) hue-rotate(335deg); }
+:global(:root[data-theme="forest"]) .board { filter: saturate(0.84) hue-rotate(32deg); }
+:global(:root[data-theme="plum"]) .board { filter: hue-rotate(38deg) saturate(0.9); }
+:global(:root[data-theme="frost"]) .board { filter: grayscale(0.15) hue-rotate(145deg); }
+:global(:root[data-theme="sunset"]) .board { filter: sepia(0.18) saturate(1.08); }
+:global(:root[data-theme="slate"]) .board { filter: grayscale(0.42); }
+:global(:root[data-theme="rose"]) .board { filter: hue-rotate(322deg) saturate(0.9); }
+:global(:root[data-theme="noir"]) .board { filter: grayscale(1) contrast(1.34); }
 
 .sidebar {
   min-width: 170px;
@@ -121,4 +165,194 @@
   background: var(--accent);
   color: var(--paper);
   cursor: pointer;
+}
+
+/* ===========================================================================
+   THE GRID — the Konami mode (:root[data-egg="tron"]). Snake becomes a
+   light-cycle run: the trail is a wall of light, the head is the cycle, food is
+   an energy node, and the habitat photo gives way to the grid floor.
+
+   Two structural notes:
+   1. Every rule below is scoped to the egg attribute, so paper mode and the
+      nine data-theme variants are untouched.
+   2. The whole section lives at the END of the file on purpose. data-theme
+      (localStorage) and data-egg (session) can both be set on <html> at once,
+      and `:root[data-egg=...] .board` ties on specificity with
+      `:root[data-theme=...] .board` — source order is what breaks the tie.
+   =========================================================================== */
+
+:global(:root[data-egg="tron"]) .boardWrap {
+  /* Light-wall palette. The trail fills are translucent on purpose: a Tron
+     light wall is glass with a hot edge, so the grid floor reads through it.
+     --snake-eye is deliberately absent — the Grid head has no eye, it has a
+     leading edge (see .head below). */
+  --snake-body: rgba(125, 249, 255, 0.38);
+  --snake-body-light: rgba(234, 249, 255, 0.72);
+  --snake-head: #7df9ff;
+  --snake-head-light: #ffffff;
+  /* The bladderfish arrives as an amber wireframe — amber rather than the
+     node's magenta so the rare food still reads as *different* at a glance. */
+  --fish-fill: rgba(255, 176, 32, 0.3);
+  --fish-line: #ffb020;
+  --fish-eye: #eaf9ff;
+  /* Energy node (ordinary food). Magenta so it can never be mistaken for a
+     stray piece of the cyan trail. */
+  --energy-node: #ff3ca0;
+
+  border-color: rgba(125, 249, 255, 0.28);
+  border-radius: 0;
+  box-shadow: 0 0 22px rgba(0, 184, 212, 0.28), 0 0 2px rgba(125, 249, 255, 0.5);
+}
+
+/* The grid floor. The habitat photo is a picture of real terraria — exactly the
+   wrong register here — so the entire background stack is replaced with ruled
+   light. This rule outranks .board[data-habitat-stage="n"] (0,3,0 vs 0,2,0), so
+   the photo's parallax steps are neutralised without touching those rules; the
+   per-theme `filter` is cleared for the same reason (data-theme may still be
+   active underneath). */
+:global(:root[data-egg="tron"]) .board {
+  background-color: #03060a;
+  background-image:
+    linear-gradient(rgba(125, 249, 255, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 249, 255, 0.2) 1px, transparent 1px);
+  background-size: var(--cell, 22px) var(--cell, 22px), var(--cell, 22px) var(--cell, 22px);
+  background-position: 0 0;
+  border: 1px solid rgba(125, 249, 255, 0.3);
+  filter: none;
+  /* Inner bloom + vignette. Inset shadows paint under the cells, so the empty
+     floor falls away at the edges while the trail stays legible on top of it —
+     kept deliberately shallow, because the board edge is the thing that kills
+     you and it has to stay readable. */
+  box-shadow: inset 0 0 40px rgba(0, 150, 190, 0.2), inset 0 0 60px rgba(0, 0, 0, 0.45);
+}
+
+/* The trail: hard-edged panels of light, no organic rounding. One inset hairline
+   gives each segment its white-hot edge and one outer shadow does the bloom —
+   two shadows per cell is the whole budget, because this repaints every tick. */
+:global(:root[data-egg="tron"]) .body {
+  background: var(--snake-body);
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px var(--snake-body-light), 0 0 9px rgba(0, 184, 212, 0.55);
+}
+
+/* The cycle itself — the hottest thing on the board, with the white core pushed
+   to the leading edge. --cycle-sweep is re-aimed by the board's data-dir, so a
+   turn only re-angles one gradient. Note we can't animate the head: React keys
+   cells by coordinate, so the head class hops to a different <div> every tick
+   and any keyframe animation would restart (and appear frozen) each step. */
+:global(:root[data-egg="tron"]) .head {
+  background: linear-gradient(
+    var(--cycle-sweep, 90deg),
+    var(--snake-head) 0%,
+    var(--snake-head) 44%,
+    var(--snake-head-light) 100%
+  );
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px rgba(234, 249, 255, 0.9), 0 0 14px rgba(125, 249, 255, 0.85);
+}
+
+/* 0deg points the gradient's end colour (the white nose) at the top, 90deg at
+   the right — i.e. the sweep angle is the heading. */
+:global(:root[data-egg="tron"]) .board[data-dir="up"] { --cycle-sweep: 0deg; }
+:global(:root[data-egg="tron"]) .board[data-dir="right"] { --cycle-sweep: 90deg; }
+:global(:root[data-egg="tron"]) .board[data-dir="down"] { --cycle-sweep: 180deg; }
+:global(:root[data-egg="tron"]) .board[data-dir="left"] { --cycle-sweep: 270deg; }
+
+/* Energy node. Unlike the head this cell *does* persist between ticks (food sits
+   still until it's eaten), so it is the one board element that can safely carry
+   a loop — a slow transform/opacity pulse on a single element. */
+:global(:root[data-egg="tron"]) .food {
+  background: radial-gradient(
+    circle at 50% 50%,
+    #ffffff 0 16%,
+    var(--energy-node) 24% 56%,
+    color-mix(in srgb, var(--energy-node) 20%, transparent) 58% 100%
+  );
+  border-radius: 2px;
+  box-shadow:
+    0 0 10px color-mix(in srgb, var(--energy-node) 75%, transparent),
+    0 0 22px color-mix(in srgb, var(--energy-node) 32%, transparent);
+  animation: grid-node-pulse 1.7s ease-in-out infinite;
+}
+
+@keyframes grid-node-pulse {
+  0%,
+  100% { transform: scale(0.9); opacity: 0.88; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+/* The bladderfish is the only <svg> that ever lives in a cell; its colours come
+   from the --fish-* tokens above, this just lights it. */
+:global(:root[data-egg="tron"]) .cell svg {
+  filter: drop-shadow(0 0 5px rgba(255, 176, 32, 0.7));
+}
+
+/* One — and only one — always-on animated layer for the board: a slow energy
+   sweep. It rides the wrapper rather than the cells because per-cell shimmer
+   would restart every time a cell changed class (see .head), and 400 animated
+   children is not a budget worth spending. transform + opacity only, and the
+   travel stops short of the edges so nothing needs clipping. */
+:global(:root[data-egg="tron"]) .boardWrap::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 8px;
+  height: 24%;
+  z-index: 1;
+  opacity: 0; /* the keyframes own opacity; at rest (reduced motion) it's gone */
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(125, 249, 255, 0.1), transparent);
+  animation: grid-board-sweep 7s linear infinite;
+}
+
+@keyframes grid-board-sweep {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  22% { opacity: 1; }
+  78% { opacity: 1; }
+  100% { transform: translate3d(0, 300%, 0); opacity: 0; }
+}
+
+/* The paper overlay is cream (rgba(245,240,232,.86)) — a white sheet dropped on
+   a black board. Here it's a smoked console panel, and it sits above the sweep. */
+:global(:root[data-egg="tron"]) .overlay {
+  z-index: 2;
+  background: rgba(3, 6, 10, 0.88);
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px rgba(125, 249, 255, 0.28), inset 0 0 60px rgba(0, 120, 150, 0.1);
+}
+
+/* Michroma is a wide face: track it out, drop the size so "GAME OVER" still fits
+   the 440px board, and let globals.css supply the heading glow. */
+:global(:root[data-egg="tron"]) .overlayInner h2 {
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+:global(:root[data-egg="tron"]) .button {
+  border-radius: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  box-shadow: 0 0 18px rgba(0, 184, 212, 0.4), 0 0 2px rgba(125, 249, 255, 0.7);
+}
+
+/* Sidebar reads as the same wireframe glass as .paper-card does on the Grid. */
+:global(:root[data-egg="tron"]) .panel {
+  background: rgba(6, 18, 26, 0.5);
+  border-color: rgba(125, 249, 255, 0.28);
+  border-radius: 0;
+}
+
+:global(:root[data-egg="tron"]) .stat {
+  color: var(--accent-warm);
+  text-shadow: 0 0 6px rgba(125, 249, 255, 0.55), 0 0 20px rgba(0, 184, 212, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root[data-egg="tron"]) .food,
+  :global(:root[data-egg="tron"]) .boardWrap::after { animation: none; }
 }

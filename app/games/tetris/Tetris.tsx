@@ -111,6 +111,10 @@ export default function Tetris() {
   }, []);
 
   const view = renderBoard(state);
+  // The field illustration advances every two levels. It is deliberately
+  // independent from the active theme so a long run still feels like it moves
+  // through distinct places instead of merely changing palette.
+  const fieldStage = Math.min(3, Math.floor((Math.max(1, state.level) - 1) / 2));
 
   return (
     <div className={styles.layout}>
@@ -120,6 +124,7 @@ export default function Tetris() {
           role="grid"
           aria-label="Tetris board"
           style={{ ["--cell" as string]: "26px" }}
+          data-field-stage={fieldStage}
         >
           {view.flatMap((row, r) =>
             row.map((cell, c) => (

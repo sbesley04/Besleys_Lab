@@ -47,11 +47,15 @@
   display: grid;
   grid-template-columns: repeat(3, 5px);
   grid-template-rows: repeat(3, 5px);
-  gap: 1px;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--paper-deep) 65%, transparent);
   animation: glider-drift 26s linear infinite;
 }
-.glider i { background: transparent; }
-.gliderOn { background: var(--accent) !important; }
+.glider i { width: 5px; height: 5px; border-radius: 1px; background: transparent; }
+.gliderOn { background: var(--accent) !important; box-shadow: 0 0 4px color-mix(in srgb, var(--accent) 60%, transparent); }
 @keyframes glider-drift {
   from { transform: translateX(0); }
   to { transform: translateX(calc(100vw + 48px)); }
@@ -128,6 +132,11 @@
   align-items: center;
 }
 .termClose {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -0.35rem -0.65rem -0.35rem 0;
   background: none;
   border: none;
   color: #9db89d;
@@ -157,8 +166,91 @@
   color: #7ee787;
   font: inherit;
 }
+.termSubmit {
+  min-width: 44px;
+  min-height: 44px;
+  margin: -0.35rem -0.45rem -0.35rem 0;
+  padding: 0 0.65rem;
+  border: 1px solid #405340;
+  border-radius: 4px;
+  background: #182018;
+  color: #9db89d;
+  font: inherit;
+  cursor: pointer;
+}
+.termSubmit:hover { border-color: #7ee787; color: #7ee787; }
 .termRainbow { animation: term-rainbow 3s linear infinite; }
+.termArtifact {
+  display: block;
+  width: 72px;
+  height: 72px;
+  margin: 0.45rem 0 0.15rem;
+  border: 1px solid #536553;
+  border-radius: 4px;
+  object-fit: cover;
+  opacity: 0.92;
+}
 @keyframes term-rainbow {
   0% { color: #e66; } 20% { color: #ea3; } 40% { color: #5c5; }
   60% { color: #5ad; } 80% { color: #a6e; } 100% { color: #e66; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .sheepShake,
+  .woolPop,
+  .jebWool,
+  .termRainbow { animation: none; }
+}
+
+/* --- The Grid (Konami egg): wireframe wildlife + a native console -----------
+   CSS fill/stroke override the sprites' presentation-attribute colors, so the
+   Junimo and the sheep become glowing cyan wireframes with no sprite edits. */
+:global(:root[data-egg='tron']) .junimo path,
+:global(:root[data-egg='tron']) .sheep path {
+  fill: none !important;
+  stroke: var(--accent);
+  stroke-width: 1.4;
+}
+:global(:root[data-egg='tron']) .junimo ellipse,
+:global(:root[data-egg='tron']) .junimo circle,
+:global(:root[data-egg='tron']) .sheep ellipse {
+  fill: var(--accent) !important;
+  stroke: none;
+}
+:global(:root[data-egg='tron']) .junimo svg,
+:global(:root[data-egg='tron']) .sheep svg {
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent) 70%, transparent));
+}
+
+/* The glider salute glows a little harder on the Grid. */
+:global(:root[data-egg='tron']) .glider { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+:global(:root[data-egg='tron']) .gliderOn { box-shadow: 0 0 7px var(--accent), 0 0 2px var(--accent); }
+
+/* Secret terminal: from cozy green box to a native system console. */
+:global(:root[data-egg='tron']) .termBackdrop { background: rgba(0, 6, 10, 0.72); }
+:global(:root[data-egg='tron']) .terminal {
+  background: rgba(3, 9, 13, 0.97);
+  color: #cdfaff;
+  border: 1px solid var(--accent);
+  border-radius: 0;
+  box-shadow: 0 0 42px rgba(0, 184, 212, 0.4), inset 0 0 60px rgba(0, 120, 150, 0.08);
+}
+:global(:root[data-egg='tron']) .termHeader {
+  background: rgba(6, 18, 26, 0.9);
+  color: var(--accent);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  text-shadow: 0 0 6px rgba(125, 249, 255, 0.5);
+  letter-spacing: 0.08em;
+}
+:global(:root[data-egg='tron']) .termClose { color: var(--accent); }
+:global(:root[data-egg='tron']) .termBody,
+:global(:root[data-egg='tron']) .termInput { color: #cdfaff; text-shadow: 0 0 4px rgba(125, 249, 255, 0.35); }
+:global(:root[data-egg='tron']) .termDim { color: #4d8fa0; }
+:global(:root[data-egg='tron']) .termAccent { color: var(--accent); }
+:global(:root[data-egg='tron']) .termInputRow { border-top-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+:global(:root[data-egg='tron']) .termSubmit {
+  background: rgba(6, 18, 26, 0.9);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+:global(:root[data-egg='tron']) .termSubmit:hover { border-color: var(--accent); color: #eaf9ff; }

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import { isExternalImage } from "@/lib/images";
 import { field, input, primaryButton, ghostButton, dangerButton } from "../../_components/formStyles";
 import { DEFAULT_FIELD_NOTES } from "@/lib/fieldNotes";
 
@@ -188,7 +189,7 @@ export default function FieldNotesManager() {
           <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
             {draft.image && (
               <span style={{ position: "relative", width: 72, height: 90, borderRadius: 4, overflow: "hidden", border: "1px solid var(--line)" }}>
-                <Image src={draft.image} alt="preview" fill sizes="72px" style={{ objectFit: "cover" }} />
+                <Image src={draft.image} alt="preview" fill sizes="72px" unoptimized={isExternalImage(draft.image)} style={{ objectFit: "cover" }} />
               </span>
             )}
             <input
@@ -281,7 +282,7 @@ export default function FieldNotesManager() {
               style={{ padding: "0.85rem 1rem", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}
             >
               <span style={{ position: "relative", width: 56, height: 70, borderRadius: 4, overflow: "hidden", border: "1px solid var(--line)", flex: "none" }}>
-                <Image src={n.image} alt="" fill sizes="56px" style={{ objectFit: "cover" }} />
+                <Image src={n.image} alt="" fill sizes="56px" unoptimized={isExternalImage(n.image)} style={{ objectFit: "cover" }} />
               </span>
               <div style={{ flex: 1, minWidth: 180 }}>
                 <div style={{ fontFamily: "var(--font-hand)", fontSize: "1.15rem" }}>{n.caption}</div>

@@ -10,11 +10,12 @@ export const metadata = {
 // Wider than the standard GameFrame because of the roster table + map/feed
 // split. `searchParams` powers dashboard deep links (?run= replays a recorded
 // simulation, ?roster= preloads a saved roster).
-export default function HungerGamesPage({
+export default async function HungerGamesPage({
   searchParams,
 }: {
-  searchParams?: { run?: string; roster?: string };
+  searchParams?: Promise<{ run?: string; roster?: string }>;
 }) {
+  const query = await searchParams;
   return (
     <main style={{ maxWidth: 1080, margin: "0 auto", padding: "3rem 1.5rem 4rem" }}>
       <Link href="/games" style={{ fontSize: "0.9rem" }}>
@@ -27,7 +28,7 @@ export default function HungerGamesPage({
         Enter your tributes, tune their traits, and let the arena decide. Every run generates a
         unique terrain, weather system, and shrinking border — watch it play out turn by turn.
       </p>
-      <HungerGames initialRunId={searchParams?.run} initialRosterId={searchParams?.roster} />
+      <HungerGames initialRunId={query?.run} initialRosterId={query?.roster} />
     </main>
   );
 }

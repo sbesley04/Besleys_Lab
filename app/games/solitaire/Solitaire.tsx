@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import styles from "./solitaire.module.css";
 import SaveSlot from "../_components/SaveSlot";
@@ -24,6 +24,20 @@ const MODE_LABELS: Record<string, string> = {
   freecell: "FreeCell",
 };
 
+const FLIP_MS = 460;
+const PIP_POSITIONS: Record<number, string[]> = {
+  1: ["center"],
+  2: ["top", "bottom"],
+  3: ["top", "center", "bottom"],
+  4: ["topLeft", "topRight", "bottomLeft", "bottomRight"],
+  5: ["topLeft", "topRight", "center", "bottomLeft", "bottomRight"],
+  6: ["topLeft", "topRight", "middleLeft", "middleRight", "bottomLeft", "bottomRight"],
+  7: ["topLeft", "topRight", "upperCenter", "middleLeft", "middleRight", "bottomLeft", "bottomRight"],
+  8: ["topLeft", "topRight", "upperCenter", "middleLeft", "middleRight", "lowerCenter", "bottomLeft", "bottomRight"],
+  9: ["topLeft", "topRight", "upperCenter", "middleLeft", "middleRight", "center", "bottomLeft", "bottomRight", "lowerCenter"],
+  10: ["topLeft", "topRight", "top", "middleLeft", "middleRight", "center", "bottomLeft", "bottomRight", "bottom", "lowerCenter"],
+};
+
 interface UI {
   cur: SolState;
   past: SolState[];
@@ -32,6 +46,16 @@ interface UI {
   dealId: number; // increments per deal/load so win effects fire once
   baseElapsed: number; // ms accumulated before startedAt (loads)
   startedAt: number;
+}
+
+function allCards(state: SolState): Card[] {
+  return [
+    ...state.stock,
+    ...state.waste,
+    ...state.foundations.flat(),
+    ...state.cells.filter((card): card is Card => card !== null),
+    ...state.tableau.flat(),
+  ];
 }
 
 type UIAction =
@@ -98,7 +122,7 @@ function addToSet(key: string, value: string): Set<string> {
 }
 
 function fmtTime(ms: number): string {
-  const s = Math.floor(ms / 1000);
+  const s = Math.max(0, Math.floor(ms / 1000));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
@@ -126,7 +150,11 @@ export default function Solitaire() {
   const [now, setNow] = useState(Date.now());
   const [finalElapsed, setFinalElapsed] = useState<number | null>(null);
   const [scoreRefresh, setScoreRefresh] = useState(0);
+  const [flippingIds, setFlippingIds] = useState<Set<number>>(() => new Set());
   const uiRef = useRef(ui);
+  const cardRefs = useRef(new Map<number, HTMLButtonElement>());
+  const departingRects = useRef(new Map<number, DOMRect>());
+  const flipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   uiRef.current = ui;
 
   // After mount, swap the SSR placeholder for a real random deal.
@@ -142,10 +170,45 @@ export default function Solitaire() {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, [cur.won, ui.dealId]);
+
+  // FLIP-style motion: capture a card's previous screen location before the
+  // reducer moves it, then animate it from that location after React paints
+  // its new pile. It works for tableau runs, free cells, waste, and foundations.
+  useLayoutEffect(() => {
+    if (departingRects.current.size === 0) return;
+    const previous = departingRects.current;
+    departingRects.current = new Map();
+    const frame = requestAnimationFrame(() => {
+      previous.forEach((from, id) => {
+        const card = cardRefs.current.get(id);
+        if (!card) return;
+        const to = card.getBoundingClientRect();
+        const dx = from.left - to.left;
+        const dy = from.top - to.top;
+        const sx = from.width / Math.max(to.width, 1);
+        const sy = from.height / Math.max(to.height, 1);
+        if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+        card.animate(
+          [
+            { transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, zIndex: 20 },
+            { transform: "translate(0, 0) scale(1, 1)", zIndex: 20 },
+          ],
+          { duration: 310, easing: "cubic-bezier(.2,.82,.22,1)", fill: "none" },
+        );
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [cur]);
+
+  useEffect(() => () => {
+    if (flipTimer.current) clearTimeout(flipTimer.current);
+  }, []);
   // Frozen at the winning move — reading the live expression after a win
   // collapses to baseElapsed (0:00 on a fresh deal), and recomputing
   // Date.now() during render made the banner drift on every re-render.
-  const elapsed = cur.won && finalElapsed !== null ? finalElapsed : ui.baseElapsed + (now - ui.startedAt);
+  const elapsed = cur.won && finalElapsed !== null
+    ? finalElapsed
+    : Math.max(0, ui.baseElapsed + (now - ui.startedAt));
 
   // Card 53: unlock the moment the joker is visible anywhere.
   const jokerVisible =
@@ -201,10 +264,26 @@ export default function Solitaire() {
 
   const apply = useCallback((state: SolState | null): boolean => {
     if (!state) return false;
+    const previousCards = allCards(cur);
+    const nextCards = allCards(state);
+    const nextIds = new Set(nextCards.map((c) => c.id));
+    const rects = new Map<number, DOMRect>();
+    cardRefs.current.forEach((node, id) => {
+      if (nextIds.has(id)) rects.set(id, node.getBoundingClientRect());
+    });
+    departingRects.current = rects;
+
+    const wasFaceDown = new Set(previousCards.filter((c) => !c.faceUp).map((c) => c.id));
+    const revealed = nextCards.filter((c) => c.faceUp && wasFaceDown.has(c.id)).map((c) => c.id);
+    if (revealed.length) {
+      setFlippingIds(new Set(revealed));
+      if (flipTimer.current) clearTimeout(flipTimer.current);
+      flipTimer.current = setTimeout(() => setFlippingIds(new Set()), FLIP_MS);
+    }
     dispatch({ type: "APPLY", state });
     setSelected(null);
     return true;
-  }, []);
+  }, [cur]);
 
   /** Second-click handler: try to drop the selection onto `to`. */
   function drop(to: Loc): boolean {
@@ -249,21 +328,45 @@ export default function Solitaire() {
 
   // --- rendering -------------------------------------------------------------
 
-  function cardFace(c: Card, extra?: string) {
+  function cardFace(c: Card) {
     const color = isJoker(c) ? styles.joker : isRed(c) ? styles.red : styles.black;
+    const courtClass = c.rank === 11 ? styles.jack : c.rank === 12 ? styles.queen : c.rank === 13 ? styles.king : "";
+    const rank = isJoker(c) ? "J" : RANK_GLYPHS[c.rank];
+    const suit = isJoker(c) ? "✦" : SUIT_GLYPHS[c.suit];
     return (
-      <span className={extra}>
-        {isJoker(c) ? (
-          <span className={`${styles.corner} ${color}`}>JOKER</span>
+      <>
+        <span className={`${styles.corner} ${styles.cornerTop} ${color}`} aria-hidden>
+          <span>{rank}</span>
+          <span className={styles.cornerSuit}>{suit}</span>
+        </span>
+        {c.rank >= 11 && c.rank <= 13 && !isJoker(c) ? (
+          <span className={styles.courtField} aria-hidden>
+            <span className={`${styles.courtPortrait} ${styles.courtTop} ${courtClass}`} />
+            <span className={`${styles.courtPortrait} ${styles.courtBottom} ${courtClass}`} />
+            <span className={`${styles.courtSuit} ${color}`}><span>{suit}</span></span>
+          </span>
+        ) : !isJoker(c) ? (
+          <span className={`${styles.pipField} ${color}`} aria-hidden>
+            {PIP_POSITIONS[c.rank]?.map((position, i) => (
+              <span
+                key={`${c.id}-${i}`}
+                className={`${styles.cardPip} ${c.rank === 1 ? styles.acePip : ""} ${styles[position]}`}
+              >
+                {suit}
+              </span>
+            ))}
+          </span>
         ) : (
-          <span className={`${styles.corner} ${color}`}>
-            {RANK_GLYPHS[c.rank]}
-            <br />
-            {SUIT_GLYPHS[c.suit]}
+          <span className={`${styles.jokerArt} ${color}`} aria-hidden>
+            <span>✦</span>
+            <small>JOKER</small>
           </span>
         )}
-        <span className={`${styles.pip} ${color}`}>{isJoker(c) ? "🃏" : SUIT_GLYPHS[c.suit]}</span>
-      </span>
+        <span className={`${styles.corner} ${styles.cornerBottom} ${color}`} aria-hidden>
+          <span>{rank}</span>
+          <span className={styles.cornerSuit}>{suit}</span>
+        </span>
+      </>
     );
   }
 
@@ -274,12 +377,17 @@ export default function Solitaire() {
       isJoker(c) && c.faceUp ? styles.jokerCard : "",
       stackedClass ?? "",
       isSelected(loc) ? styles.selected : "",
+      flippingIds.has(c.id) ? styles.flipping : "",
     ].join(" ");
     return (
       <button
         key={c.id}
         type="button"
         className={cls}
+        ref={(node) => {
+          if (node) cardRefs.current.set(c.id, node);
+          else cardRefs.current.delete(c.id);
+        }}
         onClick={() => (c.faceUp ? clickCard(loc) : undefined)}
         onDoubleClick={() => (c.faceUp ? doubleClick(loc) : undefined)}
         aria-label={
@@ -375,8 +483,18 @@ export default function Solitaire() {
             {/* Stock */}
             {cur.variant !== "freecell" && (
               cur.stock.length > 0 ? (
-                <button type="button" className={`${styles.card} ${styles.faceDown}`} onClick={clickStock} aria-label={`Stock, ${cur.stock.length} cards`}>
-                  <span className={styles.corner}>{cur.stock.length}</span>
+                <button
+                  type="button"
+                  className={`${styles.card} ${styles.faceDown}`}
+                  ref={(node) => {
+                    const top = cur.stock[cur.stock.length - 1];
+                    if (!top) return;
+                    if (node) cardRefs.current.set(top.id, node);
+                    else cardRefs.current.delete(top.id);
+                  }}
+                  onClick={clickStock}
+                  aria-label={`Stock, ${cur.stock.length} cards`}
+                >
                 </button>
               ) : (
                 <button type="button" className={styles.slot} onClick={clickStock} aria-label="Empty stock">
@@ -416,6 +534,10 @@ export default function Solitaire() {
                     key={`f-${i}`}
                     type="button"
                     className={styles.card}
+                    ref={(node) => {
+                      if (node) cardRefs.current.set(top.id, node);
+                      else cardRefs.current.delete(top.id);
+                    }}
                     onClick={() => drop({ zone: "foundation", i })}
                     aria-label={`Foundation ${i + 1}`}
                   >

@@ -10,12 +10,14 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.7rem clamp(1rem, 4vw, 2rem);
-  background: rgba(245, 240, 232, 0.92);
-  backdrop-filter: blur(4px);
+  background: var(--paper);
   border-bottom: 1px solid var(--line);
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 600;
@@ -23,6 +25,7 @@
   text-decoration: none;
   white-space: nowrap;
 }
+.navToggle { display: none; }
 
 /* --- Primary navigation --- */
 .nav {
@@ -40,6 +43,11 @@
 
 .navLink,
 .navLinkActive {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  min-width: 44px;
+  justify-content: center;
   font-family: var(--font-body);
   font-size: 0.92rem;
   color: var(--ink-soft);
@@ -65,8 +73,34 @@
 }
 
 @media (max-width: 560px) {
-  .bar { flex-wrap: wrap; row-gap: 0.15rem; }
-  .nav { order: 3; flex-basis: 100%; }
+  .bar { flex-wrap: wrap; row-gap: 0.4rem; }
+  .navToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    min-height: 44px;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper-deep);
+    color: var(--ink);
+    font: 600 0.8rem var(--font-body);
+    cursor: pointer;
+  }
+  .nav {
+    display: none;
+    order: 4;
+    flex-basis: 100%;
+    overflow: visible;
+    flex-wrap: wrap;
+    gap: 0.15rem 1rem;
+    padding: 0.45rem 0 0.1rem;
+  }
+  .navOpen { display: flex; }
+  .right { margin-left: 0; }
+  .link { display: none; }
+  .signupLink { font-size: 0.8rem; padding: 0.35rem 0.6rem; }
 }
 
 .right {
@@ -76,6 +110,9 @@
 }
 
 .link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-family: var(--font-body);
   font-size: 0.9rem;
   color: var(--ink-soft);
@@ -84,6 +121,10 @@
 .link:hover { color: var(--accent); }
 
 .signupLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
@@ -112,6 +153,7 @@
   font-family: var(--font-body);
   font-size: 0.9rem;
   color: var(--ink);
+  min-height: 44px;
 }
 .profileButton:hover { border-color: var(--accent); }
 
@@ -165,6 +207,9 @@
 }
 
 .menuItem {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   text-align: left;
   font-family: var(--font-body);
   font-size: 0.9rem;

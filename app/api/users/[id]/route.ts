@@ -4,11 +4,12 @@ import { requireApiAdmin } from "@/lib/api";
 
 // Delete an account (ADMIN only). You can't delete your own account, and you
 // can't remove the last remaining user — that would lock everyone out.
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
-  if (params.id === auth.user.id) {
+  if (id === auth.user.id) {
     return NextResponse.json({ error: "You can't delete your own account." }, { status: 400 });
   }
 
@@ -17,6 +18,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ error: "Can't delete the last account." }, { status: 400 });
   }
 
-  await prisma.user.delete({ where: { id: params.id } }).catch(() => null);
+  await prisma.user.delete({ where: { id } }).catch(() => null);
   return NextResponse.json({ ok: true });
 }

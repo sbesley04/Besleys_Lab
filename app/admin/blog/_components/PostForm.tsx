@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { marked } from "marked";
+import { renderMarkdown } from "@/lib/markdown";
 import { field, input, textarea, primaryButton, ghostButton, dangerButton } from "../../_components/formStyles";
 
 // Create/edit form for blog posts with a write/preview toggle, slug preview,
@@ -52,7 +52,7 @@ export default function PostForm({ post }: { post?: PostInput }) {
   }
 
   const previewHtml = useMemo(
-    () => (tab === "preview" ? (marked.parse(form.body || "*Nothing to preview yet.*", { async: false }) as string) : ""),
+    () => (tab === "preview" ? renderMarkdown(form.body || "*Nothing to preview yet.*") : ""),
     [tab, form.body],
   );
 

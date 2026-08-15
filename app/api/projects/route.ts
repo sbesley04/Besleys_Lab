@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireApiStaff } from "@/lib/api";
 import { slugify } from "@/lib/slug";
 import { normalizeTechStack } from "@/lib/techstack";
+import { isSafeExternalUrl, isSafeImageSource } from "@/lib/images";
 
 // Collection endpoints for projects (admin-only).
 //   GET  /api/projects → list all (includes unpublished)
@@ -26,6 +27,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Title and description are required." }, { status: 400 });
   }
 
+  const thumbnail = typeof body.thumbnail === "string" && body.thumbnail.trim() ? body.thumbnail.trim() : null;
+  const githubUrl = typeof body.githubUrl === "string" && body.githubUrl.trim() ? body.githubUrl.trim() : null;
+  if (thumbnail && !isSafeImageSource(thumbnail)) {
+    return NextResponse.json({ error: "Thumbnail must be a local image path or secure https URL." }, { status: 400 });
+  }
+  if (githubUrl && !isSafeExternalUrl(githubUrl)) {
+    return NextResponse.json({ error: "GitHub URL must be a secure https URL." }, { status: 400 });
+  }
+
   const slug = body.slug ? slugify(body.slug) : slugify(body.title);
 
   try {
@@ -35,8 +45,8 @@ export async function POST(req: NextRequest) {
         title: body.title,
         description: body.description,
         techStack: normalizeTechStack(body.techStack),
-        thumbnail: body.thumbnail || null,
-        githubUrl: body.githubUrl || null,
+        thumbnail,
+        githubUrl,
         published: Boolean(body.published),
         authorId: auth.user.id,
       },

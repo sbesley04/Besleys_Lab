@@ -81,7 +81,6 @@ export default function Sudoku() {
   useEffect(() => {
     recordPlayed("sudoku");
     newGame("easy");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

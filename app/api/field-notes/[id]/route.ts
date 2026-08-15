@@ -7,19 +7,20 @@ import { fieldNoteProblems } from "@/lib/library";
 //   PUT    /api/field-notes/:id → edit, or {move: true, position} reorder
 //   DELETE /api/field-notes/:id → remove
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiStaff();
   if (auth instanceof NextResponse) return auth;
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
 
-  const existing = await prisma.fieldNote.findUnique({ where: { id: params.id } });
+  const existing = await prisma.fieldNote.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Entry not found." }, { status: 404 });
 
   if (body.move === true) {
     const position = Number.isInteger(body.position) ? body.position : existing.position;
-    const note = await prisma.fieldNote.update({ where: { id: params.id }, data: { position } });
+    const note = await prisma.fieldNote.update({ where: { id }, data: { position } });
     return NextResponse.json(note);
   }
 
@@ -27,7 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (errors.length) return NextResponse.json({ error: errors.join(" ") }, { status: 400 });
 
   const note = await prisma.fieldNote.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       image: body.image.trim(),
       alt: body.alt.trim(),
@@ -38,10 +39,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(note);
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await requireApiStaff();
   if (auth instanceof NextResponse) return auth;
 
-  await prisma.fieldNote.delete({ where: { id: params.id } }).catch(() => null);
+  await prisma.fieldNote.delete({ where: { id } }).catch(() => null);
   return NextResponse.json({ ok: true });
 }

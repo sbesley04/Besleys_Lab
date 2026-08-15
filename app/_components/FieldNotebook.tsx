@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Snapshot from "./Snapshot";
 import type { FieldNoteEntry } from "@/lib/fieldNotes";
+import { isExternalImage } from "@/lib/images";
 
 // The home-page photo strip, now interactive: every print is a button that
 // expands into a full-screen lightbox. Click anywhere (or Esc / the × button)
@@ -120,6 +121,7 @@ export default function FieldNotebook({ notes }: { notes: FieldNoteEntry[] }) {
                 sizes="100vw"
                 style={{ objectFit: "contain" }}
                 priority
+                unoptimized={isExternalImage(open.image)}
               />
             </div>
             <figcaption className="snapshot-caption lightbox-caption">{open.caption}</figcaption>

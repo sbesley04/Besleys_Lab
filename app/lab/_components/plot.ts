@@ -78,6 +78,10 @@ export function pointerToData(
 // theme, and to stay distinguishable for the common color-vision deficiencies
 // (they differ in lightness as well as hue).
 
+// The live palette. These objects/arrays are mutated in place by
+// refreshPalette() below when the site enters/leaves the Grid (the Konami
+// egg), so every demo picks up the neon palette without any per-demo changes.
+// They start on the paper values, which is also what SSR renders.
 export const SERIES = {
   ink: "#2f2b24",
   rust: "#a03c2e",
@@ -86,28 +90,72 @@ export const SERIES = {
   gold: "#b08829",
   violet: "#6b4d92",
   teal: "#2f7d78",
-} as const;
+};
 
 export type SeriesKey = keyof typeof SERIES;
 
 /** Two-class colors used by every point-classification demo. */
-export const CLASS_COLORS = [SERIES.blue, SERIES.rust] as const;
+export const CLASS_COLORS: string[] = [SERIES.blue, SERIES.rust];
 
-export const CLUSTER_COLORS = [
+export const CLUSTER_COLORS: string[] = [
   SERIES.blue, SERIES.rust, SERIES.green, SERIES.gold,
   SERIES.violet, SERIES.teal, "#8a6d3b", "#4a4a4a",
-] as const;
+];
 
-/** Sample a warm sequential ramp (0 = cool/low, 1 = hot/high) as "r,g,b". */
+// --- Grid (Konami/Tron) palette swap ---------------------------------------
+// A neon set that reads on black: cyan, magenta, lime, amber, white. Swapped
+// in at runtime by mutating the exported arrays above, so consumers that read
+// them at render time see the right colors after re-rendering.
+const PAPER_SERIES: Record<SeriesKey, string> = {
+  ink: "#2f2b24", rust: "#a03c2e", blue: "#2b5f8b", green: "#3f7d4f",
+  gold: "#b08829", violet: "#6b4d92", teal: "#2f7d78",
+};
+const GRID_SERIES: Record<SeriesKey, string> = {
+  ink: "#eaf9ff", rust: "#ff3ca0", blue: "#7df9ff", green: "#a6ff4d",
+  gold: "#ffb020", violet: "#c07dff", teal: "#31e5c0",
+};
+const PAPER_CLUSTER_TAIL = ["#8a6d3b", "#4a4a4a"];
+const GRID_CLUSTER_TAIL = ["#ffffff", "#8ea9b8"];
+
+function paletteIsGrid(): boolean {
+  return typeof document !== "undefined" && document.documentElement.dataset.egg === "tron";
+}
+
+function refreshPalette(): void {
+  const grid = paletteIsGrid();
+  const s = grid ? GRID_SERIES : PAPER_SERIES;
+  Object.assign(SERIES, s);
+  CLASS_COLORS[0] = s.blue;
+  CLASS_COLORS[1] = s.rust;
+  const tail = grid ? GRID_CLUSTER_TAIL : PAPER_CLUSTER_TAIL;
+  const next = [s.blue, s.rust, s.green, s.gold, s.violet, s.teal, tail[0], tail[1]];
+  for (let i = 0; i < next.length; i++) CLUSTER_COLORS[i] = next[i];
+}
+
+if (typeof window !== "undefined") {
+  refreshPalette();
+  window.addEventListener("bl:egg-change", refreshPalette);
+}
+
+/** Sample a sequential ramp (0 = cool/low, 1 = hot/high) as "r,g,b". Warm on
+ *  paper; a cool cyan→white-hot ramp on the Grid. */
 export function heatRamp(t: number): [number, number, number] {
   const u = Math.max(0, Math.min(1, t));
-  // paper cream → gold → rust → deep ink-red
-  const stops: [number, [number, number, number]][] = [
-    [0.0, [245, 240, 232]],
-    [0.45, [222, 195, 138]],
-    [0.75, [199, 124, 76]],
-    [1.0, [122, 42, 32]],
-  ];
+  const stops: [number, [number, number, number]][] = paletteIsGrid()
+    ? [
+        // Grid: deep teal → electric cyan → white-hot
+        [0.0, [4, 22, 32]],
+        [0.45, [0, 150, 190]],
+        [0.75, [125, 249, 255]],
+        [1.0, [240, 252, 255]],
+      ]
+    : [
+        // paper cream → gold → rust → deep ink-red
+        [0.0, [245, 240, 232]],
+        [0.45, [222, 195, 138]],
+        [0.75, [199, 124, 76]],
+        [1.0, [122, 42, 32]],
+      ];
   for (let i = 0; i < stops.length - 1; i++) {
     const [t0, c0] = stops[i];
     const [t1, c1] = stops[i + 1];

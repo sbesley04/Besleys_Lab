@@ -1,6 +1,8 @@
 // Shared constants + validation for the library (books) and field notebook.
 // Used by the admin forms and the API routes so both enforce the same rules.
 
+import { isSafeImageSource } from "@/lib/images";
+
 export const BOOK_DESIGNS = ["plain", "bands", "ornate", "split", "dots"] as const;
 export type BookDesign = (typeof BOOK_DESIGNS)[number];
 
@@ -19,7 +21,11 @@ export const MAX_BOOKCASES = 8;
 
 // --- Shelf decor -----------------------------------------------------------------
 
-export const DECOR_KINDS = ["snake-plant", "pothos", "cactus", "bonsai"] as const;
+export const DECOR_KINDS = [
+  "snake-plant", "pothos", "cactus", "bonsai",
+  "monstera", "fern", "hanging-philodendron",
+  "armillary", "pen-mug", "lantern-stems", "calvin-hobbes-bookends",
+] as const;
 export type DecorKind = (typeof DECOR_KINDS)[number];
 
 export const DECOR_LABELS: Record<DecorKind, string> = {
@@ -27,6 +33,13 @@ export const DECOR_LABELS: Record<DecorKind, string> = {
   pothos: "Trailing pothos",
   cactus: "Cactus",
   bonsai: "Bonsai",
+  monstera: "Monstera",
+  fern: "Boston fern",
+  "hanging-philodendron": "Hanging philodendron",
+  armillary: "Armillary sphere",
+  "pen-mug": "Pen mug",
+  "lantern-stems": "Lantern & eucalyptus",
+  "calvin-hobbes-bookends": "Calvin & Hobbes bookends",
 };
 
 export function decorProblems(d: { kind?: unknown; bookcase?: unknown; shelf?: unknown }): string[] {
@@ -124,8 +137,8 @@ export function fieldNoteProblems(n: { image?: unknown; alt?: unknown; caption?:
   const errors: string[] = [];
   const image = typeof n.image === "string" ? n.image.trim() : "";
   if (!image) errors.push("An image path is required.");
-  else if (!/^(\/|https?:\/\/)/.test(image))
-    errors.push("Image must be a site path (/photos/… or /uploads/…) or an https URL.");
+  else if (!isSafeImageSource(image))
+    errors.push("Image must be a site path (/photos/… or /uploads/…) or a secure https URL.");
   if (typeof n.alt !== "string" || !n.alt.trim()) errors.push("Alt text is required (describe the photo).");
   if (typeof n.caption !== "string" || !n.caption.trim()) errors.push("A caption is required.");
   if (n.tilt !== undefined && (typeof n.tilt !== "number" || Number.isNaN(n.tilt) || Math.abs(n.tilt) > 8))

@@ -32,7 +32,6 @@ export default function MarkovBlog({
   // Regenerate whenever the chain or the requested length changes.
   useEffect(() => {
     setText(generate(chain, order, length));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chain, order, length, nonce]);
 
   const flavor =

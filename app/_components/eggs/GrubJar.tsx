@@ -42,27 +42,30 @@ export default function GrubJar() {
         title={freed ? "♪" : "…is something in there?"}
         style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
       >
-        <svg viewBox="0 0 40 48" width="46" height="55" style={bouncing ? { animation: "grub-bounce 0.9s ease" } : undefined}>
+        <svg viewBox="0 0 52 60" width="56" height="64" style={bouncing ? { animation: "grub-bounce 0.9s ease" } : undefined}>
           {!freed ? (
             <>
-              {/* corked jar */}
-              <rect x="13" y="2" width="14" height="5" rx="1.5" fill="#a98d68" stroke="#7a6a52" />
-              <path d="M10 8 Q10 6 12 6 L28 6 Q30 6 30 8 L31 40 Q31 45 26 45 L14 45 Q9 45 9 40 Z" fill="rgba(190,215,230,0.35)" stroke="#7a89a0" strokeWidth="1.4" />
-              {/* grub inside */}
-              <ellipse cx="20" cy="34" rx="6" ry="7.5" fill="#cfe4ef" stroke="#5a7d95" strokeWidth="1.2" />
-              <circle cx="17.6" cy="32" r="1.2" fill="#22333f" />
-              <circle cx="22.4" cy="32" r="1.2" fill="#22333f" />
-              <path d="M17.5 36.5 Q20 38.3 22.5 36.5" fill="none" stroke="#22333f" strokeWidth="1" strokeLinecap="round" />
+              {/* hand-blown jar */}
+              <rect x="17" y="3" width="18" height="7" rx="2" fill="#a98d68" stroke="#735d44" strokeWidth="1.2" />
+              <path d="M15 11Q15 8 18 8h16q3 0 3 3l2 34q0 9-8 10H21q-8-1-8-10Z" fill="rgba(185,218,232,.3)" stroke="#698ca2" strokeWidth="1.5" />
+              <path d="M18 16q8 3 16 0M18 45q8 3 17 0" fill="none" stroke="#b6d4df" strokeWidth="1" opacity=".9" />
+              {/* little curled lantern-grub */}
+              <path d="M28 43c-8 2-11-8-5-12 5-3 10 3 6 7-2 2-5 0-4-2" fill="none" stroke="#7daec2" strokeWidth="7" strokeLinecap="round" />
+              <path d="M28 43c-8 2-11-8-5-12 5-3 10 3 6 7-2 2-5 0-4-2" fill="none" stroke="#d9f2f1" strokeWidth="4.5" strokeLinecap="round" />
+              <circle cx="25.5" cy="31.5" r=".9" fill="#263c4a" />
+              <circle cx="29" cy="32" r=".9" fill="#263c4a" />
+              <circle cx="11" cy="29" r="1" fill="#d5edf2" opacity=".85" />
+              <circle cx="40" cy="36" r="1.2" fill="#d5edf2" opacity=".7" />
             </>
           ) : (
             <>
-              {/* empty open jar, grub beside it, delighted */}
-              <path d="M10 12 Q10 10 12 10 L28 10 Q30 10 30 12 L31 40 Q31 45 26 45 L14 45 Q9 45 9 40 Z" fill="rgba(190,215,230,0.25)" stroke="#7a89a0" strokeWidth="1.4" />
-              <ellipse cx="34" cy="38" rx="5" ry="6.5" fill="#cfe4ef" stroke="#5a7d95" strokeWidth="1.2" />
-              <path d="M31.8 35.5 Q32.6 34.3 33.4 35.5" fill="none" stroke="#22333f" strokeWidth="1.1" strokeLinecap="round" />
-              <path d="M34.6 35.5 Q35.4 34.3 36.2 35.5" fill="none" stroke="#22333f" strokeWidth="1.1" strokeLinecap="round" />
-              <ellipse cx="34" cy="40.5" rx="1.5" ry="1.9" fill="#22333f" />
-              <text x="33" y="28" fontSize="7" fill="#5a7d95">♪</text>
+              {/* empty open jar, grub hovering beside it */}
+              <path d="M15 15q0-3 3-3h16q3 0 3 3l2 30q0 9-8 10H21q-8-1-8-10Z" fill="rgba(185,218,232,.22)" stroke="#698ca2" strokeWidth="1.5" />
+              <path d="M18 19q8 3 16 0" fill="none" stroke="#b6d4df" strokeWidth="1" />
+              <path d="M42 38c-5 2-8-5-4-8 4-2 7 3 4 5" fill="none" stroke="#d9f2f1" strokeWidth="5" strokeLinecap="round" />
+              <circle cx="38.5" cy="30.8" r=".8" fill="#263c4a" />
+              <circle cx="41" cy="31.2" r=".8" fill="#263c4a" />
+              <path d="M42 22c2-2 4-2 5 0" fill="none" stroke="#7daec2" strokeWidth="1.2" strokeLinecap="round" />
             </>
           )}
         </svg>

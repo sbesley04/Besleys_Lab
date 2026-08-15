@@ -199,6 +199,34 @@
   filter: drop-shadow(2px 3px 3px rgba(0, 0, 0, 0.35));
 }
 
+/* Generated field-guide collections are transparent sprite sheets. Each class
+   crops one third of the source without introducing a new image request per
+   shelf object. */
+.monstera,
+.fern,
+.hangingPhilodendron,
+.armillary,
+.penMug,
+.lanternStems {
+  width: 126px;
+  height: 201px;
+  background-repeat: no-repeat;
+  background-size: 300% 100%;
+  background-position: left center;
+}
+.monstera, .fern, .hangingPhilodendron { background-image: url("/artifacts/library-plants-field-guide-optimized.png"); }
+.armillary, .penMug, .lanternStems { background-image: url("/artifacts/library-shelf-objects-field-guide-optimized.png"); }
+.monstera, .armillary { background-position: left center; }
+.fern, .penMug { background-position: center center; }
+.hangingPhilodendron, .lanternStems { background-position: right center; }
+.calvinHobbesBookends {
+  width: 188px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 3px;
+  filter: drop-shadow(2px 3px 3px rgba(0, 0, 0, 0.32));
+}
+
 .emptyShelfNote {
   align-self: center;
   margin: 0 auto;
@@ -260,4 +288,6 @@
 @media (max-width: 560px) {
   .shelf { min-height: 245px; padding: 10px 10px 0; }
   .case { padding: 12px 10px 16px; }
+  .monstera, .fern, .hangingPhilodendron, .armillary, .penMug, .lanternStems { transform: scale(0.84); transform-origin: bottom center; }
+  .calvinHobbesBookends { width: 156px; }
 }

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { ACHIEVEMENTS_BY_KEY } from "@/lib/achievements";
 import { TOAST_EVENT, syncLocalToServer } from "@/lib/arcade";
+import { secretArtifactForAchievement } from "@/lib/secretArtifacts";
+import Image from "next/image";
 
 // Global achievement toast stack. Mounted once in the root layout; any game
 // calls unlock() from lib/arcade and a paper-scrap toast slides in here.
@@ -59,11 +61,14 @@ export default function AchievementToaster() {
       {toasts.map((t) => {
         const def = ACHIEVEMENTS_BY_KEY.get(t.key);
         if (!def) return null;
+        const artifact = secretArtifactForAchievement(t.key);
         return (
           <div key={t.id} className="paper-card achievement-toast" role="status">
-            <span style={{ fontSize: "1.6rem", lineHeight: 1 }} aria-hidden>
-              {def.icon}
-            </span>
+            {artifact ? (
+              <Image className="achievement-artifact" src={artifact.src} alt="" width={54} height={54} />
+            ) : (
+              <span style={{ fontSize: "1.6rem", lineHeight: 1 }} aria-hidden>{def.icon}</span>
+            )}
             <div>
               <div style={{ fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>
                 Achievement unlocked

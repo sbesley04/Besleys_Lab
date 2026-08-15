@@ -4,6 +4,8 @@ import { requireApiSession } from "@/lib/api";
 import { MAX_SIM_RUNS } from "@/lib/saves";
 import { rosterProblems, type RosterPlayer } from "@/app/games/hunger-games/roster";
 
+const MAX_DB_INT = 2_147_483_647;
+
 // Recorded Hunger Games runs. The engine is deterministic, so a run is just
 // (seed, roster) plus a summary — replaying re-simulates the identical game.
 //   GET  /api/simulations → my recent runs (summaries)
@@ -30,7 +32,7 @@ export async function POST(req: NextRequest) {
   if (!body) return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
 
   const seed = Number(body.seed);
-  if (!Number.isInteger(seed) || seed < 0 || seed > 2 ** 31)
+  if (!Number.isInteger(seed) || seed < 0 || seed > MAX_DB_INT)
     return NextResponse.json({ error: "Invalid seed." }, { status: 400 });
 
   const players = body.players as RosterPlayer[];
@@ -39,7 +41,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: errors.slice(0, 3).join(" ") }, { status: 400 });
 
   const winner = typeof body.winner === "string" ? body.winner.slice(0, 60) : null;
-  const turns = Number.isInteger(body.turns) ? Math.max(0, body.turns as number) : 0;
+  const turns = Number.isInteger(body.turns)
+    ? Math.min(MAX_DB_INT, Math.max(0, body.turns as number))
+    : 0;
 
   const run = await prisma.simulationRun.create({
     data: {

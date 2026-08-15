@@ -6,12 +6,12 @@
     "dev": "next dev",
     "build": "node scripts/prepare-vercel.mjs && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:engine": "node --experimental-strip-types app/games/tetris/engine.test.ts",
     "test:games": "node --experimental-strip-types app/games/_games.test.ts",
     "test:hunger": "node --experimental-strip-types app/games/hunger-games/engine.test.ts",
-    "test": "npm run test:engine && npm run test:games && npm run test:hunger && npm run test:solitaire && npm run test:sudoku && npm run test:lab && npm run test:minesweeper",
+    "test": "npm run test:security && npm run test:engine && npm run test:games && npm run test:hunger && npm run test:solitaire && npm run test:sudoku && npm run test:lab && npm run test:minesweeper",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
@@ -20,7 +20,8 @@
     "test:solitaire": "node --experimental-strip-types app/games/solitaire/engine.test.ts",
     "test:sudoku": "node --experimental-strip-types app/games/sudoku/engine.test.ts",
     "test:lab": "node --experimental-strip-types app/lab/_engines.test.ts",
-    "test:minesweeper": "node --experimental-strip-types app/games/minesweeper/engine.test.ts"
+    "test:minesweeper": "node --experimental-strip-types app/games/minesweeper/engine.test.ts",
+    "test:security": "node --experimental-strip-types lib/security.test.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -29,20 +30,24 @@
     "@prisma/client": "^5.18.0",
     "bcryptjs": "^2.4.3",
     "marked": "^12.0.2",
-    "next": "14.2.35",
+    "next": "16.3.1",
     "next-auth": "^4.24.7",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.14.0",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "14.2.35",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "16.3.1",
     "prisma": "^5.18.0",
     "tsx": "^4.16.0",
     "typescript": "^5.5.0"
+  },
+  "overrides": {
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4"
   }
 }

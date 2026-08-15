@@ -28,7 +28,7 @@ function esc(s: string): string {
 }
 
 export async function GET(): Promise<Response> {
-  const base = requestOrigin();
+  const base = await requestOrigin();
 
   // Content queries shouldn't break the sitemap if the DB is unreachable.
   const [posts, books] = await Promise.all([
