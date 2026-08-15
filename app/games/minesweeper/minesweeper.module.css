@@ -170,7 +170,10 @@
   background: #03060a;
   border-color: rgba(125, 249, 255, 0.1);
   color: var(--num, var(--ink-soft));
-  text-shadow: 0 0 calc(var(--num-glow, 0) * 9px) color-mix(in srgb, var(--num, transparent) 65%, transparent);
+  /* 9px scaled to a 13.5px halo behind an ~15px numeral at n8, which smears the
+     glyph it is meant to emphasise. 4px keeps the ember read while the digit
+     stays sharp — the digit itself is the information, the glow is garnish. */
+  text-shadow: 0 0 calc(var(--num-glow, 0) * 4px) color-mix(in srgb, var(--num, transparent) 65%, transparent);
   box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 0, 0, 0.7);
 }
 :global(:root[data-egg="tron"]) .revealed:hover {
@@ -186,7 +189,11 @@
 :global(:root[data-egg="tron"]) .n2 { --num: #31e5c0; --num-glow: 0.6; }  /* teal    */
 :global(:root[data-egg="tron"]) .n3 { --num: #a6ff4d; --num-glow: 0.75; } /* lime    */
 :global(:root[data-egg="tron"]) .n4 { --num: #ffb020; --num-glow: 0.9; }  /* amber   */
-:global(:root[data-egg="tron"]) .n5 { --num: #ff7a1a; --num-glow: 1.05; } /* orange  */
+/* 5 was #ff7a1a, which differs from 4's amber almost only in the green channel
+   and read as the same colour on a ~15px glyph; the glow ramp between adjacent
+   steps is barely a pixel of blur, so it can't carry the difference on its own.
+   A warm red separates them by hue. */
+:global(:root[data-egg="tron"]) .n5 { --num: #ff4d4d; --num-glow: 1.05; } /* red     */
 :global(:root[data-egg="tron"]) .n6 { --num: #ff3ca0; --num-glow: 1.2; }  /* magenta */
 :global(:root[data-egg="tron"]) .n7 { --num: #c07dff; --num-glow: 1.35; } /* violet  */
 :global(:root[data-egg="tron"]) .n8 { --num: #ffffff; --num-glow: 1.5; }  /* white   */

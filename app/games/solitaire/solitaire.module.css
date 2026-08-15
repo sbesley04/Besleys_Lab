@@ -103,7 +103,10 @@
   text-align: left;
   transform-origin: center center;
   transform-style: preserve-3d;
-  will-change: transform;
+  /* Deliberately no `will-change: transform`. All 52 cards are mounted at once,
+     so it permanently promoted ~52 compositor layers for the life of the page
+     while nothing animates at rest — the FLIP motion uses Element.animate(),
+     which the browser promotes on its own for the few frames it runs. */
   transition: box-shadow 160ms ease, filter 160ms ease;
   overflow: hidden;
 }
@@ -365,7 +368,11 @@
      makes that read instant; a four-colour deck turns the most important
      gameplay signal into a lookup. (It is also the only scheme CSS alone can
      apply consistently here — foundation cards carry no suit in the DOM.) */
-  --g-red: #ff3ca0;
+  /* Lifted from #ff3ca0: that scored ~6:1 on this card body against cyan's
+     ~17:1, so the red pips were visibly dimmer — and in .tableWide the corner
+     suit is only ~5.6px, where the dimmer of the two is the one that drops out.
+     This keeps the hot-pink identity at roughly 8:1. */
+  --g-red: #ff79c8;
   --g-black: #7df9ff;
   --g-joker: #c07dff;
   --g-face: #050d14; /* card body stays dark so the ink is the light source */

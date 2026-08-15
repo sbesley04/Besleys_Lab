@@ -60,6 +60,15 @@
    200vh is about 25MB at 1600x900 — roughly what the old 320vw x 150vh plane
    already cost, so the fix is memory-neutral. */
 :root[data-egg='tron'] body::before {
+  /* The base rule (globals.css `body::before`, the paper grain) sets `inset: 0`.
+     Overriding only `bottom` left `top: 0` in force — and with top, height and
+     bottom all non-auto the spec drops `bottom`, so the box was laid out from
+     the top of the viewport with `transform-origin: 50% 100%` landing a full
+     viewport BELOW the fold. The plane projected entirely off-screen and the
+     floor never rendered at all. Releasing top/right is what makes `bottom`
+     govern; without these two lines none of the geometry below matters. */
+  top: auto;
+  right: auto;
   bottom: -5vh;   /* just off the fold — the drift never lifts it into view */
   width: 220vw;
   height: 200vh;

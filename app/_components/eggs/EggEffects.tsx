@@ -96,8 +96,24 @@ export default function EggEffects() {
       }
     }
 
+    // html.bl-idle pauses every ambient Grid animation while the tab is hidden.
+    // grid-motion.css and grid-hud.css both ship `animation-play-state: paused`
+    // rules keyed on this class — each written assuming the other pass had added
+    // the listener, so until now ~11 selectors were dead and the haze, floor
+    // drift, scan sweep, CRT flicker and reticle rings all kept animating in
+    // background tabs. This is the missing half.
+    function onVisibility() {
+      document.documentElement.classList.toggle("bl-idle", document.hidden);
+    }
+    document.addEventListener("visibilitychange", onVisibility);
+    onVisibility();
+
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("visibilitychange", onVisibility);
+      document.documentElement.classList.remove("bl-idle");
+    };
   }, []);
 
   return null;

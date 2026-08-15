@@ -231,6 +231,31 @@
 :root[data-egg='tron'] h4 {
   text-shadow: 0 0 6px rgba(125, 249, 255, 0.55), 0 0 20px rgba(0, 184, 212, 0.45);
   letter-spacing: 0.02em;
+  /* Michroma ships a single 400 cut. The base rule asks for 600, so every Grid
+     heading was being synthetically emboldened — on a wide geometric face under
+     a 20px bloom that is what made headings read blobby rather than sharp. */
+  font-weight: 400;
+}
+
+/* The heading glow is tuned for display sizes, but the games set their sidebar
+   panel titles as <h3> at 0.72rem (~11.5px) — a 20px bloom on an 11px uppercase
+   letterspaced label is pure smear. Below ~0.8rem, drop to a tight glow. */
+:root[data-egg='tron'] .panel h3,
+:root[data-egg='tron'] .section-kicker {
+  text-shadow: 0 0 4px rgba(125, 249, 255, 0.3);
+}
+
+/* Body copy: no bloom. `body` carries a 3px shadow and every `a` a 6px one, so
+   long-form text (blog prose, game help text, captions) was rendering blurred.
+   Several files opted out individually; this covers the rest in one place. */
+:root[data-egg='tron'] .prose,
+:root[data-egg='tron'] .prose p,
+:root[data-egg='tron'] .prose li,
+:root[data-egg='tron'] .prose a,
+:root[data-egg='tron'] .help,
+:root[data-egg='tron'] .snapshot-caption,
+:root[data-egg='tron'] small {
+  text-shadow: none;
 }
 :root[data-egg='tron'] a { text-shadow: 0 0 6px rgba(125, 249, 255, 0.35); }
 
@@ -474,26 +499,35 @@ html.bl-jumping { overflow: hidden; }
    the horizon you can see). Both keyframes carry the identical function list so
    the browser interpolates per-function instead of falling back to matrix
    decomposition, and the 100% state is arithmetically the base transform. */
+/* The rezz and the resting floor MUST agree on geometry. These keyframes once
+   hardcoded `perspective(98vh) rotateX(74deg)` while the resting floor moved to
+   `perspective(var(--grid-persp))` in grid-motion.css — so the floor animated in
+   at one projection and snapped to another the instant the animation ended. The
+   custom properties are the single source of truth; both files read them.
+   The drift animation is also listed here rather than the old `grid-scroll`,
+   which animated background-position and repainted the whole ~25MB plane every
+   frame — grid-motion.css replaced it with a transform loop for exactly that
+   reason, and re-imposing it here would have quietly undone the fix. */
 :root[data-egg='tron'].bl-landing body::before {
   animation:
-    grid-scroll 16s linear infinite,
+    bl-grid-drift var(--grid-drift-dur, 18s) linear infinite,
     bl-floor-rezz 380ms 160ms cubic-bezier(0.14, 0.8, 0.26, 1) backwards;
 }
 @keyframes bl-floor-rezz {
   0% {
     opacity: 0;
     transform: translateX(-50%) translateY(-14vh) scaleY(0.02) translateY(14vh)
-               perspective(98vh) rotateX(74deg);
+               perspective(var(--grid-persp, 1900px)) rotateX(var(--grid-tilt, 74deg));
   }
   45% {
-    opacity: 0.9;
+    opacity: 0.55;
     transform: translateX(-50%) translateY(-14vh) scaleY(0.62) translateY(14vh)
-               perspective(98vh) rotateX(74deg);
+               perspective(var(--grid-persp, 1900px)) rotateX(var(--grid-tilt, 74deg));
   }
   100% {
-    opacity: 0.55;
+    opacity: 0.6;
     transform: translateX(-50%) translateY(-14vh) scaleY(1) translateY(14vh)
-               perspective(98vh) rotateX(74deg);
+               perspective(var(--grid-persp, 1900px)) rotateX(var(--grid-tilt, 74deg));
   }
 }
 
@@ -589,16 +623,21 @@ html.bl-jumping { overflow: hidden; }
   color: var(--ink-soft);
   white-space: nowrap;
 }
-.grid-hud__dot {
+/* Scoped like their parent. These two were bare global classes and `hud-pulse`
+   a bare global keyframe — harmless only because SiteHeader gates the markup on
+   onGrid, but one stray `.grid-hud__dot` in paper mode would have inherited a
+   cyan glow out of nowhere. Keyframe renamed to avoid colliding with the
+   identically-named one in grid-hud.css. */
+:root[data-egg='tron'] .grid-hud__dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--accent);
   box-shadow: 0 0 6px var(--accent);
-  animation: hud-pulse 1.8s ease-in-out infinite;
+  animation: bl-hud-dot-pulse 1.8s ease-in-out infinite;
 }
-.grid-hud__sep { opacity: 0.4; }
-@keyframes hud-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+:root[data-egg='tron'] .grid-hud__sep { opacity: 0.4; }
+@keyframes bl-hud-dot-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 @media (max-width: 860px) { :root[data-egg='tron'] .grid-hud { display: none; } }
 
 /* Nav items read as a system menu: [ blog ] [ lab ] … */
@@ -636,13 +675,19 @@ html.bl-jumping { overflow: hidden; }
     linear-gradient(rgba(125, 249, 255, 0.05), rgba(0, 150, 190, 0.06));
 }
 :root[data-egg='tron'] .snapshot-caption { letter-spacing: 0.06em; }
+/* The tear used to animate clip-path, which is not compositable — that pinned
+   every photo on the page to a permanent main-thread animation, and each frame
+   re-ran the five-function filter chain above over a full-resolution image (the
+   hero photo is 1800x1350). Same read, transform/opacity only: the displaced
+   slice is a separate ::before layer that flicks across, so the <img> itself
+   never re-rasterises. */
 :root[data-egg='tron'] .snapshot-frame img { animation: photo-tear 8s infinite; }
 :root[data-egg='tron'] .snapshot:nth-child(even) .snapshot-frame img { animation-delay: -4.3s; }
 @keyframes photo-tear {
-  0%, 90%, 100% { transform: translateX(0); clip-path: inset(0 0 0 0); }
-  91%   { transform: translateX(-3px); clip-path: inset(18% 0 62% 0); }
-  92.5% { transform: translateX(4px);  clip-path: inset(58% 0 22% 0); }
-  94%   { transform: translateX(0);    clip-path: inset(0 0 0 0); }
+  0%, 90%, 100% { transform: translate3d(0, 0, 0); opacity: 1; }
+  91%   { transform: translate3d(-3px, 0, 0); opacity: 0.82; }
+  92.5% { transform: translate3d(4px, 0, 0);  opacity: 0.94; }
+  94%   { transform: translate3d(0, 0, 0);    opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

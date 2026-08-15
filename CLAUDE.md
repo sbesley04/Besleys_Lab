@@ -95,7 +95,7 @@ and `LAB_DEMO_SLUGS`.
 
 | Where | What |
 |---|---|
-| Anywhere | Konami code → "hyperspace jump" into **the Grid**, a Tron theme (`data-egg="tron"`). Konami again reverses it; Esc bails to paper; session-only. Jump cinematic in `HyperspaceJump.tsx`, SFX in `lib/sound.ts` (`warp*`), all Grid styling in `globals.css`. Grid state + `useOnGrid()` hook live in `lib/grid.ts` (call `setGrid()` to toggle — it fires `bl:egg-change` and grants the hidden `egg-grid` achievement on first entry); `<GridText paper grid>` swaps copy per-mode; SiteHeader shows a HUD readout on the Grid. Full restyle done: cards (corner brackets + derezz hover), header HUD + bracketed nav, photos (cyan holograms + tear), arcade cameos (wireframe Junimo/sheep, `arcade.module.css` `:global([data-egg='tron'])`), the secret terminal (native cyan console), and `/lab` charts — `plot.ts` mutates its palette arrays in place on `bl:egg-change` (neon cyan/magenta/lime), so no per-demo edits. In-world copy swaps live in the home hero, arcade registry (`gridBlurb`), games page, and footer. |
+| Anywhere | Konami code → hyperspace jump into **the Grid** — see the section below |
 | `/games` | Type `besley` → secret terminal. `theme blueprint` unlocks the dark theme; `synthesize`, `train`, `lake`, `jeb_` are unlisted and grant hidden achievements |
 | Solitaire | ~1/100 Klondike deals contain a Joker (rank 0, wild, can't reach a foundation); playing it stamps the win "assisted" |
 | Game of Life | Draw a real glider → permanent drifting glider on the arcade hub |
@@ -105,6 +105,56 @@ and `LAB_DEMO_SLUGS`.
 | Any bad loss | Zote the Mighty recites a Precept (~30% chance) |
 
 Sprites are hand-rolled inline SVG placeholders — Sam intends to replace them.
+
+## "The Grid" — the Konami mode
+
+↑↑↓↓←→←→BA anywhere fires a hyperspace jump into a Tron skin. Session-only.
+Konami again reverses it, Esc bails instantly, `prefers-reduced-motion` snaps
+without the cinematic. First entry grants the hidden `egg-grid` achievement.
+
+```
+lib/grid.ts          setGrid() is the ONLY way to toggle. Fires `bl:egg-change`
+                     and grants the achievement. useOnGrid() subscribes.
+<GridText paper grid>   swaps a string per mode   (app/_components/eggs/)
+<GridSwitch paper grid> swaps a whole subtree     — app/page.tsx uses it to
+                        replace the paper home with GridHome
+GridHome.tsx         the Iron Man/JARVIS HUD landing: reticle, live telemetry,
+                     arcade programs as lock-on targets. Arcade-first by design.
+HyperspaceJump.tsx   the cinematic. Fixed-step sim decoupled from rAF.
+lib/sound.ts         warp* — layered sub/engine/noise/plate through one
+                     compressed bus.
+```
+
+**Styling lives in three global files, in cascade order:** `globals.css`
+(tokens + jump + component restyles) → `_styles/grid-motion.css` (ambient
+background layers) → `_styles/grid-hud.css` (the HUD landing). Later files
+override earlier ones at equal specificity — that's deliberate, so the
+background layers are tuned from grid-motion rather than by editing globals.
+Per-game re-skins live in each game's own `*.module.css`.
+
+**Rules for touching any of this:**
+
+- **Everything must be scoped `:root[data-egg='tron']`** (or
+  `:global(:root[data-egg='tron'])` in a module). Never change a base rule to
+  get a Grid effect — the cream site and its nine `data-theme` variants must
+  stay pixel-identical.
+- **Overriding a positioned pseudo-element?** Check what `inset` the base rule
+  set. The grid floor silently never rendered for weeks because the Grid rule
+  overrode `bottom` while `top: 0` from the base `inset: 0` kept winning, and
+  over-constrained boxes drop `bottom`.
+- **The jump's timeline is owned by `HyperspaceJump.tsx`** and passed into
+  `warpCharge(rise)` / `warpDown(fall)`. Don't re-declare beat times in
+  sound.ts; two hardcoded copies drifted 260ms apart once already.
+- **`cleanup()` is the single teardown path** and the end check sits in a
+  `finally`. The overlay is `z-index: 9000` with `pointer-events: auto`, so
+  anything that skips teardown makes the whole site unclickable. A wall-clock
+  watchdog also *completes* the jump if rAF never fires (hidden tab).
+- **Ambient animation:** transform/opacity only, must pause under
+  `html.bl-idle` (set by EggEffects on `visibilitychange`) and stop entirely
+  under `prefers-reduced-motion`.
+- **Michroma has only a 400 weight** — asking for 600 gives you smeared
+  faux-bold. And keep the heading bloom off small text; body copy gets
+  `text-shadow: none`.
 
 ## Gotchas learned the hard way
 

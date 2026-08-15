@@ -147,6 +147,7 @@ export default function HyperspaceJump() {
     const g: CanvasRenderingContext2D = ctx;
 
     let raf = 0;
+    let watchdog = 0;
     let running = false;
     let dir: Dir = "in";
     let start = 0;
@@ -373,6 +374,8 @@ export default function HyperspaceJump() {
     function cleanup() {
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
+      if (watchdog) window.clearTimeout(watchdog);
+      watchdog = 0;
       const wasRunning = running;
       running = false;
       window.removeEventListener("resize", onResize);
@@ -402,6 +405,21 @@ export default function HyperspaceJump() {
 
       const m = dir === "in" ? IN : OUT;
       const t = now - start;
+      try {
+        tick(now, t, m);
+      } finally {
+        // MUST be in a finally. The end check is the only thing that tears the
+        // overlay down, and the overlay is a fixed, full-viewport, z-index 9000
+        // layer with pointer-events:auto plus `overflow:hidden` on <html>. If a
+        // throw ever skipped this, the loop would re-arm forever and the entire
+        // site would be unclickable and unscrollable until a reload — with the
+        // Konami re-trigger locked out by isJumping(). Tiny risk, total blast
+        // radius, so it gets belt and braces.
+        if (t >= m.end) cleanup();
+      }
+    }
+
+    function tick(now: number, t: number, m: typeof IN) {
       let frameMs = now - last;
       last = now;
       if (!(frameMs > 0)) frameMs = SIM_STEP;
@@ -443,7 +461,6 @@ export default function HyperspaceJump() {
         did.land = true;
         warpLand();
       }
-      if (t >= m.end) cleanup();
     }
 
     function run(d: Dir) {
@@ -464,10 +481,30 @@ export default function HyperspaceJump() {
       document.documentElement.classList.add("bl-jumping");
       stage()?.classList.add(d === "in" ? "bl-stage--warp-in" : "bl-stage--warp-out");
       window.addEventListener("resize", onResize);
-      if (d === "in") warpCharge();
-      else warpDown();
+      // Timings are passed in rather than duplicated in sound.ts, so the riser
+      // always ends exactly on the flash no matter how the beats are retuned.
+      if (d === "in") warpCharge(IN.flash / 1000);
+      else warpDown(OUT.flash / 1000);
       start = performance.now();
       last = start;
+      // Wall-clock watchdog. requestAnimationFrame does not fire in a hidden
+      // tab, so if someone switches away mid-jump the loop simply stops and
+      // cleanup() — which is only reachable from frame() — never runs, leaving
+      // the click-swallowing overlay and overflow:hidden pinned for as long as
+      // the tab stays hidden. setTimeout still fires (throttled), so this
+      // bounds the damage regardless.
+      // It *finishes* the jump rather than cancelling it: rAF is what runs
+      // arrive(), so a bare cleanup() here would tear the overlay down having
+      // never applied the theme — you'd type the Konami code, switch tabs, and
+      // come back to nothing having happened. Landing without the cinematic is
+      // the right failure mode; the cinematic is the part nobody saw anyway.
+      watchdog = window.setTimeout(() => {
+        if (!did.attr) {
+          did.attr = true;
+          arrive();
+        }
+        cleanup();
+      }, (dir === "in" ? IN.end : OUT.end) + 1200);
       raf = requestAnimationFrame(frame);
     }
 

@@ -89,8 +89,10 @@ export function baa() {
    air, and a procedural plate REVERB for tail. They all land on one shared,
    compressed bus so they glue instead of stacking into clipping.
 
-   Beats, timed against HyperspaceJump.tsx's IN = {flash: 1520, land: 1600}:
-     warpCharge()  ~1.5s riser that ends in a held breath just before impact
+   Beats. HyperspaceJump.tsx passes its own flash time into warpCharge/warpDown
+   rather than these files each keeping their own copy of the timeline — an
+   earlier version hardcoded both and they silently drifted 260ms apart:
+     warpCharge(rise)  riser that ends in a held breath just before impact
      warpBoom()    the impact at the white flash, ~1.2s decay
      warpLand()    arrival chime settling into the plate
      warpDown()    the reverse jump home — descending, filter closing, softer
@@ -230,21 +232,29 @@ function send(bus: WarpBus, from: AudioNode, amount: number) {
   from.connect(g).connect(bus.wet);
 }
 
-/** How long the riser runs — matches IN.flash (1520ms) in HyperspaceJump.tsx. */
-const RISE = 1.5;
+/** Fallback riser length, used only if a caller doesn't pass one.
+    NOTE: do not re-derive this from HyperspaceJump's milestones by hand. It was
+    a hardcoded 1.5s "matching IN.flash" while the visual had been retuned to
+    1760ms, which put 260ms of dead air exactly where the impact belonged — the
+    held breath below is 85ms by design, and it became 345ms in practice. The
+    caller now passes its own flash time so the two can never drift again. */
+const RISE = 1.76;
 
-/** Charge: a ~1.5s accelerating riser — sub swell, spooling detuned engine and
+/** Charge: an accelerating riser — sub swell, spooling detuned engine and
     rising air — that cuts to near-silence for the last 85ms. That held breath
     is what makes the impact land; without it the boom just merges into the
-    riser and the whole thing reads as mush. */
-export function warpCharge() {
+    riser and the whole thing reads as mush.
+    @param riseSeconds when the flash hits, i.e. how long to spool for. */
+export function warpCharge(riseSeconds: number = RISE) {
   try {
     const ac = ctx();
     if (!ac) return;
     const bus = warpBus(ac);
     if (!bus) return;
     const t = ac.currentTime;
-    const end = t + RISE;
+    // Clamped: a caller passing something absurd shouldn't schedule a riser
+    // that outlives the animation or collapses to a click.
+    const end = t + Math.max(0.4, Math.min(4, riseSeconds));
     const gasp = end - 0.085;
     const stop = end + 0.06;
 
@@ -466,15 +476,16 @@ export function warpLand() {
 /** The jump home: warpCharge run backwards. Pitch falls, the resonant filter
     closes, the turbine flutter decelerates, and it lands on a muted thud
     instead of the full impact — leaving the Grid should feel like powering
-    down, not like a second explosion. Matches OUT.flash (460ms). */
-export function warpDown() {
+    down, not like a second explosion.
+    @param fallSeconds when the reverse flash hits (see warpCharge). */
+export function warpDown(fallSeconds: number = 0.7) {
   try {
     const ac = ctx();
     if (!ac) return;
     const bus = warpBus(ac);
     if (!bus) return;
     const t = ac.currentTime;
-    const fall = 0.46; // the reverse flash
+    const fall = Math.max(0.25, Math.min(2, fallSeconds)); // the reverse flash
     const hit = t + fall;
 
     // ENGINE — the same detuned pair, falling, with the lowpass closing down
