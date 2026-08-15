@@ -1,0 +1,674 @@
+/* ===========================================================================
+   The Grid — HUD landing page (Iron Man style).
+   ---------------------------------------------------------------------------
+   Global styles for the GridHome component, which replaces the paper "desk"
+   home page while data-egg='tron' is active. All selectors should be scoped
+   under :root[data-egg='tron'] or the .gridhud-* namespace so nothing leaks
+   into the paper site.
+
+   House rules followed here:
+   · Every rule is scoped under :root[data-egg='tron'] — paper mode never sees
+     a single declaration in this file, even the @keyframes are namespaced.
+   · Only transform/opacity animate. The one exception is the hover glow, which
+     is a box-shadow transition on a small element that is never always-on.
+   · Exactly four layers animate at rest (three reticle rings + the core pulse);
+     everything else only moves while hovered, focused, or locked.
+   · Two idioms are reused rather than reinvented: the eight-gradient corner
+     bracket from .paper-card::after and the `derezz` glitch keyframe, both of
+     which live in app/globals.css.
+   =========================================================================== */
+
+/* --- Shell ---------------------------------------------------------------- */
+:root[data-egg='tron'] .gridhud {
+  /* Local tokens so the glow idioms are written once. These intentionally
+     shadow nothing global — they are HUD-only spellings of the shared set. */
+  --gridhud-hair: rgba(125, 249, 255, 0.28);
+  --gridhud-hair-dim: rgba(125, 249, 255, 0.13);
+  --gridhud-panel: rgba(6, 18, 26, 0.42);
+  --gridhud-panel-hot: rgba(6, 18, 26, 0.66);
+  --gridhud-glow-text: 0 0 6px rgba(125, 249, 255, 0.55), 0 0 20px rgba(0, 184, 212, 0.45);
+  --gridhud-glow-box: 0 0 22px rgba(0, 184, 212, 0.4), 0 0 2px rgba(125, 249, 255, 0.7);
+  --gridhud-amber: #ffb020; /* reserved for canvas-rendered programs */
+
+  position: relative;
+  /* `clip` rather than `hidden`: it stops the decorative chrome from ever
+     widening the page without turning <main> into a scroll container. */
+  overflow-x: clip;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: clamp(1.6rem, 4.5vw, 3.2rem) clamp(1rem, 4vw, 2.4rem) 3rem;
+  display: grid;
+  gap: clamp(2rem, 6vw, 3.4rem);
+}
+
+/* Corner brackets + edge tick rails — the frame the HUD is painted inside.
+   Same eight-slice technique as .paper-card::after in globals.css. */
+:root[data-egg='tron'] .gridhud-frame {
+  position: absolute;
+  inset: clamp(0.5rem, 1.8vw, 1.1rem);
+  z-index: 0;
+  pointer-events: none;
+  --b: 28px; /* bracket arm length */
+  --w: 1px; /* bracket thickness  */
+  --c: rgba(125, 249, 255, 0.34);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / var(--w) var(--b) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--w) var(--b) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--w) var(--b) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--b) no-repeat;
+}
+:root[data-egg='tron'] .gridhud-frame::before,
+:root[data-egg='tron'] .gridhud-frame::after {
+  content: '';
+  position: absolute;
+  top: 14%;
+  bottom: 14%;
+  width: 7px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(125, 249, 255, 0.34) 0 1px,
+    transparent 1px 15px
+  );
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+}
+:root[data-egg='tron'] .gridhud-frame::before { left: 0; }
+:root[data-egg='tron'] .gridhud-frame::after { right: 0; }
+
+/* Below ~800px the chrome would crowd the content, so it steps out entirely
+   rather than being squeezed — degrade, never overflow. */
+@media (max-width: 800px) {
+  :root[data-egg='tron'] .gridhud-frame { display: none; }
+}
+
+/* Content sits above the frame layer. */
+:root[data-egg='tron'] .gridhud > section,
+:root[data-egg='tron'] .gridhud > nav {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+/* --- Masthead ------------------------------------------------------------- */
+/* Mobile stacks; ≥640px puts the reticle beside the identity block; ≥1000px
+   moves telemetry out to its own right-hand column, JARVIS-style. */
+:root[data-egg='tron'] .gridhud-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.2rem, 4vw, 2.2rem);
+  align-items: center;
+  justify-items: center;
+  text-align: center;
+}
+
+:root[data-egg='tron'] .gridhud-head__ret {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+}
+
+:root[data-egg='tron'] .gridhud-head__id { min-width: 0; }
+
+@media (min-width: 640px) {
+  :root[data-egg='tron'] .gridhud-head {
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: stretch;
+    text-align: left;
+  }
+  :root[data-egg='tron'] .gridhud-tel { grid-column: 1 / -1; }
+}
+
+@media (min-width: 1000px) {
+  :root[data-egg='tron'] .gridhud-head {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+  :root[data-egg='tron'] .gridhud-tel {
+    grid-column: 3;
+    grid-row: 1;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.35rem;
+  }
+}
+
+:root[data-egg='tron'] .gridhud-kicker {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.56rem, 2vw, 0.66rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+:root[data-egg='tron'] .gridhud-title {
+  /* Michroma is very wide, so the letter-spacing has to shrink with the type
+     or "THE GRID" runs past 380px viewports. */
+  margin: 0.25em 0 0.4em;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 6.2vw, 3rem);
+  font-weight: 400;
+  letter-spacing: clamp(0.02em, 1vw, 0.14em);
+  text-transform: uppercase;
+  line-height: 1.1;
+  text-shadow: var(--gridhud-glow-text);
+}
+
+:root[data-egg='tron'] .gridhud-sub {
+  margin: 0;
+  max-width: 46ch;
+  font-size: clamp(0.8rem, 2.4vw, 0.92rem);
+  line-height: 1.65;
+  color: var(--ink-soft);
+  /* Body copy stays on the mono face and drops the Grid's ambient bloom
+     entirely — at this size any blur reads as a smear rather than a glow. */
+  text-shadow: none;
+}
+
+/* --- Reticle -------------------------------------------------------------- */
+:root[data-egg='tron'] .gridhud-ret {
+  display: block;
+  width: clamp(128px, 30vw, 200px);
+  height: auto;
+  max-width: 100%;
+}
+:root[data-egg='tron'] .gridhud-ret circle,
+:root[data-egg='tron'] .gridhud-ret line,
+:root[data-egg='tron'] .gridhud-ret path {
+  fill: none;
+  stroke: var(--accent);
+}
+
+/* non-scaling-stroke keeps hairlines crisp when the 200-unit viewBox is drawn
+   at 128px, but it also moves dash lengths into screen units — which would
+   break the arc patterns below at small sizes. So it goes on the *undashed*
+   strokes only; the dashed rings carry a little extra width instead. */
+:root[data-egg='tron'] .gridhud-ret__tick,
+:root[data-egg='tron'] .gridhud-ret__hair,
+:root[data-egg='tron'] .gridhud-ret__cross line,
+:root[data-egg='tron'] .gridhud-ret__brackets path {
+  vector-effect: non-scaling-stroke;
+}
+
+:root[data-egg='tron'] .gridhud-ret__tick { stroke-width: 1; opacity: 0.35; }
+:root[data-egg='tron'] .gridhud-ret__tick--major { opacity: 0.75; }
+:root[data-egg='tron'] .gridhud-ret__hair { stroke-width: 1; opacity: 0.22; }
+:root[data-egg='tron'] .gridhud-ret__arc { stroke-width: 2; opacity: 0.7; }
+:root[data-egg='tron'] .gridhud-ret__dash { stroke-width: 1.6; opacity: 0.4; }
+:root[data-egg='tron'] .gridhud-ret__cross line { stroke-width: 1; opacity: 0.5; }
+:root[data-egg='tron'] .gridhud-ret__core {
+  fill: var(--accent-warm);
+  stroke: none;
+  animation: hud-pulse 1.8s ease-in-out infinite; /* shared with the header HUD */
+}
+
+/* transform-box: view-box + an explicit origin keeps every ring turning about
+   the true centre; fill-box would use each element's own bounding box. */
+:root[data-egg='tron'] .gridhud-ret__spin,
+:root[data-egg='tron'] .gridhud-ret__spin-2,
+:root[data-egg='tron'] .gridhud-ret__spin-r,
+:root[data-egg='tron'] .gridhud-ret__lock,
+:root[data-egg='tron'] .gridhud-ret__brackets {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+}
+:root[data-egg='tron'] .gridhud-ret__spin { animation: gridhud-spin 30s linear infinite; }
+:root[data-egg='tron'] .gridhud-ret__spin-2 { animation: gridhud-spin 14s linear infinite; }
+:root[data-egg='tron'] .gridhud-ret__spin-r { animation: gridhud-spin 22s linear infinite reverse; }
+
+@keyframes gridhud-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Target acquisition. The lock ring has no animation at rest, so it spins up
+   from zero the moment a program is hovered or focused — that fresh start is
+   what sells the "acquiring" beat. */
+:root[data-egg='tron'] .gridhud-ret__lock {
+  stroke: var(--gridhud-amber);
+  stroke-width: 2.5;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+:root[data-egg='tron'] .gridhud-ret[data-locked='1'] .gridhud-ret__lock {
+  opacity: 1;
+  animation: gridhud-spin 2.4s linear infinite;
+}
+:root[data-egg='tron'] .gridhud-ret__brackets path {
+  stroke-width: 2;
+  opacity: 0.3;
+}
+:root[data-egg='tron'] .gridhud-ret__brackets {
+  transform: scale(1.28);
+  opacity: 0.5;
+  transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.25, 1), opacity 0.24s ease;
+}
+:root[data-egg='tron'] .gridhud-ret[data-locked='1'] .gridhud-ret__brackets {
+  transform: scale(1);
+  opacity: 1;
+}
+:root[data-egg='tron'] .gridhud-ret[data-locked='1'] .gridhud-ret__brackets path {
+  stroke: var(--gridhud-amber);
+  opacity: 1;
+}
+:root[data-egg='tron'] .gridhud-ret[data-locked='1'] .gridhud-ret__core { fill: var(--gridhud-amber); }
+
+/* Target readout under the reticle. A fixed min-height keeps the swap between
+   "NO TARGET" and a slug from nudging the layout. */
+:root[data-egg='tron'] .gridhud-lockout {
+  margin: 0;
+  min-height: 1.2em;
+  font-family: var(--font-body);
+  font-size: clamp(0.54rem, 1.9vw, 0.62rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.55;
+  overflow-wrap: anywhere;
+  transition: color 0.18s ease, opacity 0.18s ease;
+}
+:root[data-egg='tron'] .gridhud-lockout[data-locked='1'] {
+  color: var(--gridhud-amber);
+  opacity: 1;
+  text-shadow: 0 0 8px rgba(255, 176, 32, 0.45);
+}
+
+/* --- Telemetry ------------------------------------------------------------ */
+:root[data-egg='tron'] .gridhud-tel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem clamp(0.8rem, 3vw, 1.5rem);
+  font-family: var(--font-body);
+  font-size: clamp(0.54rem, 1.9vw, 0.63rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+@media (min-width: 640px) {
+  :root[data-egg='tron'] .gridhud-tel {
+    justify-content: flex-start;
+    border-top: 1px solid var(--gridhud-hair-dim);
+    padding-top: 0.85rem;
+  }
+}
+@media (min-width: 1000px) {
+  :root[data-egg='tron'] .gridhud-tel { border-top: 0; padding-top: 0; }
+}
+
+:root[data-egg='tron'] .gridhud-tel__row {
+  margin: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+:root[data-egg='tron'] .gridhud-tel__k { color: var(--ink-soft); opacity: 0.6; }
+:root[data-egg='tron'] .gridhud-tel__v {
+  color: var(--accent);
+  /* Tabular figures stop the ticking counter from jittering its own width. */
+  font-variant-numeric: tabular-nums;
+}
+
+/* Flux meter — twelve bars driven by React state. Scaling is the whole
+   animation, so it never touches layout. */
+:root[data-egg='tron'] .gridhud-flux {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 22px;
+}
+:root[data-egg='tron'] .gridhud-flux__bar {
+  width: 3px;
+  height: 100%;
+  transform-origin: bottom center;
+  transform: scaleY(var(--gridhud-v, 0.5));
+  background: linear-gradient(to top, rgba(125, 249, 255, 0.45), var(--accent-warm));
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+/* --- Section bar ---------------------------------------------------------- */
+:root[data-egg='tron'] .gridhud-bar {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.6rem, 2vw, 1rem);
+  margin-bottom: clamp(0.9rem, 3vw, 1.4rem);
+}
+:root[data-egg='tron'] .gridhud-bar__label {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.7rem, 2.4vw, 0.95rem);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+:root[data-egg='tron'] .gridhud-bar__rule {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 1px;
+  background: linear-gradient(to right, var(--gridhud-hair), var(--gridhud-hair-dim));
+}
+:root[data-egg='tron'] .gridhud-bar__count {
+  font-family: var(--font-body);
+  font-size: clamp(0.52rem, 1.9vw, 0.62rem);
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* --- Programs (the hero) -------------------------------------------------- */
+:root[data-egg='tron'] .gridhud-programs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* min(100%, …) is what keeps the grid from forcing a horizontal scrollbar
+     at 380px — the track can always collapse to the container width. */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: clamp(0.55rem, 1.6vw, 0.85rem);
+}
+/* The <li> becomes a grid so the <a> stretches to the full row height —
+   otherwise tiles with shorter blurbs sit short and their hairlines don't
+   line up across a row. */
+:root[data-egg='tron'] .gridhud-programs > li {
+  display: grid;
+  min-width: 0;
+}
+
+:root[data-egg='tron'] .gridhud-prog {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  /* The blurb row takes the slack, which keeps RENDER/STANDBY pinned to the
+     bottom edge of every tile regardless of how long the copy runs. */
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'lock title'
+    'lock blurb'
+    'lock stat';
+  column-gap: clamp(0.65rem, 2vw, 0.95rem);
+  row-gap: 0.28rem;
+  padding: clamp(0.8rem, 2.4vw, 1.05rem);
+  /* An inset shadow rather than a border, so the absolutely positioned bracket
+     and sweep layers align to the visible edge instead of the padding box. */
+  box-shadow: inset 0 0 0 1px var(--gridhud-hair);
+  border-radius: 2px; /* the Grid wants near-hard corners */
+  background: var(--gridhud-panel);
+  color: var(--ink);
+  overflow: hidden; /* clips the sweep */
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* Hover and focus-visible are always written together: keyboard selection has
+   to feel identical to pointer selection. */
+:root[data-egg='tron'] .gridhud-prog:hover,
+:root[data-egg='tron'] .gridhud-prog:focus-visible {
+  background: var(--gridhud-panel-hot);
+  box-shadow: inset 0 0 0 1px rgba(125, 249, 255, 0.55), var(--gridhud-glow-box);
+  color: var(--ink);
+  animation: derezz 0.3s steps(2, end) 1; /* the shared glitch from globals.css */
+}
+
+/* Corner brackets that snap outward to the tile edge on acquisition. */
+:root[data-egg='tron'] .gridhud-prog__frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --b: 13px;
+  --w: 1px;
+  --c: rgba(125, 249, 255, 0.55);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / var(--w) var(--b) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--w) var(--b) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--w) var(--b) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--b) var(--w) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--b) no-repeat;
+  opacity: 0.28;
+  transform: scale(0.93);
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.2, 0.8, 0.25, 1);
+}
+:root[data-egg='tron'] .gridhud-prog:hover .gridhud-prog__frame,
+:root[data-egg='tron'] .gridhud-prog:focus-visible .gridhud-prog__frame {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Scanning sweep — a one-shot pass across the tile on acquisition. `forwards`
+   parks it off the right edge so no bar is left sitting in view. */
+:root[data-egg='tron'] .gridhud-prog__sweep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(125, 249, 255, 0.1) 42%,
+    rgba(184, 251, 255, 0.26) 50%,
+    rgba(125, 249, 255, 0.1) 58%,
+    transparent 100%
+  );
+}
+:root[data-egg='tron'] .gridhud-prog:hover .gridhud-prog__sweep,
+:root[data-egg='tron'] .gridhud-prog:focus-visible .gridhud-prog__sweep {
+  opacity: 1;
+  will-change: transform; /* only promoted while it is actually sweeping */
+  animation: gridhud-sweep 900ms ease-out 1 forwards;
+}
+@keyframes gridhud-sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+/* Numbered lock badge. The dashed outer ring is parked until acquisition. */
+:root[data-egg='tron'] .gridhud-prog__lock {
+  grid-area: lock;
+  align-self: start;
+  width: clamp(34px, 9vw, 42px);
+  height: clamp(34px, 9vw, 42px);
+}
+:root[data-egg='tron'] .gridhud-prog__lockring,
+:root[data-egg='tron'] .gridhud-prog__lockspin {
+  fill: none;
+  stroke: var(--accent);
+}
+/* Same rule as the reticle: the dashed ring can't take non-scaling-stroke. */
+:root[data-egg='tron'] .gridhud-prog__lockring {
+  stroke-width: 1;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+:root[data-egg='tron'] .gridhud-prog__lockspin {
+  stroke-width: 1.5;
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 22px 22px;
+  transition: opacity 0.18s ease;
+}
+:root[data-egg='tron'] .gridhud-prog:hover .gridhud-prog__lockring,
+:root[data-egg='tron'] .gridhud-prog:focus-visible .gridhud-prog__lockring { opacity: 0.7; }
+:root[data-egg='tron'] .gridhud-prog:hover .gridhud-prog__lockspin,
+:root[data-egg='tron'] .gridhud-prog:focus-visible .gridhud-prog__lockspin {
+  opacity: 1;
+  animation: gridhud-spin 2.6s linear infinite;
+}
+:root[data-egg='tron'] .gridhud-prog__locknum {
+  fill: var(--ink-soft);
+  stroke: none;
+  font-family: var(--font-body);
+  font-size: 11px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+:root[data-egg='tron'] .gridhud-prog:hover .gridhud-prog__locknum,
+:root[data-egg='tron'] .gridhud-prog:focus-visible .gridhud-prog__locknum { fill: var(--accent-warm); }
+
+:root[data-egg='tron'] .gridhud-prog__title {
+  grid-area: title;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.66rem, 2.1vw, 0.8rem);
+  letter-spacing: 0.1em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+}
+:root[data-egg='tron'] .gridhud-prog__blurb {
+  grid-area: blurb;
+  min-width: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.72rem, 2.1vw, 0.8rem);
+  line-height: 1.6;
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+  /* Every <a> inherits a 6px cyan bloom on the Grid (globals.css). On a whole
+     paragraph of mono that turns into a smear, so the in-world copy opts out. */
+  text-shadow: none;
+}
+
+:root[data-egg='tron'] .gridhud-prog__stat {
+  grid-area: stat;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+  font-family: var(--font-body);
+  font-size: clamp(0.5rem, 1.8vw, 0.58rem);
+  letter-spacing: 0.16em;
+}
+:root[data-egg='tron'] .gridhud-prog__rend {
+  color: var(--ink-soft);
+  opacity: 0.55;
+  white-space: nowrap;
+}
+/* Engine-backed programs get the one non-cyan tag on the page, so "canvas"
+   reads as a different class of thing at a glance. */
+:root[data-egg='tron'] .gridhud-prog__rend[data-canvas='1'] {
+  color: var(--gridhud-amber);
+  opacity: 0.8;
+}
+
+/* STANDBY / EXECUTE share a single grid cell and cross-fade, so the widest of
+   the two sets the width once and the swap cannot shift anything. */
+:root[data-egg='tron'] .gridhud-prog__go {
+  display: grid;
+  justify-items: end;
+  white-space: nowrap;
+}
+:root[data-egg='tron'] .gridhud-prog__go-idle,
+:root[data-egg='tron'] .gridhud-prog__go-hot {
+  grid-area: 1 / 1;
+  transition: opacity 0.16s ease;
+}
+:root[data-egg='tron'] .gridhud-prog__go-idle { color: var(--ink-soft); opacity: 0.4; }
+:root[data-egg='tron'] .gridhud-prog__go-hot {
+  color: var(--accent-warm);
+  opacity: 0;
+  text-shadow: var(--gridhud-glow-text);
+}
+:root[data-egg='tron'] .gridhud-prog:hover .gridhud-prog__go-idle,
+:root[data-egg='tron'] .gridhud-prog:focus-visible .gridhud-prog__go-idle { opacity: 0; }
+:root[data-egg='tron'] .gridhud-prog:hover .gridhud-prog__go-hot,
+:root[data-egg='tron'] .gridhud-prog:focus-visible .gridhud-prog__go-hot { opacity: 1; }
+
+/* --- Peripheral sectors --------------------------------------------------- */
+/* Small, quiet, and last: the arcade is the page, this is just chrome. */
+:root[data-egg='tron'] .gridhud-sectors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 clamp(0.7rem, 2.5vw, 1.4rem);
+  border-top: 1px solid var(--gridhud-hair-dim);
+  padding-top: 0.4rem;
+}
+:root[data-egg='tron'] .gridhud-sectors__k {
+  font-family: var(--font-body);
+  font-size: clamp(0.5rem, 1.8vw, 0.58rem);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.35;
+  margin-right: 0.2rem;
+}
+:root[data-egg='tron'] .gridhud-sector {
+  /* 44px min target height matches the footer links' tap-target convention. */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 44px;
+  font-family: var(--font-body);
+  font-size: clamp(0.55rem, 1.9vw, 0.63rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.7;
+  transition: opacity 0.16s ease, color 0.16s ease;
+}
+:root[data-egg='tron'] .gridhud-sector::before {
+  content: '\25B8'; /* ▸ — the marker the header's [ ] brackets already avoid */
+  opacity: 0.45;
+}
+:root[data-egg='tron'] .gridhud-sector:hover,
+:root[data-egg='tron'] .gridhud-sector:focus-visible {
+  color: var(--accent);
+  opacity: 1;
+}
+
+/* --- Ambient motion: pause when the tab is idle --------------------------- */
+/* html.bl-idle is set by the background-motion pass; honouring it here means
+   the HUD's rings stop costing frames alongside the grid floor. */
+:root[data-egg='tron'].bl-idle .gridhud-ret__spin,
+:root[data-egg='tron'].bl-idle .gridhud-ret__spin-2,
+:root[data-egg='tron'].bl-idle .gridhud-ret__spin-r,
+:root[data-egg='tron'].bl-idle .gridhud-ret__core {
+  animation-play-state: paused;
+}
+
+/* --- Reduced motion ------------------------------------------------------- */
+/* Every looping and one-shot animation stops. The affordances survive as pure
+   state changes: brackets still snap in, the glow still comes up, EXECUTE still
+   appears — they just arrive instantly. The sweep keeps its resting
+   translateX(-100%), which parks it outside the tile's overflow clip. */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-egg='tron'] .gridhud-ret__spin,
+  :root[data-egg='tron'] .gridhud-ret__spin-2,
+  :root[data-egg='tron'] .gridhud-ret__spin-r,
+  :root[data-egg='tron'] .gridhud-ret__core,
+  :root[data-egg='tron'] .gridhud-ret[data-locked='1'] .gridhud-ret__lock,
+  :root[data-egg='tron'] .gridhud-prog:hover,
+  :root[data-egg='tron'] .gridhud-prog:focus-visible,
+  :root[data-egg='tron'] .gridhud-prog:hover .gridhud-prog__sweep,
+  :root[data-egg='tron'] .gridhud-prog:focus-visible .gridhud-prog__sweep,
+  :root[data-egg='tron'] .gridhud-prog:hover .gridhud-prog__lockspin,
+  :root[data-egg='tron'] .gridhud-prog:focus-visible .gridhud-prog__lockspin {
+    animation: none;
+  }
+  :root[data-egg='tron'] .gridhud-ret__brackets,
+  :root[data-egg='tron'] .gridhud-lockout,
+  :root[data-egg='tron'] .gridhud-flux__bar,
+  :root[data-egg='tron'] .gridhud-prog,
+  :root[data-egg='tron'] .gridhud-prog__frame,
+  :root[data-egg='tron'] .gridhud-prog__lockring,
+  :root[data-egg='tron'] .gridhud-prog__lockspin,
+  :root[data-egg='tron'] .gridhud-prog__go-idle,
+  :root[data-egg='tron'] .gridhud-prog__go-hot,
+  :root[data-egg='tron'] .gridhud-sector {
+    transition: none;
+  }
+  /* will-change would otherwise linger on a layer that no longer animates. */
+  :root[data-egg='tron'] .gridhud-prog:hover .gridhud-prog__sweep,
+  :root[data-egg='tron'] .gridhud-prog:focus-visible .gridhud-prog__sweep {
+    will-change: auto;
+  }
+}

@@ -1,0 +1,226 @@
+/* ===========================================================================
+   The Grid — ambient background motion.
+   ---------------------------------------------------------------------------
+   Global styles that only apply under :root[data-egg='tron']. Everything here
+   must be compositor-friendly (transform/opacity only), must pause when the
+   tab is hidden (html.bl-idle) , and must stop entirely under
+   prefers-reduced-motion. Owned by the background-motion pass — the HUD
+   landing's own styling lives in grid-hud.css.
+   ===========================================================================
+
+   LAYER STACK (all fixed, pointer-events:none, negative z so content is safe):
+
+     z -4  html::before    volumetric haze — three huge neon blooms, drifting
+     z -3  html::after     horizon rail + bloom, breathing
+     z -1  body::before    the perspective grid floor          (from globals)
+     z -1  #bl-stage::before  the periodic scan sweep
+     z 90  body::after     scanlines + vignette + CRT flicker  (from globals)
+
+   Only five layers total and two of those already existed, so the Grid still
+   costs a handful of composited quads. Nothing here paints per frame: every
+   loop is a transform/opacity animation on an element the compositor has
+   already rasterised once.
+
+   This file is loaded AFTER globals.css, so equal-specificity rules here win.
+   That is deliberate — the Grid's background layers are tuned from this file
+   rather than by editing globals.css.
+   =========================================================================== */
+
+/* --- Tunables --------------------------------------------------------------
+   Kept as custom properties because the floor's geometry and its scroll loop
+   have to agree: the drift keyframe translates the plane by exactly one cell,
+   so the pattern lands back on itself and the loop is seamless. Change
+   --grid-cell and the animation stays honest. */
+:root[data-egg='tron'] {
+  --grid-cell:   46px;   /* floor cell size — must match the drift distance   */
+  --grid-persp: 1900px;  /* larger = the floor recedes further up the screen  */
+  --grid-tilt:    74deg; /* how flat the plane is laid down                   */
+
+  --grid-drift-dur:   18s;
+  --grid-haze-dur:    46s;
+  --grid-breathe-dur: 17s;
+  --grid-sweep-dur:   19s;
+}
+
+/* --- The perspective floor, re-tuned ---------------------------------------
+   globals.css lays this plane down with perspective(340px) rotateX(74deg) and
+   hangs it 12vh below the fold. The trouble is that a `perspective(p)` floor
+   has a hard vanishing line exactly p * cot(tilt) above its origin — at 340px
+   that is 97px, so the *entire* plane projected below the viewport bottom on
+   anything taller than ~575px. On a laptop the floor was never visible.
+
+   Opening the perspective up to 1900px pushes the vanishing line to ~550px and
+   pulls the near edge back to just under the fold, which lands the floor as a
+   stable band across the bottom ~22–29vh at every viewport height. Width is
+   220vw so the plane still spans the screen where the mask is still opaque
+   (it tapers only up in the region that has already faded to zero).
+
+   Height/width are held down on purpose: this layer gets promoted for the
+   whole session, and a promoted layer is rasterised at its full size. 220vw x
+   200vh is about 25MB at 1600x900 — roughly what the old 320vw x 150vh plane
+   already cost, so the fix is memory-neutral. */
+:root[data-egg='tron'] body::before {
+  bottom: -5vh;   /* just off the fold — the drift never lifts it into view */
+  width: 220vw;
+  height: 200vh;
+  opacity: 0.6;
+  transform:
+    translateX(-50%)
+    perspective(var(--grid-persp))
+    rotateX(var(--grid-tilt));
+  background-image:
+    linear-gradient(rgba(125, 249, 255, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 249, 255, 0.5) 1px, transparent 1px);
+  background-size: var(--grid-cell) var(--grid-cell);
+  /* Foreshortening means element-space and screen-space are wildly different
+     up here: the top 18% of the plane occupies only the last ~10% of the band
+     on screen. Fading across four stops keeps the dissolve smooth instead of
+     stopping the grid dead at the far edge. */
+  -webkit-mask-image: linear-gradient(
+    to top,
+    #000 0%, rgba(0, 0, 0, 0.92) 30%, rgba(0, 0, 0, 0.38) 58%, transparent 82%);
+  mask-image: linear-gradient(
+    to top,
+    #000 0%, rgba(0, 0, 0, 0.92) 30%, rgba(0, 0, 0, 0.38) 58%, transparent 82%);
+  animation: bl-grid-drift var(--grid-drift-dur) linear infinite;
+}
+
+/* Replaces globals' `grid-scroll`, which animated background-position — that
+   invalidates and repaints a 25MB layer on every single frame. Appending a
+   translate3d AFTER the rotateX moves the plane *within* its own tilted space,
+   i.e. straight toward the viewer, and costs nothing but a matrix update.
+   One cell of travel per cycle, so the pattern is self-aligning at the wrap. */
+@keyframes bl-grid-drift {
+  from {
+    transform:
+      translateX(-50%) perspective(var(--grid-persp)) rotateX(var(--grid-tilt))
+      translate3d(0, 0, 0);
+  }
+  to {
+    transform:
+      translateX(-50%) perspective(var(--grid-persp)) rotateX(var(--grid-tilt))
+      translate3d(0, var(--grid-cell), 0);
+  }
+}
+
+/* --- Volumetric haze -------------------------------------------------------
+   Slow neon fog behind everything, so the black never reads as flat black.
+   Alphas are deliberately tiny (<= 0.075): this sits behind body copy, and the
+   whole point is atmosphere, not luminance. Oversized by 20% on each side so
+   the drift can never expose an edge, and scaled up rather than down for the
+   same reason. Fixed positioning keeps it out of the scrollable overflow
+   region, so the extra width cannot produce a horizontal scrollbar. */
+:root[data-egg='tron']::before {
+  content: '';
+  position: fixed;
+  inset: -20%;
+  z-index: -4;
+  pointer-events: none;
+  background:
+    radial-gradient(48% 38% at 22% 26%, rgba(125, 249, 255, 0.075), transparent 62%),
+    radial-gradient(42% 34% at 78% 18%, rgba(192, 125, 255, 0.060), transparent 64%),
+    radial-gradient(52% 30% at 62% 74%, rgba(255, 60, 160, 0.035), transparent 66%);
+  animation: bl-haze-drift var(--grid-haze-dur) ease-in-out infinite;
+}
+@keyframes bl-haze-drift {
+  0%, 100% { transform: translate3d(-1.5%, 1%, 0) scale(1.04); opacity: 0.8; }
+  50%      { transform: translate3d(2%, -1.5%, 0) scale(1.1);  opacity: 1; }
+}
+
+/* --- Horizon rail + bloom --------------------------------------------------
+   The floor's far edge dissolves into the mask; this is what it dissolves
+   *into*. A hairline-thin ellipse sits at the height the floor tops out at
+   (~24vh above the bottom across 600–1000px viewports, so a 64vh box with the
+   rail at 62.5% down lands on it), with a wide soft bloom spilling up from it.
+
+   The breath doubles as the "is this thing alive" pulse. transform-origin is
+   pinned to the bottom so scaling lifts the rail by ~1vh rather than sliding
+   it off its mark. */
+:root[data-egg='tron']::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 64vh;
+  z-index: -3;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  background:
+    radial-gradient(58% 1.4% at 50% 62.5%, rgba(125, 249, 255, 0.3), transparent 72%),
+    radial-gradient(78% 30% at 50% 66%, rgba(0, 184, 212, 0.12), transparent 70%);
+  animation: bl-horizon-breathe var(--grid-breathe-dur) ease-in-out infinite;
+}
+@keyframes bl-horizon-breathe {
+  0%, 100% { transform: scale(1, 1);       opacity: 0.72; }
+  50%      { transform: scale(1.04, 1.06); opacity: 1; }
+}
+
+/* --- Periodic scan sweep ---------------------------------------------------
+   A bright rail crosses the viewport roughly every 19s: ~9s of travel, then a
+   long dead beat so it stays an event rather than a metronome. Leading edge is
+   at the bottom of the gradient with the glow trailing above, which is what
+   sells the direction.
+
+   It lives on #bl-stage::before because html and body have both of their
+   pseudo-elements spoken for and this pass may not add DOM. During the
+   hyperspace jump #bl-stage takes a filter, which makes it the containing
+   block for this fixed layer — harmless, since the whole stage is blurring
+   past at that moment anyway. */
+:root[data-egg='tron'] #bl-stage::before {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 30vh;
+  z-index: -1; /* over the floor (tree order breaks the tie), under content */
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(125, 249, 255, 0.035) 62%,
+    rgba(125, 249, 255, 0.1) 88%,
+    rgba(234, 249, 255, 0.22) 97%,
+    rgba(234, 249, 255, 0) 100%);
+  animation: bl-scan-sweep var(--grid-sweep-dur) linear infinite;
+}
+@keyframes bl-scan-sweep {
+  0%       { transform: translate3d(0, -32vh, 0); opacity: 0; }
+  4%       { opacity: 1; }
+  40%      { opacity: 1; }
+  48%      { transform: translate3d(0, 116vh, 0); opacity: 0; }
+  48.01%,
+  100%     { transform: translate3d(0, -32vh, 0); opacity: 0; }
+}
+
+/* --- Idle -----------------------------------------------------------------
+   Forward hook for the visibility-change handler: when the tab is hidden the
+   Grid should stop burning frames. Pausing (not clearing) keeps the layers
+   exactly where they were so coming back is not a visible jump. */
+:root[data-egg='tron'].bl-idle::before,
+:root[data-egg='tron'].bl-idle::after,
+:root[data-egg='tron'].bl-idle body::before,
+:root[data-egg='tron'].bl-idle body::after,
+:root[data-egg='tron'].bl-idle #bl-stage::before {
+  animation-play-state: paused;
+}
+
+/* --- Reduced motion --------------------------------------------------------
+   globals.css already stills body::before, but this file's `animation`
+   declaration lands later at equal specificity and would otherwise win right
+   back, so the floor has to be re-stilled here. The haze and horizon are
+   authored to look correct at their resting transform, so simply stopping them
+   leaves a composed static scene. The sweep has no meaningful rest pose — a
+   bright bar parked at the top of the page — so it is removed outright. */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-egg='tron']::before,
+  :root[data-egg='tron']::after,
+  :root[data-egg='tron'] body::before {
+    animation: none;
+  }
+  :root[data-egg='tron'] #bl-stage::before {
+    display: none;
+  }
+}
