@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef } from "react";
+import { useId, useRef, useState } from "react";
 import styles from "../lab.module.css";
 import { Axes } from "./Axes";
 import { pointerToData, type Scale } from "./plot";
@@ -51,11 +51,19 @@ export default function PointCanvas({
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const dragging = useRef<number | null>(null);
+  const interactive = Boolean(onAdd || onMove || onRemove);
+  const [keyboardActive, setKeyboardActive] = useState(false);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [cursor, setCursor] = useState(() => ({
+    x: (scale.domain[0] + scale.domain[1]) / 2,
+    y: (scale.range[0] + scale.range[1]) / 2,
+  }));
   // The SVG itself keeps overflow visible so axis labels aren't cut off, but
   // demo overlays (fit lines, margins, decision regions) run to the edge of
   // the data range and would otherwise spill across the page — so they get
   // clipped to the plot rectangle.
   const clipId = `plot-clip-${useId()}`;
+  const instructionsId = `plot-instructions-${useId()}`;
 
   function hit(dataX: number, dataY: number): number {
     // Hit radius in data units, derived from the pixel radius.
@@ -71,7 +79,9 @@ export default function PointCanvas({
 
   function onPointerDown(e: React.PointerEvent<SVGSVGElement>) {
     if (!svgRef.current) return;
+    svgRef.current.focus();
     const p = pointerToData(e, svgRef.current, scale);
+    setCursor(p);
     const idx = hit(p.x, p.y);
 
     // Alt/right-click removes; plain click on empty space adds.
@@ -107,19 +117,88 @@ export default function PointCanvas({
     dragging.current = null;
   }
 
+  function onKeyDown(e: React.KeyboardEvent<SVGSVGElement>) {
+    if (!interactive) return;
+    const xStep = (scale.domain[1] - scale.domain[0]) / (e.shiftKey ? 10 : 40);
+    const yStep = (scale.range[1] - scale.range[0]) / (e.shiftKey ? 10 : 40);
+    const deltas: Partial<Record<string, [number, number]>> = {
+      ArrowLeft: [-xStep, 0],
+      ArrowRight: [xStep, 0],
+      ArrowDown: [0, -yStep],
+      ArrowUp: [0, yStep],
+    };
+    const delta = deltas[e.key];
+
+    if (delta) {
+      e.preventDefault();
+      const activePoint = selected !== null ? points[selected] : undefined;
+      const origin = activePoint ?? cursor;
+      const next = {
+        x: Math.max(scale.domain[0], Math.min(scale.domain[1], origin.x + delta[0])),
+        y: Math.max(scale.range[0], Math.min(scale.range[1], origin.y + delta[1])),
+      };
+      setCursor(next);
+      if (activePoint && onMove && selected !== null) onMove(selected, next);
+      return;
+    }
+
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (selected !== null) {
+        setSelected(null);
+        return;
+      }
+      const idx = hit(cursor.x, cursor.y);
+      if (idx >= 0 && onMove) setSelected(idx);
+      else if (onAdd) onAdd(cursor);
+      return;
+    }
+
+    if (e.key === "Delete" || e.key === "Backspace") {
+      const idx = selected ?? hit(cursor.x, cursor.y);
+      if (idx >= 0 && onRemove) {
+        e.preventDefault();
+        onRemove(idx);
+        setSelected(null);
+      }
+      return;
+    }
+
+    if (e.key === "Escape" && selected !== null) {
+      e.preventDefault();
+      setSelected(null);
+    }
+  }
+
   return (
     <svg
       ref={svgRef}
-      className={`${styles.plotSvg} ${onAdd ? styles.clickable : ""}`}
+      className={`${styles.plotSvg} ${onAdd ? styles.clickable : ""} ${interactive ? styles.interactivePlot : ""}`}
       viewBox={`0 0 ${scale.width} ${scale.height}`}
-      role="img"
+      role={interactive ? "application" : "img"}
       aria-label={ariaLabel}
+      aria-describedby={interactive ? instructionsId : undefined}
+      aria-keyshortcuts={interactive ? "ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space Delete Escape" : undefined}
+      tabIndex={interactive ? 0 : undefined}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
       onContextMenu={(e) => e.preventDefault()}
+      onKeyDown={onKeyDown}
+      onFocus={() => setKeyboardActive(true)}
+      onBlur={() => {
+        setKeyboardActive(false);
+        setSelected(null);
+      }}
     >
+      {interactive && (
+        <desc id={instructionsId}>
+          Use the arrow keys to move the crosshair. Press Enter or Space to add a point or select
+          the nearest point. Arrow keys move a selected point. Delete removes it; Escape releases it.
+          Hold Shift with an arrow key for a larger move.
+        </desc>
+      )}
       <defs>
         <clipPath id={clipId}>
           <rect
@@ -143,6 +222,34 @@ export default function PointCanvas({
           strokeWidth={1.2}
         />
       ))}
+      {keyboardActive && interactive && (
+        <g aria-hidden pointerEvents="none">
+          <line
+            x1={scale.x(cursor.x) - 8}
+            x2={scale.x(cursor.x) + 8}
+            y1={scale.y(cursor.y)}
+            y2={scale.y(cursor.y)}
+            stroke="var(--accent)"
+            strokeWidth={1.6}
+          />
+          <line
+            x1={scale.x(cursor.x)}
+            x2={scale.x(cursor.x)}
+            y1={scale.y(cursor.y) - 8}
+            y2={scale.y(cursor.y) + 8}
+            stroke="var(--accent)"
+            strokeWidth={1.6}
+          />
+          <circle
+            cx={scale.x(cursor.x)}
+            cy={scale.y(cursor.y)}
+            r={selected !== null ? 11 : 6}
+            fill="none"
+            stroke="var(--accent)"
+            strokeWidth={selected !== null ? 2.2 : 1.2}
+          />
+        </g>
+      )}
       {children}
     </svg>
   );

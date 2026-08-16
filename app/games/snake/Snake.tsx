@@ -17,6 +17,10 @@ const KEY_DIR: Record<string, Dir> = {
   ArrowDown: "down",
   ArrowLeft: "left",
   ArrowRight: "right",
+  w: "up",
+  s: "down",
+  a: "left",
+  d: "right",
 };
 
 export default function Snake() {
@@ -53,6 +57,8 @@ export default function Snake() {
   // Keyboard controls.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("input, select, textarea, [contenteditable='true']")) return;
       const status = stateRef.current.status;
       if (e.key === "Enter" && (status === "idle" || status === "over")) {
         dispatch({ type: "START" });
@@ -62,7 +68,7 @@ export default function Snake() {
         dispatch({ type: "TOGGLE_PAUSE" });
         return;
       }
-      const dir = KEY_DIR[e.key];
+      const dir = KEY_DIR[e.key] ?? KEY_DIR[e.key.toLowerCase()];
       if (dir) {
         e.preventDefault();
         dispatch({ type: "TURN", dir });
@@ -102,9 +108,8 @@ export default function Snake() {
       <div className={styles.boardWrap}>
         <div
           className={styles.board}
-          role="grid"
-          aria-label="Snake board"
-          style={{ ["--cell" as string]: "22px" }}
+          role="img"
+          aria-label={`Snake board. Score ${state.score}. Snake length ${state.snake.length}. ${state.status}.`}
           data-habitat-stage={habitatStage}
           // Purely presentational: the Grid skin aims the head's leading edge
           // off this. The committed dir (not pendingDir) is the one the head
@@ -119,9 +124,11 @@ export default function Snake() {
             <div className={styles.overlayInner}>
               <h2>{state.status === "over" ? "Game over" : state.status === "paused" ? "Paused" : "Snake"}</h2>
               {state.status === "paused" ? (
-                <p className={styles.help}>Press P to resume.</p>
+                <button type="button" className={styles.button} onClick={() => dispatch({ type: "TOGGLE_PAUSE" })}>
+                  Resume
+                </button>
               ) : (
-                <button className={styles.button} onClick={() => dispatch({ type: "START" })}>
+                <button type="button" className={styles.button} onClick={() => dispatch({ type: "START" })}>
                   {state.status === "over" ? "Play again" : "Start"}
                 </button>
               )}
@@ -135,7 +142,16 @@ export default function Snake() {
           <h3>Score</h3>
           <div className={styles.stat}>{state.score}</div>
         </div>
-        <p className={styles.help}>← ↑ ↓ → to steer · P pause · Enter start</p>
+        <div className={styles.touchControls} aria-label="Snake controls">
+          <button type="button" onClick={() => dispatch({ type: "TURN", dir: "up" })} aria-label="Steer up">↑</button>
+          <button type="button" onClick={() => dispatch({ type: "TURN", dir: "left" })} aria-label="Steer left">←</button>
+          <button type="button" onClick={() => dispatch({ type: "TURN", dir: "down" })} aria-label="Steer down">↓</button>
+          <button type="button" onClick={() => dispatch({ type: "TURN", dir: "right" })} aria-label="Steer right">→</button>
+          <button type="button" className={styles.pauseControl} onClick={() => dispatch({ type: "TOGGLE_PAUSE" })} disabled={state.status === "idle" || state.status === "over"}>
+            {state.status === "paused" ? "Resume" : "Pause"}
+          </button>
+        </div>
+        <p className={styles.help}>Arrows or WASD steer · P pauses · Enter starts</p>
         <SaveSlot<GameState>
           game="snake"
           getState={() => stateRef.current}

@@ -28,6 +28,20 @@ const SECTORS = [
   { href: "/about", label: "About" },
 ];
 
+// Programs that exist only after the Konami jump. They deliberately stay out
+// of app/games/registry.ts, so the paper arcade, saves API, sitemap, Lab Rat,
+// and public game count reveal nothing about them.
+const GRID_ONLY_PROGRAMS = [
+  {
+    slug: "light-cycle",
+    title: "LIGHT-CYCLE",
+    blurb: "",
+    gridBlurb: "Enter the arena. Preserve your trail and derezz the hostile program.",
+    renderer: "dom" as const,
+  },
+];
+const GRID_PROGRAMS = [...games, ...GRID_ONLY_PROGRAMS];
+
 // --- Deterministic seeds ----------------------------------------------------
 // The CLAUDE.md gotcha that bites hardest here: anything random or clock-derived
 // has to render a *fixed* value on the server and only start moving in a mount
@@ -165,7 +179,7 @@ export default function GridHome() {
     return () => window.clearInterval(id);
   }, []);
 
-  const acquired = games.find((g) => g.slug === target) ?? null;
+  const acquired = GRID_PROGRAMS.find((g) => g.slug === target) ?? null;
 
   // Releasing is guarded by slug: pointer-out of one tile can fire after
   // pointer-in of the next, which would otherwise drop a live lock.
@@ -207,7 +221,7 @@ export default function GridHome() {
           </p>
           <p className="gridhud-tel__row">
             <span className="gridhud-tel__k">Programs</span>
-            <span className="gridhud-tel__v">{String(games.length).padStart(2, "0")}</span>
+            <span className="gridhud-tel__v">{String(GRID_PROGRAMS.length).padStart(2, "0")}</span>
           </p>
           <div className="gridhud-flux">
             {flux.map((v, i) => (
@@ -228,12 +242,12 @@ export default function GridHome() {
           </h2>
           <span className="gridhud-bar__rule" aria-hidden="true" />
           <span className="gridhud-bar__count" aria-hidden="true">
-            {String(games.length).padStart(2, "0")} PROGRAMS
+            {String(GRID_PROGRAMS.length).padStart(2, "0")} PROGRAMS
           </span>
         </header>
 
         <ul className="gridhud-programs">
-          {games.map((g, i) => (
+          {GRID_PROGRAMS.map((g, i) => (
             <li key={g.slug}>
               <Link
                 href={`/games/${g.slug}`}

@@ -178,6 +178,7 @@ export default function Solitaire() {
     if (departingRects.current.size === 0) return;
     const previous = departingRects.current;
     departingRects.current = new Map();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const frame = requestAnimationFrame(() => {
       previous.forEach((from, id) => {
         const card = cardRefs.current.get(id);
@@ -390,6 +391,9 @@ export default function Solitaire() {
         }}
         onClick={() => (c.faceUp ? clickCard(loc) : undefined)}
         onDoubleClick={() => (c.faceUp ? doubleClick(loc) : undefined)}
+        tabIndex={c.faceUp ? 0 : -1}
+        aria-disabled={!c.faceUp}
+        aria-pressed={c.faceUp ? isSelected(loc) : undefined}
         aria-label={
           c.faceUp
             ? isJoker(c) ? "Joker" : `${RANK_GLYPHS[c.rank]} of ${SUIT_GLYPHS[c.suit]}`
@@ -447,6 +451,7 @@ export default function Solitaire() {
               type="button"
               className={`${styles.button} ${active ? styles.buttonActive : ""}`}
               onClick={() => newGame(variant, opt)}
+              aria-pressed={active}
             >
               {label}
             </button>
@@ -466,7 +471,7 @@ export default function Solitaire() {
       </div>
 
       {cur.won && (
-        <div className={styles.winBanner}>
+        <div className={styles.winBanner} role="status">
           <strong style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem" }}>
             You won{cur.jokerUsed ? " (with a little help from a friend)" : ""}! 🎉
           </strong>
@@ -620,25 +625,28 @@ function HighScores({ refresh }: { refresh: number }) {
       <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.15rem", margin: "0 0 0.4rem" }}>
         Personal bests
       </h3>
-      <table className={styles.scoreTable}>
-        <thead>
-          <tr><th>Variant</th><th>Wins</th><th>Deals</th><th>Best time</th><th>Fewest moves</th></tr>
-        </thead>
-        <tbody>
-          {modes.sort().map((m) => {
-            const s = summary!.byMode[m];
-            return (
-              <tr key={m}>
-                <td>{MODE_LABELS[m]}</td>
-                <td>{s.wins}</td>
-                <td>{s.deals}</td>
-                <td>{s.bestTimeMs != null ? fmtTime(s.bestTimeMs) : "—"}</td>
-                <td>{s.fewestMoves ?? "—"}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className={styles.scoreScroll} role="region" tabIndex={0} aria-label="Scrollable solitaire records">
+        <table className={styles.scoreTable}>
+          <caption className={styles.srOnly}>Personal best solitaire results</caption>
+          <thead>
+            <tr><th scope="col">Variant</th><th scope="col">Wins</th><th scope="col">Deals</th><th scope="col">Best time</th><th scope="col">Fewest moves</th></tr>
+          </thead>
+          <tbody>
+            {modes.sort().map((m) => {
+              const s = summary!.byMode[m];
+              return (
+                <tr key={m}>
+                  <td>{MODE_LABELS[m]}</td>
+                  <td>{s.wins}</td>
+                  <td>{s.deals}</td>
+                  <td>{s.bestTimeMs != null ? fmtTime(s.bestTimeMs) : "—"}</td>
+                  <td>{s.fewestMoves ?? "—"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

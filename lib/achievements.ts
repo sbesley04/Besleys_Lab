@@ -77,6 +77,16 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { key: "hg-sole-survivor", game: "hunger-games", icon: "🏆", title: "Sole Survivor", desc: "A tribute named after you wins the arena." },
   { key: "hg-bloodbath", game: "hunger-games", icon: "🩸", title: "Bloodbath", desc: "Six or more tributes fall on day one." },
 
+  // --- New arcade cabinets ---
+  { key: "scd-escape", game: "scoundrel", icon: "🛡️", title: "Forty-Four Floors", desc: "Survive the entire Scoundrel dungeon." },
+  { key: "scd-damned", game: "scoundrel", icon: "🔥", title: "The Damned Walk Out", desc: "Escape the dungeon on The Damned difficulty." },
+  { key: "golf-under-par", game: "loss-surface-golf", icon: "⛳", title: "Gradient Caddie", desc: "Complete the loss-surface course under par." },
+  { key: "golf-grant", game: "loss-surface-golf", icon: "🎯", title: "Grant Approved", desc: "Complete the course under Grant Review constraints." },
+  { key: "bayes-frugal", game: "bayesian-detective", icon: "🔎", title: "Probable Cause", desc: "Close a case with at least 50 inquiry points remaining." },
+  { key: "bayes-cold", game: "bayesian-detective", icon: "🥶", title: "Cold Case", desc: "Close a case with sealed priors and the cold-case budget." },
+  { key: "garden-catalogue", game: "genetic-garden", icon: "🌺", title: "True Breeder", desc: "Complete every commission in the seed catalogue." },
+  { key: "garden-stable", game: "genetic-garden", icon: "🌱", title: "No Happy Accidents", desc: "Complete the advanced catalogue with mutation pressure disabled." },
+
   // --- Site-wide ---
   { key: "meta-lab-rat", game: "meta", icon: "🐀", title: "Lab Rat", desc: "Play every game in the arcade at least once." },
   { key: "meta-night-shift", game: "meta", icon: "🌙", title: "Night Shift", desc: "Play any game between 2am and 5am." },
@@ -108,6 +118,10 @@ export const ACHIEVEMENT_SECTIONS: { game: string; label: string }[] = [
   { game: "2048", label: "2048" },
   { game: "life", label: "Game of Life" },
   { game: "hunger-games", label: "Hunger Games" },
+  { game: "scoundrel", label: "Scoundrel" },
+  { game: "loss-surface-golf", label: "Loss-Surface Golf" },
+  { game: "bayesian-detective", label: "Bayesian Detective" },
+  { game: "genetic-garden", label: "Genetic Garden" },
   { game: "meta", label: "Around the Lab" },
   { game: "secret", label: "???" },
 ];

@@ -25,6 +25,12 @@
   cursor: pointer;
 }
 .button:hover { background: var(--paper-deep); }
+.button:focus-visible,
+.slot:focus-visible,
+.card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .buttonActive {
   background: var(--accent);
   color: var(--paper);
@@ -321,6 +327,28 @@
 .scoreTable th {
   font-weight: 600;
   background: var(--paper-deep);
+}
+
+.scoreScroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.scoreScroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.scoreTable { min-width: 560px; }
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .help {

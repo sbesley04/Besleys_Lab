@@ -96,6 +96,7 @@ and `LAB_DEMO_SLUGS`.
 | Where | What |
 |---|---|
 | Anywhere | Konami code → hyperspace jump into **the Grid** — see the section below |
+| The Grid home | Hidden **Light-Cycle** program; unavailable outside Grid mode |
 | `/games` | Type `besley` → secret terminal. `theme blueprint` unlocks the dark theme; `synthesize`, `train`, `lake`, `jeb_` are unlisted and grant hidden achievements |
 | Solitaire | ~1/100 Klondike deals contain a Joker (rank 0, wild, can't reach a foundation); playing it stamps the win "assisted" |
 | Game of Life | Draw a real glider → permanent drifting glider on the arcade hub |

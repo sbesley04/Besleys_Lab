@@ -19,7 +19,7 @@ const COLS = 100;
 const CELL = 4.6;
 
 export default function Bayes() {
-  useDemoVisit("bayes");
+  const themeVersion = useDemoVisit("bayes");
   const [prevalence, setPrevalence] = useState(0.01);
   const [sensitivity, setSensitivity] = useState(0.99);
   const [specificity, setSpecificity] = useState(0.95);
@@ -44,12 +44,19 @@ export default function Bayes() {
     setSpecificity(s.specificity);
   }
 
-  const COLORS: Record<string, string> = {
-    tp: SERIES.rust,
-    fn: SERIES.gold,
-    fp: SERIES.blue,
-    tn: "rgba(120,116,108,0.30)",
-  };
+  const colors = useMemo<Record<string, string>>(
+    () => {
+      // The event mutates SERIES in place; the version intentionally refreshes captured strings.
+      void themeVersion;
+      return {
+        tp: SERIES.rust,
+        fn: SERIES.gold,
+        fp: SERIES.blue,
+        tn: "rgba(120,116,108,0.30)",
+      };
+    },
+    [themeVersion],
+  );
   const rows = Math.ceil(POP / COLS);
 
   // 10,000 people is 10,000 marks — far too many DOM nodes, so the population
@@ -71,15 +78,14 @@ export default function Bayes() {
     ];
     let i = 0;
     for (const [kind, n] of groups) {
-      ctx.fillStyle = COLORS[kind];
+      ctx.fillStyle = colors[kind];
       for (let k = 0; k < n; k++, i++) {
         const x = (i % COLS) * CELL;
         const y = Math.floor(i / COLS) * CELL;
         ctx.fillRect(x, y, CELL - 0.6, CELL - 0.6);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [counts]);
+  }, [counts, colors]);
 
   return (
     <div className={styles.layout}>
@@ -100,14 +106,16 @@ export default function Bayes() {
           className={styles.plotCanvas}
           role="img"
           aria-label={`Ten thousand people: ${counts.tp} correctly identified as sick, ${counts.fp} healthy people wrongly flagged, ${counts.fn} sick people missed, ${counts.tn} healthy people correctly cleared`}
-        />
+        >
+          A proportional population grid showing true and false test results.
+        </canvas>
       </div>
 
       <Legend
         items={[
-          { color: SERIES.rust, label: `Sick, tested positive (${counts.tp})` },
-          { color: SERIES.blue, label: `Healthy, tested positive (${counts.fp})` },
-          { color: SERIES.gold, label: `Sick, tested negative (${counts.fn})` },
+          { color: colors.tp, label: `Sick, tested positive (${counts.tp})` },
+          { color: colors.fp, label: `Healthy, tested positive (${counts.fp})` },
+          { color: colors.fn, label: `Sick, tested negative (${counts.fn})` },
           { color: "rgba(120,116,108,0.35)", label: `Healthy, tested negative (${counts.tn})` },
         ]}
       />
@@ -142,24 +150,17 @@ export default function Bayes() {
         />
       </div>
 
-      <div
-        className="paper-card"
-        style={{ padding: "1.1rem 1.25rem", textAlign: "center" }}
-      >
-        <p style={{ margin: 0, color: "var(--ink-soft)", fontSize: "0.9rem" }}>
+      <div className={`paper-card ${styles.resultCard}`}>
+        <p className={styles.resultLabel}>
           You tested positive. The chance you actually have it:
         </p>
         <p
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "2.6rem",
-            margin: "0.2rem 0 0.1rem",
-            color: post < 0.5 ? SERIES.blue : SERIES.rust,
-          }}
+          className={styles.resultValue}
+          style={{ color: post < 0.5 ? colors.fp : colors.tp }}
         >
           {formatPercent(post)}
         </p>
-        <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--ink-soft)" }}>
+        <p className={styles.resultNote}>
           {counts.tp} of the {positives.toLocaleString()} people who tested positive are actually sick.
         </p>
       </div>

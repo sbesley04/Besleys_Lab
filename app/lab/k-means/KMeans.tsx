@@ -6,7 +6,7 @@ import { useDemoVisit } from "../_components/useDemoVisit";
 import PointCanvas from "../_components/PointCanvas";
 import { demoScale } from "../_components/Axes";
 import { Button, Readout, Slider, Transport } from "../_components/Controls";
-import { CLUSTER_COLORS, seededRng } from "../_components/plot";
+import { CLUSTER_COLORS, seededRng, stablePoint } from "../_components/plot";
 import {
   assign, updateCentroids, inertia, converged, kmeansInit, kmeansBadInit,
   kmeansPlusPlus, sampleBlobs, type Pt,
@@ -33,7 +33,9 @@ const INIT_LABELS: Record<InitMode, string> = {
 export default function KMeans() {
   useDemoVisit("k-means");
   const scale = useMemo(() => demoScale(DOMAIN, RANGE, W, H, 34), []);
-  const [points, setPoints] = useState<Pt[]>([]);
+  const [points, setPoints] = useState<Pt[]>(() =>
+    sampleBlobs(90, 3, seededRng(7), DOMAIN, RANGE).map(stablePoint),
+  );
   const [k, setK] = useState(3);
   const [centroids, setCentroids] = useState<Pt[]>([]);
   const [labels, setLabels] = useState<number[]>([]);
@@ -43,12 +45,6 @@ export default function KMeans() {
   const [settled, setSettled] = useState(false);
   const [initMode, setInitMode] = useState<InitMode>("plusplus");
   const [seed, setSeed] = useState(1);
-
-  // Seed a dataset after mount (keeps SSR markup deterministic).
-  useEffect(() => {
-    const rng = seededRng(7);
-    setPoints(sampleBlobs(90, 3, rng, DOMAIN, RANGE));
-  }, []);
 
   const seedCentroids = useCallback(
     (pts: Pt[], kk: number, mode: InitMode, s: number) => {
@@ -112,6 +108,7 @@ export default function KMeans() {
           scale={scale}
           colors={colors}
           onAdd={(p) => setPoints((pts) => [...pts, p])}
+          onMove={(i, p) => setPoints((pts) => pts.map((point, j) => (i === j ? p : point)))}
           onRemove={(i) => setPoints((pts) => pts.filter((_, j) => j !== i))}
           xLabel="x₁"
           yLabel="x₂"
@@ -181,7 +178,7 @@ export default function KMeans() {
         </Button>
       </div>
 
-      <p className={styles.aside}>
+      <p className={styles.aside} role={settled ? "status" : undefined}>
         {settled
           ? initMode === "bad"
             ? "Converged — and look where. Nothing changed on the last pass, so the algorithm is finished, confidently, on a bad answer."
@@ -192,7 +189,8 @@ export default function KMeans() {
       </p>
 
       <p className={styles.note}>
-        Click empty space to add a point; alt-click a point to remove it. The faint lines show which
+        Click empty space to add a point, drag one to move it, or alt-click to remove it. Keyboard
+        users can focus the plot and use its arrow, Enter, and Delete controls. The faint lines show which
         centroid currently owns each point, and <em>inertia</em> is the total squared distance along
         those lines — the quantity k-means is minimizing. It never increases, which is exactly why
         the algorithm can get stuck: from a bad start, every step is an improvement right up until

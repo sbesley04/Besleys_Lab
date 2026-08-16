@@ -8,12 +8,12 @@ const meta = demos.find((d) => d.slug === "markov-blog")!;
 
 export const metadata = { title: meta.title, description: meta.blurb };
 
-// The corpus is this site's own published posts, read at request time so new
-// writing feeds the model automatically. A DB hiccup (or an empty blog) falls
-// back to a small built-in corpus rather than breaking the page.
-export const dynamic = "force-dynamic";
+// Refresh the corpus regularly without making every lab visit wait on a fresh
+// database query. A DB hiccup (or an empty blog) still falls back gracefully.
+export const revalidate = 300;
 
 const MIN_WORDS = 120;
+const MAX_CORPUS_CHARS = 80_000;
 
 export default async function Page() {
   const posts = await prisma.post
@@ -25,7 +25,8 @@ export default async function Page() {
     })
     .catch(() => []);
 
-  const joined = posts.map((p) => `${p.title}. ${p.body}`).join("\n\n");
+  // Keep the interactive client payload bounded if the archive grows large.
+  const joined = posts.map((p) => `${p.title}. ${p.body}`).join("\n\n").slice(0, MAX_CORPUS_CHARS);
   const enough = joined.split(/\s+/).filter(Boolean).length >= MIN_WORDS;
   const corpus = enough ? joined : FALLBACK_CORPUS;
 

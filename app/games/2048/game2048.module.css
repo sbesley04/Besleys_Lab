@@ -17,10 +17,12 @@
 }
 
 .board {
+  --cell: clamp(50px, 18vw, 78px);
   display: grid;
   grid-template-columns: repeat(4, var(--cell, 78px));
   grid-template-rows: repeat(4, var(--cell, 78px));
   gap: 10px;
+  touch-action: none;
 }
 
 .cell {
@@ -33,7 +35,7 @@
   background: var(--paper);
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.7rem;
+  font-size: clamp(1rem, calc(var(--cell) * 0.35), 1.7rem);
   color: var(--ink);
 }
 
@@ -98,6 +100,37 @@
   color: var(--paper);
   cursor: pointer;
 }
+
+.button:hover { background: var(--accent-warm); }
+.button:focus-visible,
+.directionPad button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.directionPad {
+  display: grid;
+  grid-template-columns: repeat(3, 2.55rem);
+  grid-template-areas:
+    ". up ."
+    "left down right";
+  gap: 0.3rem;
+  align-self: flex-start;
+}
+.directionPad button {
+  min-height: 2.55rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 1rem var(--font-body);
+  cursor: pointer;
+}
+.directionPad button:hover { background: var(--paper-deep); }
+.directionPad button:nth-child(1) { grid-area: up; }
+.directionPad button:nth-child(2) { grid-area: left; }
+.directionPad button:nth-child(3) { grid-area: down; }
+.directionPad button:nth-child(4) { grid-area: right; }
 
 .help {
   font-family: var(--font-body);
@@ -251,6 +284,30 @@
 :global(:root[data-egg='tron']) .button:focus-visible {
   outline: 2px solid var(--accent-warm);
   outline-offset: 3px;
+}
+
+:global(:root[data-egg='tron']) .directionPad button {
+  border-radius: 0;
+  border-color: rgba(125, 249, 255, 0.28);
+  background: rgba(6, 18, 26, 0.55);
+}
+:global(:root[data-egg='tron']) .directionPad button:hover {
+  border-color: var(--accent);
+  background: rgba(125, 249, 255, 0.1);
+}
+
+@media (max-width: 560px) {
+  .layout { gap: 1rem; }
+  .boardWrap { margin-inline: auto; }
+  .sidebar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  .sidebar > .button,
+  .sidebar > .help,
+  .sidebar > :last-child { grid-column: 1 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

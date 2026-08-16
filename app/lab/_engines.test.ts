@@ -14,11 +14,27 @@ import {
   makeGrid, initQ, qStep, runEpisodes, greedyPolicy, bestAction, successRate,
   evaluatePolicy, DEFAULT_GRID,
 } from "./q-learning/engine.ts";
-import { seededRng } from "./_components/plot.ts";
+import { heatRamp, makeScale, seededRng, stablePoint, ticks } from "./_components/plot.ts";
 
 let fail = 0;
 const ok = (c: boolean, n: string) => { if (!c) { fail++; console.log("FAIL:", n); } };
 const near = (a: number, b: number, eps = 1e-6) => Math.abs(a - b) < eps;
+
+// ---------- shared plotting ----------
+const sharedScale = makeScale(500, 320, [-2, 8], [-4, 6], 30);
+ok(near(sharedScale.invX(sharedScale.x(3.25)), 3.25), "x scale round-trips");
+ok(near(sharedScale.invY(sharedScale.y(-1.75)), -1.75), "y scale round-trips");
+ok(ticks(-1, 1, 4).includes(0), "human-friendly ticks include zero");
+ok(ticks(2, 2, 5).length === 1, "zero-span tick range stays finite");
+for (const t of [-1, 0, 0.5, 1, 2]) {
+  const color = heatRamp(t);
+  ok(color.length === 3 && color.every((channel) => Number.isInteger(channel) && channel >= 0 && channel <= 255), `heat ramp returns a valid RGB color at ${t}`);
+}
+ok(heatRamp(-1).every((channel, i) => channel === heatRamp(0)[i]), "heat ramp clamps its low end");
+ok(heatRamp(2).every((channel, i) => channel === heatRamp(1)[i]), "heat ramp clamps its high end");
+const normalizedPoint = stablePoint({ x: 1 / 3, y: -2 / 7, label: 1 });
+ok(normalizedPoint.x === 0.333333 && normalizedPoint.y === -0.285714, "generated points normalize for stable SVG hydration");
+ok(normalizedPoint.label === 1, "point normalization preserves extra fields");
 
 // ---------- gradient descent ----------
 for (const s of SURFACES) {

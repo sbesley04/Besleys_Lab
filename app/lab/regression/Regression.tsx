@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import styles from "../lab.module.css";
 import { useDemoVisit } from "../_components/useDemoVisit";
 import PointCanvas from "../_components/PointCanvas";
 import { demoScale } from "../_components/Axes";
 import { Button, Legend, Readout } from "../_components/Controls";
-import { CLASS_COLORS, SERIES, gauss, seededRng } from "../_components/plot";
+import { CLASS_COLORS, SERIES, gauss, seededRng, stablePoint } from "../_components/plot";
 import { fitLinear, fitLogistic, predictLogistic, type LabeledPt } from "./engine";
 
 // Linear vs. logistic regression on the same canvas. Linear predicts a number
@@ -20,31 +20,30 @@ const RANGE: [number, number] = [-4, 4];
 
 type Mode = "linear" | "logistic";
 
+function initialLinearPoints(): { x: number; y: number }[] {
+  const rng = seededRng(5);
+  return Array.from({ length: 16 }, () => {
+    const x = -5 + rng() * 10;
+    return { x, y: 0.55 * x + 0.4 + gauss(rng) * 0.9 };
+  }).map(stablePoint);
+}
+
+function initialLogisticPoints(): LabeledPt[] {
+  const rng = seededRng(12);
+  return Array.from({ length: 22 }, (_, i) => {
+    const label = i % 2;
+    const x = label === 0 ? -3.6 + gauss(rng) * 1.25 : 3.1 + gauss(rng) * 1.25;
+    return { x, y: label === 0 ? -2.4 : 2.4, label };
+  }).map(stablePoint);
+}
+
 export default function Regression() {
   useDemoVisit("regression");
   const scale = useMemo(() => demoScale(DOMAIN, RANGE, W, H, 34), []);
   const [mode, setMode] = useState<Mode>("linear");
-  const [linPts, setLinPts] = useState<{ x: number; y: number }[]>([]);
-  const [logPts, setLogPts] = useState<LabeledPt[]>([]);
+  const [linPts, setLinPts] = useState(initialLinearPoints);
+  const [logPts, setLogPts] = useState(initialLogisticPoints);
   const [brush, setBrush] = useState(0);
-
-  useEffect(() => {
-    const rng = seededRng(5);
-    setLinPts(
-      Array.from({ length: 16 }, () => {
-        const x = -5 + rng() * 10;
-        return { x, y: 0.55 * x + 0.4 + gauss(rng) * 0.9 };
-      }),
-    );
-    const lrng = seededRng(12);
-    setLogPts(
-      Array.from({ length: 22 }, (_, i) => {
-        const cls = i % 2;
-        const x = cls === 0 ? -3.6 + gauss(lrng) * 1.25 : 3.1 + gauss(lrng) * 1.25;
-        return { x, y: cls === 0 ? -2.4 : 2.4, label: cls };
-      }),
-    );
-  }, []);
 
   const linFit = useMemo(() => fitLinear(linPts), [linPts]);
   const logFit = useMemo(() => fitLogistic(logPts, 900, 0.6), [logPts]);
@@ -141,7 +140,7 @@ export default function Regression() {
       </div>
 
       {!isLinear && (
-        <div className={styles.controls}>
+        <div className={styles.controls} role="group" aria-label="Class for new points">
           <span className={styles.note}>Add points as:</span>
           <Button active={brush === 0} onClick={() => setBrush(0)}>● Class A</Button>
           <Button active={brush === 1} onClick={() => setBrush(1)}>● Class B</Button>
@@ -149,7 +148,12 @@ export default function Regression() {
       )}
 
       <div className={styles.controls}>
-        <Button onClick={() => (isLinear ? setLinPts([]) : setLogPts([]))}>Clear</Button>
+        <Button
+          onClick={() => (isLinear ? setLinPts([]) : setLogPts([]))}
+          disabled={isLinear ? linPts.length === 0 : logPts.length === 0}
+        >
+          Clear
+        </Button>
         {isLinear && (
           <Button
             onClick={() => {
@@ -204,14 +208,15 @@ export default function Regression() {
       <p className={styles.note}>
         {isLinear ? (
           <>
-            Linear regression minimizes the sum of the <em>squared</em> dashed residuals. Squaring is
+            The plot supports pointer dragging and keyboard editing. Linear regression minimizes
+            the sum of the <em>squared</em> dashed residuals. Squaring is
             what makes it solvable in closed form — and also what makes it fragile: one point twice
             as far away contributes four times the error, so outliers get a vote far larger than
             their share.
           </>
         ) : (
           <>
-            Logistic regression runs the same linear expression through a sigmoid, turning an
+            The plot supports pointer dragging and keyboard editing. Logistic regression runs the same linear expression through a sigmoid, turning an
             unbounded number into a probability. The fit is found by gradient descent on
             cross-entropy rather than in closed form — and unlike a straight line, the prediction
             saturates instead of running off to ±∞, which is exactly what you want when the answer

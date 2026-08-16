@@ -47,7 +47,9 @@ export default function MarkovBlog({
     <div className={styles.layout}>
       <div className={styles.stage}>
         <p className={styles.panelTitle}>Generated</p>
-        <div className={styles.output}>{text || "…"}</div>
+        <div className={styles.output} role="status" aria-live="polite" aria-atomic="true">
+          {text || "…"}
+        </div>
       </div>
 
       <div className={styles.controls}>

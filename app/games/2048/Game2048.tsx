@@ -33,6 +33,7 @@ export default function Game2048() {
     won: false,
   }));
   const started = useRef(false);
+  const swipeStart = useRef<{ x: number; y: number; pointerId: number } | null>(null);
   const stateRef2048 = useRef(state);
   stateRef2048.current = state;
 
@@ -61,6 +62,8 @@ export default function Game2048() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("input, select, textarea, [contenteditable='true']")) return;
       const dir = KEY_DIR[e.key];
       if (dir) {
         e.preventDefault();
@@ -71,17 +74,44 @@ export default function Game2048() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  function move(dir: Dir) {
+    dispatch({ type: "MOVE", dir });
+  }
+
+  function beginSwipe(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.pointerType === "mouse" || !e.isPrimary) return;
+    swipeStart.current = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function finishSwipe(e: React.PointerEvent<HTMLDivElement>) {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start || start.pointerId !== e.pointerId) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+    move(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
+  }
+
   return (
     <div className={styles.layout}>
       <div className={styles.boardWrap}>
         <div
           className={styles.board}
           role="grid"
-          aria-label="2048 board"
-          style={{ ["--cell" as string]: "78px" }}
+          aria-label={`2048 board, score ${state.score}${state.status === "over" ? ", game over" : ""}`}
+          onPointerDown={beginSwipe}
+          onPointerUp={finishSwipe}
+          onPointerCancel={() => { swipeStart.current = null; }}
         >
           {state.board.map((v, i) => (
-            <div key={i} className={`${styles.cell} ${tileClass(v)}`}>
+            <div
+              key={i}
+              className={`${styles.cell} ${tileClass(v)}`}
+              role="gridcell"
+              aria-label={`Row ${Math.floor(i / SIZE) + 1}, column ${(i % SIZE) + 1}: ${v || "empty"}`}
+            >
               {v !== 0 ? v : ""}
             </div>
           ))}
@@ -102,7 +132,7 @@ export default function Game2048() {
       <aside className={styles.sidebar}>
         <div className={styles.panel}>
           <h3>Score</h3>
-          <div className={styles.stat}>{state.score}</div>
+          <div className={styles.stat} aria-live="polite">{state.score}</div>
         </div>
         <div className={styles.panel}>
           <h3>Status</h3>
@@ -113,7 +143,13 @@ export default function Game2048() {
         <button className={styles.button} onClick={() => dispatch({ type: "START" })}>
           New game
         </button>
-        <p className={styles.help}>← ↑ ↓ → to slide tiles. Equal tiles merge.</p>
+        <div className={styles.directionPad} aria-label="Slide tiles">
+          <button type="button" onClick={() => move("up")} aria-label="Slide up">↑</button>
+          <button type="button" onClick={() => move("left")} aria-label="Slide left">←</button>
+          <button type="button" onClick={() => move("down")} aria-label="Slide down">↓</button>
+          <button type="button" onClick={() => move("right")} aria-label="Slide right">→</button>
+        </div>
+        <p className={styles.help}>Arrow keys, swipe, or use the pad to slide. Equal tiles merge.</p>
         <SaveSlot<GameState>
           game="2048"
           getState={() => stateRef2048.current}

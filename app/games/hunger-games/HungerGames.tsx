@@ -176,15 +176,19 @@ export default function HungerGames({
   }
 
   async function importRoster(file: File) {
-    const text = await file.text();
-    const parsed = parseRosterJson(text);
-    if (parsed.error) {
-      flash("error", `Import failed: ${parsed.error}`);
-      return;
+    try {
+      const text = await file.text();
+      const parsed = parseRosterJson(text);
+      if (parsed.error) {
+        flash("error", `Import failed: ${parsed.error}`);
+        return;
+      }
+      setPlayers(parsed.players!);
+      setErrors([]);
+      flash("ok", `Imported ${parsed.players!.length} tributes.`);
+    } catch {
+      flash("error", "Import failed: that file couldn't be read.");
     }
-    setPlayers(parsed.players!);
-    setErrors([]);
-    flash("ok", `Imported ${parsed.players!.length} tributes.`);
   }
 
   // --- save / load rosters ---
@@ -388,7 +392,7 @@ export default function HungerGames({
   // ---------------------------------------------------------------------------
 
   const alert = message && (
-    <p role="status" className={message.kind === "error" ? styles.errorBox : styles.notice}>
+    <p role={message.kind === "error" ? "alert" : "status"} className={message.kind === "error" ? styles.errorBox : styles.notice}>
       {message.text}
     </p>
   );
@@ -423,13 +427,13 @@ export default function HungerGames({
           </div>
 
           <div className={styles.playbar}>
-            <button type="button" className={styles.btn} onClick={() => setTurn(0)} disabled={turn === 0}>
+            <button type="button" className={styles.btn} onClick={() => { setPlaying(false); setTurn(0); }} disabled={turn === 0}>
               ⏮ Start
             </button>
             <button
               type="button"
               className={styles.btn}
-              onClick={() => setTurn((t) => Math.max(0, t - 1))}
+              onClick={() => { setPlaying(false); setTurn((t) => Math.max(0, t - 1)); }}
               disabled={turn === 0}
             >
               ◀ Prev
@@ -437,14 +441,22 @@ export default function HungerGames({
             <button
               type="button"
               className={styles.btnPrimary}
-              onClick={() => (finished ? setTurn(0) : setPlaying((p) => !p))}
+              onClick={() => {
+                if (finished) {
+                  setTurn(0);
+                  setPlaying(true);
+                } else {
+                  setPlaying((p) => !p);
+                }
+              }}
+              aria-label={finished ? "Replay simulation" : playing ? "Pause simulation" : "Play simulation"}
             >
               {finished ? "↻ Replay" : playing ? "❚❚ Pause" : "▶ Play"}
             </button>
             <button
               type="button"
               className={styles.btn}
-              onClick={() => setTurn((t) => Math.min(result.snapshots.length - 1, t + 1))}
+              onClick={() => { setPlaying(false); setTurn((t) => Math.min(result.snapshots.length - 1, t + 1)); }}
               disabled={finished}
             >
               Next ▶
@@ -473,6 +485,7 @@ export default function HungerGames({
               }}
               className={styles.scrubber}
               aria-label={`Turn ${turn} of ${result.snapshots.length - 1}`}
+              aria-valuetext={`Turn ${snap.turn}, hour ${snap.hour}, ${snap.aliveCount} alive`}
             />
           </div>
 
@@ -539,35 +552,37 @@ export default function HungerGames({
               </p>
             </div>
 
-            <table className={styles.placeTable}>
-              <caption className={styles.srOnly}>Final placements</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Place</th>
-                  <th scope="col">Tribute</th>
-                  <th scope="col">District</th>
-                  <th scope="col">Kills</th>
-                  <th scope="col">Fate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.placements.map((p) => (
-                  <tr key={p.name}>
-                    <td>#{p.place}</td>
-                    <td>{p.name}</td>
-                    <td>D{p.district}</td>
-                    <td>{p.kills}</td>
-                    <td>
-                      {p.deathTurn === null
-                        ? "Survived"
-                        : p.killedBy
-                          ? `Killed by ${p.killedBy}, turn ${p.deathTurn}`
-                          : `Died turn ${p.deathTurn}`}
-                    </td>
+            <div className={styles.tableScroll} role="region" tabIndex={0} aria-label="Scrollable final placements">
+              <table className={styles.placeTable}>
+                <caption className={styles.srOnly}>Final placements</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Place</th>
+                    <th scope="col">Tribute</th>
+                    <th scope="col">District</th>
+                    <th scope="col">Kills</th>
+                    <th scope="col">Fate</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {result.placements.map((p) => (
+                    <tr key={p.name}>
+                      <td>#{p.place}</td>
+                      <td>{p.name}</td>
+                      <td>D{p.district}</td>
+                      <td>{p.kills}</td>
+                      <td>
+                        {p.deathTurn === null
+                          ? "Survived"
+                          : p.killedBy
+                            ? `Killed by ${p.killedBy}, turn ${p.deathTurn}`
+                            : `Died turn ${p.deathTurn}`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
 

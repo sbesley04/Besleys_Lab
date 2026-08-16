@@ -9,7 +9,11 @@ started yet**, so nothing here needs re-deriving from scratch.
 **Games** (`app/games/`): Hunger Games simulator, Tetris, Snake, 2048, Game of
 Life, Solitaire (Klondike draw-1/draw-3, Spider 1/2/4-suit, FreeCell), Sudoku
 (4 difficulties + shared daily puzzle + streaks), Minesweeper (3 sizes,
-chording, first-click-safe), Evolution sandbox.
+chording, first-click-safe), Evolution sandbox, Scoundrel (3 difficulty modes),
+Loss-Surface Golf (5 constrained holes), Bayesian Detective (4 cases, 3
+investigation modes), and Genetic Garden (hidden genotypes, assays, mutation,
+6 commissions). The Grid also contains a hidden first-to-three Light-Cycle
+duel that is absent from the paper arcade.
 
 **Lab** (`app/lab/`): gradient descent on a loss surface, learning-rate
 schedules, k-means, SVM + kernel trick, linear vs. logistic regression, a 2-2-1

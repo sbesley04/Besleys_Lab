@@ -18,6 +18,7 @@
 }
 
 .board {
+  --cell: clamp(18px, 6.5vw, 26px);
   display: grid;
   grid-template-columns: repeat(10, var(--cell, 26px));
   grid-template-rows: repeat(20, var(--cell, 26px));
@@ -125,6 +126,41 @@
   color: var(--paper);
   cursor: pointer;
 }
+
+.button:hover { background: var(--accent-warm); }
+.button:focus-visible,
+.touchControls button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.touchControls {
+  display: grid;
+  grid-template-columns: repeat(3, 3rem);
+  grid-template-areas:
+    ". rotate ."
+    "left down right"
+    "drop drop drop"
+    "pause pause pause";
+  gap: 0.3rem;
+}
+.touchControls button {
+  min-height: 2.6rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 0.82rem var(--font-body);
+  cursor: pointer;
+}
+.touchControls button:hover:not(:disabled) { background: var(--paper-deep); }
+.touchControls button:disabled { opacity: 0.45; cursor: default; }
+.touchControls button:nth-child(1) { grid-area: rotate; }
+.touchControls button:nth-child(2) { grid-area: left; }
+.touchControls button:nth-child(3) { grid-area: down; }
+.touchControls button:nth-child(4) { grid-area: right; }
+.hardDrop { grid-area: drop; }
+.pauseControl { grid-area: pause; }
 
 .help {
   font-family: var(--font-body);
@@ -262,6 +298,16 @@
   box-shadow: 0 0 18px rgba(0, 184, 212, 0.4), 0 0 2px rgba(125, 249, 255, 0.7);
 }
 
+:global(:root[data-egg="tron"]) .touchControls button {
+  border-radius: 0;
+  border-color: rgba(125, 249, 255, 0.28);
+  background: rgba(6, 18, 26, 0.55);
+}
+:global(:root[data-egg="tron"]) .touchControls button:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(125, 249, 255, 0.1);
+}
+
 /* Sidebar panels read as the same wireframe glass as .paper-card does. */
 :global(:root[data-egg="tron"]) .panel {
   background: rgba(6, 18, 26, 0.5);
@@ -278,4 +324,18 @@
   letter-spacing: 0.04em;
   color: var(--accent-warm);
   text-shadow: 0 0 6px rgba(125, 249, 255, 0.55), 0 0 20px rgba(0, 184, 212, 0.45);
+}
+
+@media (max-width: 560px) {
+  .layout { gap: 1rem; }
+  .boardWrap { margin-inline: auto; }
+  .sidebar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  .touchControls,
+  .sidebar > .help,
+  .sidebar > :last-child { grid-column: 1 / -1; }
 }

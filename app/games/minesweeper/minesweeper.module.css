@@ -27,6 +27,10 @@
   cursor: pointer;
 }
 .button:hover { background: var(--paper-deep); }
+.button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .buttonActive {
   background: var(--accent);
   color: var(--paper);
@@ -78,6 +82,12 @@
   color: var(--ink);
 }
 .cell:hover { background: var(--paper); }
+.cell:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
 
 .revealed {
   background: var(--print);
@@ -122,6 +132,23 @@
 .scoreTable th { background: var(--paper-deep); font-weight: 600; }
 
 .help { font-size: 0.82rem; color: var(--ink-soft); margin: 0; max-width: 60ch; }
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 520px) {
+  .controls > .button { flex: 1 1 calc(50% - 0.5rem); }
+  .boardWrap { width: 100%; }
+}
 
 /* ===========================================================================
    THE GRID — the Konami mode (:root[data-egg="tron"]). The graph-paper field

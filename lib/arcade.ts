@@ -86,7 +86,8 @@ export function syncLocalToServer() {
  *  registry by the arcade test suite. */
 export const LAB_RAT_SLUGS = [
   "hunger-games", "tetris", "snake", "2048", "life",
-  "solitaire", "sudoku", "minesweeper", "evolution",
+  "solitaire", "sudoku", "minesweeper", "evolution", "scoundrel",
+  "loss-surface-golf", "bayesian-detective", "genetic-garden",
 ];
 
 /** Every /lab demo slug that counts toward the Lab Notebook achievement. */

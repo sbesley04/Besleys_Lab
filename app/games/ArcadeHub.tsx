@@ -3,10 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import styles from "./arcade.module.css";
-import { games } from "./registry";
+import { GAME_CATEGORY_LABELS, GAME_CATEGORY_ORDER, games } from "./registry";
 import { unlock } from "@/lib/arcade";
 import { baa } from "@/lib/sound";
 import GridText from "@/app/_components/eggs/GridText";
+
+const GAME_SECTIONS = GAME_CATEGORY_ORDER.map((category) => ({
+  category,
+  games: games.filter((game) => game.category === category),
+}));
 
 // The arcade hub, client-side: the game-card grid plus its residents —
 // a Junimo asleep behind one of the cards, a sheep grazing in the margin,
@@ -28,24 +33,29 @@ export default function ArcadeHub() {
 
 function GameGrid() {
   // Where the Junimo naps: a random card, re-rolled when disturbed.
-  const [junimoAt, setJunimoAt] = useState<number | null>(null);
+  const [junimoAt, setJunimoAt] = useState<string | null>(null);
   const [junimoLeft, setJunimoLeft] = useState(60);
   const [awake, setAwake] = useState(false);
   const scurrying = useRef(false);
+  const scurryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setJunimoAt(Math.floor(Math.random() * games.length));
+    setJunimoAt(games[Math.floor(Math.random() * games.length)]?.slug ?? null);
     setJunimoLeft(20 + Math.random() * 60);
+
+    return () => {
+      if (scurryTimer.current) clearTimeout(scurryTimer.current);
+    };
   }, []);
 
-  function disturb(i: number) {
-    if (i !== junimoAt || scurrying.current) return;
+  function disturb(slug: string) {
+    if (slug !== junimoAt || scurrying.current) return;
     scurrying.current = true;
     setAwake(true);
-    setTimeout(() => {
+    scurryTimer.current = setTimeout(() => {
       let next = Math.floor(Math.random() * games.length);
-      if (games.length > 1 && next === i) next = (next + 1) % games.length;
-      setJunimoAt(next);
+      if (games.length > 1 && games[next]?.slug === slug) next = (next + 1) % games.length;
+      setJunimoAt(games[next]?.slug ?? null);
       setJunimoLeft(20 + Math.random() * 60);
       setAwake(false);
       scurrying.current = false;
@@ -53,28 +63,56 @@ function GameGrid() {
   }
 
   return (
-    <div className={styles.grid}>
-      {games.map((g, i) => (
-        <div key={g.slug} className={styles.cardWrap} onMouseEnter={() => disturb(i)}>
-          {junimoAt === i && (
-            <span
-              className={`${styles.junimo} ${awake ? styles.junimoAwake : ""}`}
-              style={{ left: `${junimoLeft}%` }}
-              aria-hidden
-            >
-              <Junimo />
-            </span>
-          )}
-          <Link href={`/games/${g.slug}`} className={`paper-card ${styles.card}`}>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", margin: 0 }}>
-              {g.title}
-            </h2>
-            <p style={{ color: "var(--ink-soft)", margin: "0.4rem 0 0", fontSize: "0.92rem" }}>
-              <GridText paper={g.blurb} grid={g.gridBlurb} />
-            </p>
-          </Link>
-        </div>
-      ))}
+    <div className={styles.catalogue}>
+      {GAME_SECTIONS.map(({ category, games: categoryGames }) => {
+        return (
+          <section className={styles.category} key={category} aria-labelledby={`games-${category}`}>
+            <div className={styles.categoryHeader}>
+              <h2 id={`games-${category}`} className={styles.categoryTitle}>
+                {GAME_CATEGORY_LABELS[category]}
+              </h2>
+              <span className={styles.categoryCount} aria-hidden>{categoryGames.length}</span>
+            </div>
+            <div className={styles.grid}>
+              {categoryGames.map((game) => {
+                const descriptionId = `game-${game.slug}-description`;
+                return (
+                  <div
+                    key={game.slug}
+                    className={styles.cardWrap}
+                    onMouseEnter={() => disturb(game.slug)}
+                    onFocusCapture={() => disturb(game.slug)}
+                  >
+                    {junimoAt === game.slug ? (
+                      <span
+                        className={`${styles.junimo} ${awake ? styles.junimoAwake : ""}`}
+                        style={{ left: `${junimoLeft}%` }}
+                        aria-hidden
+                      >
+                        <Junimo />
+                      </span>
+                    ) : null}
+                    <Link
+                      href={`/games/${game.slug}`}
+                      className={`paper-card ${styles.card}`}
+                      aria-describedby={descriptionId}
+                    >
+                      <span className={styles.cardTopline}>
+                        <GridText paper="Play in browser" grid="Executable" />
+                      </span>
+                      <h3 className={styles.cardTitle}>{game.title}</h3>
+                      <p id={descriptionId} className={styles.cardBlurb}>
+                        <GridText paper={game.blurb} grid={game.gridBlurb} />
+                      </p>
+                      <span className={styles.cardArrow} aria-hidden>→</span>
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }
@@ -128,6 +166,8 @@ function Sheep() {
   const [popping, setPopping] = useState(false);
   const [jeb, setJeb] = useState(false);
   const [shaking, setShaking] = useState(false);
+  const shakeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const woolTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     try {
@@ -135,6 +175,11 @@ function Sheep() {
       setShorn(localStorage.getItem("bl:sheep-shorn") === new Date().toDateString());
       setJeb(localStorage.getItem("bl:jeb") === "1");
     } catch { /* ignore */ }
+
+    return () => {
+      if (shakeTimer.current) clearTimeout(shakeTimer.current);
+      if (woolTimer.current) clearTimeout(woolTimer.current);
+    };
   }, []);
 
   function poke() {
@@ -143,13 +188,14 @@ function Sheep() {
       return;
     }
     setShaking(true);
-    setTimeout(() => setShaking(false), 320);
+    if (shakeTimer.current) clearTimeout(shakeTimer.current);
+    shakeTimer.current = setTimeout(() => setShaking(false), 320);
     const n = clicks + 1;
     setClicks(n);
     if (n >= SHEAR_CLICKS) {
       baa();
       setPopping(true);
-      setTimeout(() => {
+      woolTimer.current = setTimeout(() => {
         setShorn(true);
         setPopping(false);
       }, 650);
@@ -166,7 +212,7 @@ function Sheep() {
         type="button"
         className={`${styles.sheep} ${shaking ? styles.sheepShake : ""}`}
         onClick={poke}
-        aria-label="A sheep, inexplicably"
+        aria-label={shorn ? "A shorn sheep; its wool grows back tomorrow" : "A sheep, inexplicably"}
         title="baa"
       >
         <svg viewBox="0 0 68 46" width="86" height="58" aria-hidden>

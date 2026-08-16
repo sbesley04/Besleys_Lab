@@ -75,9 +75,11 @@ export default function QLearning() {
   const curve = useMemo(() => {
     const out: [number, number][] = [];
     const win = 12;
+    let sum = 0;
     for (let i = 0; i < q.history.length; i++) {
-      const slice = q.history.slice(Math.max(0, i - win), i + 1);
-      out.push([i, slice.reduce((s, h) => s + h.reward, 0) / slice.length]);
+      sum += q.history[i].reward;
+      if (i > win) sum -= q.history[i - win - 1].reward;
+      out.push([i, sum / Math.min(i + 1, win + 1)]);
     }
     return out;
   }, [q.history]);
@@ -88,10 +90,9 @@ export default function QLearning() {
         <div className={styles.stageRow}>
           <svg
             viewBox={`0 0 ${grid.cols * CELL} ${grid.rows * CELL}`}
-            className={styles.plotSvg}
-            style={{ flex: "1 1 380px" }}
+            className={`${styles.plotSvg} ${styles.flexWide}`}
             role="img"
-            aria-label="Gridworld with the agent's learned policy"
+            aria-label={`Gridworld after ${q.episode} episodes. ${evaluation.reached ? `The greedy policy reaches the goal in ${evaluation.steps} steps.` : "The greedy policy does not reach the goal yet."}`}
           >
             {grid.cells.map((cell, i) => {
               const c = i % grid.cols;
@@ -188,7 +189,7 @@ export default function QLearning() {
           }
         />
       </div>
-      <p className={styles.note} style={{ fontSize: "0.78rem" }}>
+      <p className={`${styles.note} ${styles.compactNote}`}>
         Those two numbers measure different things: the first includes the random moves ε forces
         the agent to make, so it stays low by design. The second switches exploration off and asks
         what the agent has actually <em>learned</em>.
@@ -209,7 +210,7 @@ export default function QLearning() {
         </div>
       )}
 
-      <p className={styles.aside}>
+      <p className={styles.aside} aria-live="polite">
         {q.episode === 0
           ? "Right now the agent knows nothing — no map, no rules, not even which way the goal is. Press Run."
           : rate > 0.8

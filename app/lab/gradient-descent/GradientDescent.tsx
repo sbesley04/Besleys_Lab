@@ -19,14 +19,9 @@ import {
 const W = 520;
 const H = 380;
 const OPTS: OptimizerKey[] = ["sgd", "momentum", "adam"];
-const PATH_COLORS: Record<OptimizerKey, string> = {
-  sgd: SERIES.blue,
-  momentum: SERIES.rust,
-  adam: SERIES.green,
-};
 
 export default function GradientDescent() {
-  useDemoVisit("gradient-descent");
+  const themeVersion = useDemoVisit("gradient-descent");
   const [surfaceKey, setSurfaceKey] = useState("bowl");
   const [lr, setLr] = useState(0.12);
   const [momentum, setMomentum] = useState(0.9);
@@ -45,6 +40,14 @@ export default function GradientDescent() {
     [surface],
   );
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pathColors = useMemo<Record<OptimizerKey, string>>(
+    () => {
+      // The event mutates SERIES in place; the version intentionally refreshes captured strings.
+      void themeVersion;
+      return { sgd: SERIES.blue, momentum: SERIES.rust, adam: SERIES.green };
+    },
+    [themeVersion],
+  );
   // Memoized so the auto-stop effect below doesn't re-run every render.
   const active: OptimizerKey[] = useMemo(() => (compare ? OPTS : ["sgd"]), [compare]);
 
@@ -134,7 +137,7 @@ export default function GradientDescent() {
       img.data[k + 3] = 255;
     }
     ctx.putImageData(img, 0, 0);
-  }, [surface, scale]);
+  }, [surface, scale, themeVersion]);
 
   function onCanvasClick(e: React.MouseEvent) {
     const canvas = canvasRef.current;
@@ -143,6 +146,32 @@ export default function GradientDescent() {
     const px = ((e.clientX - rect.left) / rect.width) * W;
     const py = ((e.clientY - rect.top) / rect.height) * H;
     const p: [number, number] = [scale.invX(px), scale.invY(py)];
+    setStart(p);
+    reset(p);
+  }
+
+  function onCanvasKeyDown(e: React.KeyboardEvent<HTMLCanvasElement>) {
+    const xStep = (surface.domain[1] - surface.domain[0]) / (e.shiftKey ? 10 : 40);
+    const yStep = (surface.range[1] - surface.range[0]) / (e.shiftKey ? 10 : 40);
+    const moves: Partial<Record<string, [number, number]>> = {
+      ArrowLeft: [-xStep, 0],
+      ArrowRight: [xStep, 0],
+      ArrowDown: [0, -yStep],
+      ArrowUp: [0, yStep],
+    };
+    if (e.key === "Home") {
+      e.preventDefault();
+      setStart(surface.start);
+      reset(surface.start);
+      return;
+    }
+    const move = moves[e.key];
+    if (!move) return;
+    e.preventDefault();
+    const p: [number, number] = [
+      Math.max(surface.domain[0], Math.min(surface.domain[1], start[0] + move[0])),
+      Math.max(surface.range[0], Math.min(surface.range[1], start[1] + move[1])),
+    ];
     setStart(p);
     reset(p);
   }
@@ -166,10 +195,16 @@ export default function GradientDescent() {
             ref={canvasRef}
             width={W}
             height={H}
-            className={`${styles.plotCanvas} ${styles.clickable}`}
+            className={`${styles.plotCanvas} ${styles.clickable} ${styles.interactivePlot}`}
             onClick={onCanvasClick}
-            aria-label={`${surface.name} loss surface — click to choose a starting point`}
-          />
+            onKeyDown={onCanvasKeyDown}
+            tabIndex={0}
+            role="application"
+            aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Home"
+            aria-label={`${surface.name} loss surface. Click to choose a starting point, or use the arrow keys to move it. Hold Shift for larger moves; Home restores the default.`}
+          >
+            Interactive {surface.name} loss surface with optimizer paths.
+          </canvas>
           <svg className={styles.plotOverlay} viewBox={`0 0 ${W} ${H}`} aria-hidden>
             {active.map((k) => {
               const s = states[k];
@@ -179,7 +214,7 @@ export default function GradientDescent() {
                   key={k}
                   points={s.path.map(([x, y]) => `${scale.x(x)},${scale.y(y)}`).join(" ")}
                   fill="none"
-                  stroke={PATH_COLORS[k]}
+                  stroke={pathColors[k]}
                   strokeWidth={2}
                   strokeLinejoin="round"
                   opacity={0.9}
@@ -194,7 +229,7 @@ export default function GradientDescent() {
                   cx={scale.x(s.x)}
                   cy={scale.y(s.y)}
                   r={5}
-                  fill={PATH_COLORS[k]}
+                  fill={pathColors[k]}
                   stroke="#fff"
                   strokeWidth={1.5}
                   opacity={s.diverged ? 0.25 : 1}
@@ -240,7 +275,7 @@ export default function GradientDescent() {
           max={0.98}
           step={0.01}
           format={(v) => v.toFixed(2)}
-          disabled={!compare && true}
+          disabled={!compare}
         />
       </div>
 
@@ -255,7 +290,7 @@ export default function GradientDescent() {
 
       {compare && (
         <Legend
-          items={OPTS.map((k) => ({ color: PATH_COLORS[k], label: OPTIMIZER_LABELS[k] }))}
+          items={OPTS.map((k) => ({ color: pathColors[k], label: OPTIMIZER_LABELS[k] }))}
         />
       )}
 
@@ -266,7 +301,7 @@ export default function GradientDescent() {
         <Readout label="position" value={`(${lead.x.toFixed(2)}, ${lead.y.toFixed(2)})`} />
       </div>
 
-      <p className={styles.aside}>
+      <p className={styles.aside} aria-live="polite">
         {lead.diverged
           ? "That's divergence: each step overshoots harder than the last, and the loss runs off to infinity."
           : tooFast
@@ -275,7 +310,8 @@ export default function GradientDescent() {
       </p>
 
       <p className={styles.note}>
-        Colors run cream (low loss) to deep rust (high). The bands are contour lines — where they
+        Click the surface or focus it and use the arrow keys to move the start. Colors run cream
+        (low loss) to deep rust (high). The bands are contour lines — where they
         bunch together, the surface is steep. Every path here follows the true analytic gradient,
         not a finite-difference approximation.
       </p>

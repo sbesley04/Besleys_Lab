@@ -72,6 +72,8 @@ export default function Tetris() {
   // --- Keyboard controls. ---
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("input, select, textarea, [contenteditable='true']")) return;
       const status = stateRef.current.status;
       if (e.key === "Enter" && (status === "idle" || status === "over")) {
         dispatch({ type: "START" });
@@ -85,18 +87,26 @@ export default function Tetris() {
 
       switch (e.key) {
         case "ArrowLeft":
+        case "a":
+        case "A":
           e.preventDefault();
           dispatch({ type: "MOVE", dir: -1 });
           break;
         case "ArrowRight":
+        case "d":
+        case "D":
           e.preventDefault();
           dispatch({ type: "MOVE", dir: 1 });
           break;
         case "ArrowDown":
+        case "s":
+        case "S":
           e.preventDefault();
           dispatch({ type: "SOFT_DROP" });
           break;
         case "ArrowUp":
+        case "w":
+        case "W":
           e.preventDefault();
           dispatch({ type: "ROTATE" });
           break;
@@ -121,9 +131,8 @@ export default function Tetris() {
       <div className={styles.boardWrap}>
         <div
           className={styles.board}
-          role="grid"
-          aria-label="Tetris board"
-          style={{ ["--cell" as string]: "26px" }}
+          role="img"
+          aria-label={`Tetris board. Score ${state.score}, ${state.lines} lines, level ${state.level}, ${state.status}.`}
           data-field-stage={fieldStage}
         >
           {view.flatMap((row, r) =>
@@ -147,9 +156,11 @@ export default function Tetris() {
                     : "Tetris"}
               </h2>
               {state.status === "paused" ? (
-                <p className={styles.help}>Press P to resume.</p>
+                <button type="button" className={styles.button} onClick={() => dispatch({ type: "TOGGLE_PAUSE" })}>
+                  Resume
+                </button>
               ) : (
-                <button className={styles.button} onClick={() => dispatch({ type: "START" })}>
+                <button type="button" className={styles.button} onClick={() => dispatch({ type: "START" })}>
                   {state.status === "over" ? "Play again" : "Start"}
                 </button>
               )}
@@ -173,8 +184,18 @@ export default function Tetris() {
           <h3>Next</h3>
           {mounted && <NextPreview piece={state.next} />}
         </div>
+        <div className={styles.touchControls} aria-label="Tetris controls">
+          <button type="button" onClick={() => dispatch({ type: "ROTATE" })} aria-label="Rotate">↻</button>
+          <button type="button" onClick={() => dispatch({ type: "MOVE", dir: -1 })} aria-label="Move left">←</button>
+          <button type="button" onClick={() => dispatch({ type: "SOFT_DROP" })} aria-label="Soft drop">↓</button>
+          <button type="button" onClick={() => dispatch({ type: "MOVE", dir: 1 })} aria-label="Move right">→</button>
+          <button type="button" className={styles.hardDrop} onClick={() => dispatch({ type: "HARD_DROP" })} aria-label="Hard drop">Hard drop</button>
+          <button type="button" className={styles.pauseControl} onClick={() => dispatch({ type: "TOGGLE_PAUSE" })} disabled={state.status === "idle" || state.status === "over"}>
+            {state.status === "paused" ? "Resume" : "Pause"}
+          </button>
+        </div>
         <p className={styles.help}>
-          ← → move · ↑ rotate · ↓ soft drop · space hard drop · P pause
+          Arrows or WASD move and rotate · space hard drops · P pauses
         </p>
         <SaveSlot<GameState>
           game="tetris"
@@ -200,7 +221,7 @@ function NextPreview({ piece }: { piece: TetrominoKey }) {
     }
   }
   return (
-    <div className={styles.nextGrid}>
+    <div className={styles.nextGrid} role="img" aria-label={`Next piece: ${piece}`}>
       {grid.map((cell, i) => (
         <div
           key={i}

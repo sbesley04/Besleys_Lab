@@ -5,7 +5,8 @@ import { reducer as snakeReducer, createInitialState as snakeInit, placeFood, CO
   from "./snake/engine.ts";
 import { collapseLine, applyMove, isGameOver, reducer as g2048Reducer, type Board }
   from "./2048/engine.ts";
-import { step, emptyGrid, containsGlider, COLS as LC, ROWS as LR } from "./life/engine.ts";
+import { step, emptyGrid, containsGlider, reducer as lifeReducer, createInitialState as lifeInit, COLS as LC, ROWS as LR } from "./life/engine.ts";
+import { GAME_CATEGORY_ORDER, games } from "./registry.ts";
 
 let fail = 0;
 const ok = (c: boolean, n: string) => { if (!c) { fail++; console.log("FAIL:", n); } };
@@ -91,12 +92,20 @@ ok(!containsGlider(blob), "life 3x3 blob is not a glider");
 let crowded = gl.slice();
 crowded[9*LC+10] = true; // live cell in the isolation ring
 ok(!containsGlider(crowded), "life crowded glider doesn't count");
+let painted = lifeReducer(lifeInit(), { type: "PAINT", index: 12, alive: true });
+ok(painted.grid[12], "life paint makes a cell alive");
+painted = lifeReducer(painted, { type: "PAINT", index: 12, alive: false });
+ok(!painted.grid[12], "life paint can erase a cell");
 
 // Snake bladderfish: fish is worth 5 and food kind rerolls after eating.
 let fishy: SnakeState = { ...s, food: { x: s.snake[0].x + 1, y: s.snake[0].y }, foodKind: "fish" };
 let ate = snakeReducer(fishy, { type: "TICK" });
 ok(ate.score === 5, "snake bladderfish scores 5");
 ok(ate.foodKind === "dot" || ate.foodKind === "fish", "snake rerolls food kind");
+
+// ---------- ARCADE CATALOGUE ----------
+ok(new Set(games.map((game) => game.slug)).size === games.length, "arcade slugs are unique");
+ok(games.every((game) => GAME_CATEGORY_ORDER.includes(game.category)), "every game has a visible catalogue category");
 
 console.log(fail === 0 ? "\nALL GAME ENGINE TESTS PASSED" : `\n${fail} failed`);
 process.exit(fail?1:0);

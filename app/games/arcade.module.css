@@ -1,19 +1,151 @@
 /* Arcade hub — the game-card grid plus its resident wildlife. */
 
+.hubPage {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 3.75rem) clamp(1rem, 4vw, 1.5rem) 4.5rem;
+}
+
+.breadcrumb {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.hubHeader {
+  max-width: 62ch;
+  margin-bottom: 2.25rem;
+}
+
+.hubKicker {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.hubTitle {
+  margin: 0.2rem 0 0.45rem;
+  font-size: clamp(2.35rem, 7vw, 3.5rem);
+  text-wrap: balance;
+}
+
+.hubIntro {
+  max-width: 56ch;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: clamp(1rem, 2vw, 1.08rem);
+  line-height: 1.65;
+}
+
+.catalogue {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.category {
+  min-width: 0;
+}
+
+.category + .category {
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+.categoryTitle {
+  margin: 0;
+  color: var(--ink-soft);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.categoryCount {
+  display: inline-grid;
+  min-width: 1.45rem;
+  min-height: 1.45rem;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font: 600 0.7rem var(--font-body);
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
   gap: 1.25rem;
 }
 
-.cardWrap { position: relative; }
+.cardWrap {
+  position: relative;
+  min-width: 0;
+}
 
 .card {
   position: relative;
   z-index: 1;
-  display: block;
-  padding: 1.5rem;
+  display: flex;
+  min-height: 190px;
+  flex-direction: column;
+  padding: 1.35rem 1.4rem 1.2rem;
   color: var(--ink);
+  overflow: hidden;
+}
+
+.cardTopline {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: clamp(1.35rem, 3vw, 1.55rem);
+}
+
+.cardBlurb {
+  max-width: 42ch;
+  margin: 0.45rem 0 1.15rem;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.cardArrow {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  margin-top: auto;
+  place-items: center;
+  align-self: flex-end;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--accent);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.card:hover .cardArrow,
+.card:focus-visible .cardArrow {
+  transform: translateX(3px);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
 }
 
 /* --- Junimo: sleeps behind a card, wakes on hover, scurries elsewhere ------ */
@@ -62,6 +194,9 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .glider { animation: none; left: 8px; }
+  .cardArrow { transition: none; }
+  .card:hover .cardArrow,
+  .card:focus-visible .cardArrow { transform: none; }
 }
 
 /* --- The sheep in the margin ------------------------------------------------ */

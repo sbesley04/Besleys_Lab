@@ -64,6 +64,10 @@
   cursor: pointer;
 }
 .button:hover { background: var(--paper-deep); }
+.button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .button:disabled { opacity: 0.45; cursor: default; }
 .buttonActive {
   background: var(--accent);
@@ -87,6 +91,10 @@
   grid-column: 1 / -1;
   width: 100%;
   accent-color: var(--accent);
+}
+.slider input[type="range"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 .sliderValue {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -136,4 +144,9 @@
   font-size: 1.15rem;
   color: var(--accent);
   margin: 0;
+}
+
+@media (max-width: 520px) {
+  .controls > .button { flex: 1 1 calc(50% - 0.5rem); }
+  .statusRow { justify-content: space-between; }
 }

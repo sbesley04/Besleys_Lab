@@ -20,6 +20,7 @@ export interface GameState {
 
 export type Action =
   | { type: "TOGGLE"; index: number }
+  | { type: "PAINT"; index: number; alive: boolean }
   | { type: "STEP" }
   | { type: "PLAY" }
   | { type: "PAUSE" }
@@ -142,9 +143,19 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "TOGGLE": {
       // Editing only makes sense while paused.
-      if (state.running) return state;
+      if (state.running || action.index < 0 || action.index >= state.grid.length) return state;
       const grid = state.grid.slice();
       grid[action.index] = !grid[action.index];
+      return { ...state, grid };
+    }
+
+    case "PAINT": {
+      if (
+        state.running || action.index < 0 || action.index >= state.grid.length ||
+        state.grid[action.index] === action.alive
+      ) return state;
+      const grid = state.grid.slice();
+      grid[action.index] = action.alive;
       return { ...state, grid };
     }
 

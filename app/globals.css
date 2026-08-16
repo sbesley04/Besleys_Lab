@@ -762,6 +762,10 @@ a:hover { color: var(--accent-warm); }
   transform: translateY(-2px);
   box-shadow: var(--shadow-lift);
 }
+.paper-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
 
 /* A clear but still notebook-like directional CTA for the home page. */
 .hero-actions {
@@ -789,7 +793,7 @@ a:hover { color: var(--accent-warm); }
   color: var(--paper);
   box-shadow: var(--shadow-rest);
 }
-.button-primary:hover { background: #6a5b45; color: var(--paper); }
+.button-primary:hover { background: var(--accent-warm); color: var(--paper); }
 .button-secondary { border: 1px solid var(--line); color: var(--ink); background: var(--paper-deep); }
 .button-secondary:hover { border-color: var(--accent); color: var(--ink); }
 .section-card { position: relative; overflow: hidden; }
@@ -1191,6 +1195,7 @@ textarea:focus-visible,
 
 @media (prefers-reduced-motion: reduce) {
   .paper-card, .snapshot { transition: none; }
-  .paper-card:hover { transform: none; }
+  .paper-card:hover,
+  .paper-card:focus-visible { transform: none; }
   .snapshot:hover { transform: rotate(var(--tilt, 0deg)); }
 }

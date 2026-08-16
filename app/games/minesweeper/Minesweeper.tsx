@@ -33,6 +33,10 @@ export default function Minesweeper() {
 
   useEffect(() => recordPlayed("minesweeper"), []);
 
+  useEffect(() => () => {
+    if (longPress.current) clearTimeout(longPress.current);
+  }, []);
+
   const newGame = useCallback((l: Level) => {
     setBoard(createBoard(l));
     setStartedAt(null);
@@ -126,6 +130,7 @@ export default function Minesweeper() {
             type="button"
             className={`${styles.button} ${levelKey === l.key ? styles.buttonActive : ""}`}
             onClick={() => setLevelKey(l.key)}
+            aria-pressed={levelKey === l.key}
           >
             {l.name}
           </button>
@@ -148,7 +153,7 @@ export default function Minesweeper() {
       </div>
 
       {done && (
-        <div className={styles.banner}>
+        <div className={styles.banner} role="status">
           <strong style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem" }}>
             {board.status === "won" ? "Swept! 🎉" : "Boom. 💥"}
           </strong>
@@ -190,12 +195,16 @@ export default function Minesweeper() {
                 onContextMenu={(e) => onFlag(i, e)}
                 onTouchStart={() => onTouchStart(i)}
                 onTouchEnd={onTouchEnd}
+                onTouchMove={onTouchEnd}
+                onTouchCancel={onTouchEnd}
                 aria-label={
                   cell.state === "flagged"
-                    ? "Flagged cell"
+                    ? `Row ${Math.floor(i / board.cols) + 1}, column ${(i % board.cols) + 1}: flagged`
                     : revealed
-                      ? cell.mine ? "Mine" : `${cell.adjacent} adjacent mines`
-                      : "Hidden cell"
+                      ? cell.mine
+                        ? `Row ${Math.floor(i / board.cols) + 1}, column ${(i % board.cols) + 1}: mine`
+                        : `Row ${Math.floor(i / board.cols) + 1}, column ${(i % board.cols) + 1}: ${cell.adjacent} adjacent mines`
+                      : `Row ${Math.floor(i / board.cols) + 1}, column ${(i % board.cols) + 1}: hidden`
                 }
               >
                 {cell.state === "flagged"
@@ -249,8 +258,9 @@ function BestTimes({ refresh }: { refresh: number }) {
         Best times
       </h3>
       <table className={styles.scoreTable}>
+        <caption className={styles.srOnly}>Personal best Minesweeper times</caption>
         <thead>
-          <tr><th>Level</th><th>Wins</th><th>Best time</th></tr>
+          <tr><th scope="col">Level</th><th scope="col">Wins</th><th scope="col">Best time</th></tr>
         </thead>
         <tbody>
           {rows.map((l) => {

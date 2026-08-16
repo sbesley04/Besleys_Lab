@@ -16,11 +16,11 @@ import {
 // surface. Same optimizer, same budget, same start — only the schedule differs.
 
 const SCHEDULES: ScheduleKey[] = ["constant", "step", "cosine", "warmup"];
-const COLORS: Record<ScheduleKey, string> = {
-  constant: SERIES.ink,
-  step: SERIES.blue,
-  cosine: SERIES.rust,
-  warmup: SERIES.green,
+const DASHES: Record<ScheduleKey, string | undefined> = {
+  constant: undefined,
+  step: "7 3",
+  cosine: "2 3",
+  warmup: "9 3 2 3",
 };
 
 const TOTAL = 160;
@@ -37,7 +37,7 @@ function freshRuns(): Record<ScheduleKey, Run> {
 }
 
 export default function LrSchedules() {
-  useDemoVisit("lr-schedules");
+  const themeVersion = useDemoVisit("lr-schedules");
   const [base, setBase] = useState(0.26);
   const [running, setRunning] = useState(false);
   const [sim, setSim] = useState<{ t: number; runs: Record<ScheduleKey, Run> }>(() => ({
@@ -46,6 +46,14 @@ export default function LrSchedules() {
   }));
   const [focus, setFocus] = useState<ScheduleKey>("cosine");
   const { t, runs } = sim;
+  const colors = useMemo<Record<ScheduleKey, string>>(
+    () => {
+      // The event mutates SERIES in place; the version intentionally refreshes captured strings.
+      void themeVersion;
+      return { constant: SERIES.ink, step: SERIES.blue, cosine: SERIES.rust, warmup: SERIES.green };
+    },
+    [themeVersion],
+  );
 
   const lrScale = useMemo(() => demoScale([0, TOTAL], [0, base * 1.08], 420, 190, 34), [base]);
   const lossScale = useMemo(() => demoScale([0, TOTAL], [0, 3.2], 420, 190, 38), []);
@@ -123,9 +131,10 @@ export default function LrSchedules() {
                   key={s}
                   points={lrCurves[s]}
                   scale={lrScale}
-                  color={COLORS[s]}
+                  color={colors[s]}
                   width={focus === s ? 2.6 : 1.5}
                   opacity={focus === s ? 1 : 0.45}
+                  dash={DASHES[s]}
                 />
               ))}
               {t > 0 && (
@@ -149,16 +158,17 @@ export default function LrSchedules() {
                     .map((l, i) => [i, Math.min(l, 3.2)] as [number, number])
                     .filter(([, l]) => Number.isFinite(l))}
                   scale={lossScale}
-                  color={COLORS[s]}
+                  color={colors[s]}
                   width={focus === s ? 2.6 : 1.5}
                   opacity={focus === s ? 1 : 0.45}
+                  dash={DASHES[s]}
                 />
               ))}
             </svg>
           </div>
         </div>
 
-        <div className={styles.plotWrap} style={{ marginTop: "0.75rem" }}>
+        <div className={`${styles.plotWrap} ${styles.plotTopMargin}`}>
           <p className={styles.panelTitle}>Descent paths (same surface, same start)</p>
           <svg className={styles.plotSvg} viewBox={`0 0 ${pathScale.width} ${pathScale.height}`} role="img" aria-label="Descent paths per schedule">
             <Axes scale={pathScale} grid xLabel="x" yLabel="y" />
@@ -167,9 +177,10 @@ export default function LrSchedules() {
                 key={s}
                 points={runs[s].opt.path}
                 scale={pathScale}
-                color={COLORS[s]}
+                color={colors[s]}
                 width={focus === s ? 2.4 : 1.3}
                 opacity={focus === s ? 1 : 0.4}
+                dash={DASHES[s]}
               />
             ))}
             {SCHEDULES.map((s) => (
@@ -178,7 +189,7 @@ export default function LrSchedules() {
                 cx={pathScale.x(runs[s].opt.x)}
                 cy={pathScale.y(runs[s].opt.y)}
                 r={focus === s ? 5 : 3.5}
-                fill={COLORS[s]}
+                fill={colors[s]}
                 stroke="var(--paper)"
                 strokeWidth={1.2}
                 opacity={runs[s].opt.diverged ? 0.2 : 1}
@@ -213,6 +224,7 @@ export default function LrSchedules() {
             type="button"
             className={`${styles.button} ${focus === s ? styles.buttonActive : ""}`}
             onClick={() => setFocus(s)}
+            aria-pressed={focus === s}
           >
             {SCHEDULE_LABELS[s]}
           </button>
@@ -221,10 +233,10 @@ export default function LrSchedules() {
 
       <p className={styles.note}>{SCHEDULE_NOTES[focus]}</p>
 
-      <Legend items={SCHEDULES.map((s) => ({ color: COLORS[s], label: SCHEDULE_LABELS[s] }))} />
+      <Legend items={SCHEDULES.map((s) => ({ color: colors[s], label: SCHEDULE_LABELS[s] }))} />
 
       {t >= TOTAL && (
-        <p className={styles.aside}>
+        <p className={styles.aside} role="status">
           Finished. Best final loss: {SCHEDULE_LABELS[finalLosses[0].key]} at{" "}
           {finalLosses[0].loss.toFixed(4)} — worst: {SCHEDULE_LABELS[finalLosses[finalLosses.length - 1].key]}.
         </p>

@@ -16,7 +16,22 @@ import {
 // the network diagram (weights as edge thickness/color), the loss curve, and
 // the decision surface the network currently computes.
 
-const BOARD = 220;
+// The surface is CSS-scaled to 200px. A 144px backing grid stays visually
+// smooth while cutting live forward passes by more than half versus 220px.
+const BOARD = 144;
+
+type Rgb = [number, number, number];
+
+function parseHexColor(value: string, fallback: Rgb): Rgb {
+  const hex = value.trim().replace(/^#/, "");
+  const normalized = hex.length === 3 ? [...hex].map((c) => c + c).join("") : hex;
+  if (!/^[0-9a-f]{6}$/i.test(normalized)) return fallback;
+  return [
+    Number.parseInt(normalized.slice(0, 2), 16),
+    Number.parseInt(normalized.slice(2, 4), 16),
+    Number.parseInt(normalized.slice(4, 6), 16),
+  ];
+}
 
 // Net, epoch counter, and loss history advance together, so they live in one
 // state object. Keeping them separate tempted a setState call *inside* another
@@ -33,7 +48,7 @@ function freshTraining(seed: number): Training {
 }
 
 export default function XorNet() {
-  useDemoVisit("xor-net");
+  const themeVersion = useDemoVisit("xor-net");
   const [dataset, setDataset] = useState<DatasetKey>("xor");
   const [training, setTraining] = useState<Training>(() => freshTraining(42));
   const [lr, setLr] = useState(0.9);
@@ -90,26 +105,30 @@ export default function XorNet() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    const rootStyles = getComputedStyle(document.documentElement);
+    const low = parseHexColor(SERIES.blue, [43, 95, 139]);
+    const middle = parseHexColor(rootStyles.getPropertyValue("--paper"), [245, 240, 232]);
+    const high = parseHexColor(SERIES.rust, [160, 60, 46]);
     const img = ctx.createImageData(BOARD, BOARD);
     for (let py = 0; py < BOARD; py++) {
       for (let px = 0; px < BOARD; px++) {
         const x0 = px / (BOARD - 1);
         const x1 = 1 - py / (BOARD - 1);
         const out = forward(net, x0, x1).out;
-        // Blue (0) → cream (0.5) → rust (1)
+        // Blue (0) → the current theme's paper (0.5) → rust (1).
         const k = (py * BOARD + px) * 4;
         const t = out;
-        const r = Math.round(43 + t * (160 - 43) + (t > 0.5 ? (t - 0.5) * 60 : 0));
-        const g = Math.round(95 + (1 - Math.abs(t - 0.5) * 2) * 90);
-        const b = Math.round(139 - t * 93);
-        img.data[k] = r;
-        img.data[k + 1] = g;
-        img.data[k + 2] = b;
+        const from = t < 0.5 ? low : middle;
+        const to = t < 0.5 ? middle : high;
+        const blend = t < 0.5 ? t * 2 : (t - 0.5) * 2;
+        img.data[k] = Math.round(from[0] + (to[0] - from[0]) * blend);
+        img.data[k + 1] = Math.round(from[1] + (to[1] - from[1]) * blend);
+        img.data[k + 2] = Math.round(from[2] + (to[2] - from[2]) * blend);
         img.data[k + 3] = 190;
       }
     }
     ctx.putImageData(img, 0, 0);
-  }, [net]);
+  }, [net, themeVersion]);
 
   const table = truthTable(net, data);
   const acc = accuracy(net, data);
@@ -146,7 +165,7 @@ export default function XorNet() {
       <div className={styles.stage}>
         <div className={styles.stageRow}>
           {/* Network diagram */}
-          <div className={styles.plotWrap} style={{ flex: "1 1 330px" }}>
+          <div className={`${styles.plotWrap} ${styles.flexWide}`}>
             <p className={styles.panelTitle}>The network</p>
             <svg className={styles.plotSvg} viewBox="0 0 340 200" role="img" aria-label="Network diagram with live weights">
               {nodes.in.map((a, i) =>
@@ -177,24 +196,27 @@ export default function XorNet() {
               <text x={165} y={192} textAnchor="middle" fontSize={9} fill="var(--ink-soft)">hidden (tanh)</text>
               <text x={290} y={192} textAnchor="middle" fontSize={9} fill="var(--ink-soft)">output (σ)</text>
             </svg>
-            <p className={styles.note} style={{ fontSize: "0.78rem" }}>
+            <p className={`${styles.note} ${styles.compactNote}`}>
               Edge thickness = |weight|. <span style={{ color: SERIES.rust }}>Red</span> is positive,{" "}
               <span style={{ color: SERIES.blue }}>blue</span> negative.
             </p>
           </div>
 
           {/* Decision surface */}
-          <div style={{ flex: "0 0 auto" }}>
+          <div className={styles.decisionColumn}>
             <p className={styles.panelTitle}>What it computes</p>
-            <div style={{ position: "relative", width: 200, height: 200 }}>
+            <div className={styles.decisionSurface}>
               <canvas
                 ref={canvasRef}
                 width={BOARD}
                 height={BOARD}
-                style={{ width: 200, height: 200, borderRadius: 4, border: "1px solid var(--line)" }}
+                className={styles.decisionCanvas}
+                role="img"
                 aria-label="Decision surface over the input square"
-              />
-              <svg viewBox="0 0 200 200" style={{ position: "absolute", inset: 0, width: 200, height: 200 }} aria-hidden>
+              >
+                A color map of the network&apos;s output probability across both inputs.
+              </canvas>
+              <svg viewBox="0 0 200 200" className={styles.decisionOverlay} aria-hidden>
                 {data.map((d, i) => (
                   <circle
                     key={i}
@@ -212,7 +234,7 @@ export default function XorNet() {
         </div>
 
         {/* Loss curve */}
-        <div className={styles.plotWrap} style={{ marginTop: "0.75rem" }}>
+        <div className={`${styles.plotWrap} ${styles.plotTopMargin}`}>
           <p className={styles.panelTitle}>Loss</p>
           <svg className={styles.plotSvg} viewBox={`0 0 ${lossScale.width} ${lossScale.height}`} role="img" aria-label="Training loss curve">
             <Axes scale={lossScale} xLabel="epoch" yLabel="cross-entropy" />
@@ -248,15 +270,16 @@ export default function XorNet() {
         <Button onClick={() => setSeed((s) => s + 1)}>🎲 New random init</Button>
       </div>
 
-      <div className={styles.panel} style={{ flex: "1 1 auto" }}>
+      <div className={`${styles.panel} ${styles.fullPanel}`}>
         <p className={styles.panelTitle}>Truth table</p>
-        <table className={styles.mono} style={{ borderCollapse: "collapse", width: "100%" }}>
+        <table className={`${styles.mono} ${styles.truthTable}`}>
+          <caption className={styles.srOnly}>Current predictions for every input pair</caption>
           <thead>
-            <tr style={{ color: "var(--ink-soft)", fontSize: "0.78rem" }}>
-              <th style={{ textAlign: "left", padding: "0.2rem 0.5rem 0.2rem 0" }}>x₁ x₂</th>
-              <th style={{ textAlign: "left", padding: "0.2rem 0.5rem" }}>target</th>
-              <th style={{ textAlign: "left", padding: "0.2rem 0.5rem" }}>predicted</th>
-              <th style={{ textAlign: "left", padding: "0.2rem" }}></th>
+            <tr>
+              <th scope="col">x₁ x₂</th>
+              <th scope="col">target</th>
+              <th scope="col">predicted</th>
+              <th scope="col">result</th>
             </tr>
           </thead>
           <tbody>
@@ -264,10 +287,10 @@ export default function XorNet() {
               const right = Math.round(r.out) === r.y;
               return (
                 <tr key={i}>
-                  <td style={{ padding: "0.15rem 0.5rem 0.15rem 0" }}>{r.x[0]} {r.x[1]}</td>
-                  <td style={{ padding: "0.15rem 0.5rem" }}>{r.y}</td>
-                  <td style={{ padding: "0.15rem 0.5rem" }}>{r.out.toFixed(3)}</td>
-                  <td style={{ padding: "0.15rem", color: right ? SERIES.green : SERIES.rust }}>
+                  <td>{r.x[0]} {r.x[1]}</td>
+                  <td>{r.y}</td>
+                  <td>{r.out.toFixed(3)}</td>
+                  <td style={{ color: right ? SERIES.green : SERIES.rust }}>
                     {right ? "✓" : "✗"}
                   </td>
                 </tr>
@@ -277,7 +300,7 @@ export default function XorNet() {
         </table>
       </div>
 
-      <p className={styles.aside}>
+      <p className={styles.aside} aria-live="polite">
         {solved
           ? "Solved. Look at the decision surface — it isn't a line. The hidden layer bent the space until XOR became separable."
           : epoch === 0

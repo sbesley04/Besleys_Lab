@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import styles from "./saveSlot.module.css";
 
 // Save/load controls shared by every arcade game. Signed-in users get one
 // autosave slot per game (backed by /api/saves); guests get a quiet sign-in
@@ -22,14 +23,16 @@ export default function SaveSlot<T>({
   /** Optional shape check for loaded payloads (old/corrupt saves). */
   validate?: (state: unknown) => state is T;
 }) {
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const pathname = usePathname();
-  const [status, setStatus] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState<"save" | "load" | null>(null);
+
+  if (sessionStatus === "loading") return null;
 
   if (!session?.user) {
     return (
-      <p style={{ fontSize: "0.82rem", color: "var(--ink-soft)", margin: "0.75rem 0 0" }}>
+      <p className={styles.signInHint}>
         <Link href={`/login?callbackUrl=${encodeURIComponent(pathname ?? "/games")}`}>Sign in</Link>{" "}
         to save your progress.
       </p>
@@ -37,8 +40,8 @@ export default function SaveSlot<T>({
   }
 
   async function save() {
-    setBusy(true);
-    setStatus(null);
+    setBusy("save");
+    setMessage(null);
     try {
       const res = await fetch("/api/saves", {
         method: "POST",
@@ -47,73 +50,57 @@ export default function SaveSlot<T>({
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setStatus(data.error || "Save failed — try again.");
+        setMessage(data.error || "Save failed — try again.");
       } else {
-        setStatus("Saved ✓");
+        setMessage("Saved ✓");
       }
     } catch {
-      setStatus("Save failed — check your connection.");
+      setMessage("Save failed — check your connection.");
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
   async function load() {
-    setBusy(true);
-    setStatus(null);
+    setBusy("load");
+    setMessage(null);
     try {
       const res = await fetch(`/api/saves?game=${encodeURIComponent(game)}&name=autosave`);
       if (res.status === 404) {
-        setStatus("No save yet — play a bit, then hit Save.");
+        setMessage("No save yet — play a bit, then hit Save.");
         return;
       }
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setStatus(data.error || "Couldn't load your save.");
+        setMessage(data.error || "Couldn't load your save.");
         return;
       }
       const row = await res.json();
       const state = JSON.parse(row.data) as unknown;
       if (validate && !validate(state)) {
-        setStatus("That save is from an older version and can't be restored.");
+        setMessage("That save is from an older version and can't be restored.");
         return;
       }
       onLoad(state as T);
-      setStatus("Loaded ✓");
+      setMessage("Loaded ✓");
     } catch {
-      setStatus("Couldn't load your save — check your connection.");
+      setMessage("Couldn't load your save — check your connection.");
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
-  const btn: React.CSSProperties = {
-    fontFamily: "var(--font-body)",
-    fontSize: "0.85rem",
-    padding: "0.4rem 0.8rem",
-    border: "1px solid var(--line)",
-    borderRadius: 4,
-    background: "var(--paper)",
-    color: "var(--ink)",
-    cursor: busy ? "default" : "pointer",
-    opacity: busy ? 0.6 : 1,
-  };
-
   return (
-    <div style={{ marginTop: "0.75rem" }}>
-      <div style={{ display: "flex", gap: "0.5rem" }}>
-        <button type="button" style={btn} onClick={save} disabled={busy}>
-          💾 Save
+    <div className={styles.slot} aria-busy={busy !== null}>
+      <div className={styles.actions}>
+        <button type="button" className={styles.button} onClick={save} disabled={busy !== null}>
+          {busy === "save" ? "Saving…" : "💾 Save"}
         </button>
-        <button type="button" style={btn} onClick={load} disabled={busy}>
-          ⏏ Load
+        <button type="button" className={styles.button} onClick={load} disabled={busy !== null}>
+          {busy === "load" ? "Loading…" : "⏏ Load"}
         </button>
       </div>
-      {status && (
-        <p role="status" style={{ fontSize: "0.8rem", color: "var(--ink-soft)", margin: "0.5rem 0 0" }}>
-          {status}
-        </p>
-      )}
+      {message ? <p role="status" className={styles.status}>{message}</p> : null}
     </div>
   );
 }

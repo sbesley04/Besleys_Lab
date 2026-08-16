@@ -34,6 +34,7 @@ export function Slider({
         max={max}
         step={step}
         value={value}
+        aria-valuetext={format(value)}
         disabled={disabled}
         onChange={(e) => onChange(Number(e.target.value))}
       />
@@ -44,12 +45,13 @@ export function Slider({
 export function Button({
   children,
   onClick,
-  active = false,
+  active,
   disabled = false,
   title,
 }: {
   children: React.ReactNode;
   onClick: () => void;
+  /** Pass a boolean for toggle/choice buttons; omit for one-shot actions. */
   active?: boolean;
   disabled?: boolean;
   title?: string;
@@ -61,7 +63,7 @@ export function Button({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      aria-pressed={active || undefined}
+      aria-pressed={active}
     >
       {children}
     </button>
@@ -108,15 +110,15 @@ export function Transport({
   disabled?: boolean;
 }) {
   return (
-    <div className={styles.controls}>
+    <div className={styles.controls} role="group" aria-label="Animation controls">
       <Button onClick={onToggle} disabled={disabled}>
-        {running ? "⏸ Pause" : "▶ Run"}
+        <span aria-hidden>{running ? "⏸" : "▶"}</span>&nbsp;{running ? "Pause" : "Run"}
       </Button>
       <Button onClick={onStep} disabled={disabled || running}>
-        ⏭ {stepLabel}
+        <span aria-hidden>⏭</span>&nbsp;{stepLabel}
       </Button>
       <Button onClick={onReset} disabled={disabled}>
-        ↻ Reset
+        <span aria-hidden>↻</span>&nbsp;Reset
       </Button>
     </div>
   );
@@ -124,7 +126,7 @@ export function Transport({
 
 export function Readout({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <span>
+    <span className={styles.readoutItem}>
       {label} <span className={styles.readoutValue}>{value}</span>
     </span>
   );
@@ -132,13 +134,13 @@ export function Readout({ label, value }: { label: string; value: React.ReactNod
 
 export function Legend({ items }: { items: { color: string; label: string }[] }) {
   return (
-    <div className={styles.legend}>
+    <ul className={styles.legend} aria-label="Chart legend">
       {items.map((i) => (
-        <span key={i.label} className={styles.legendItem}>
+        <li key={i.label} className={styles.legendItem}>
           <span className={styles.swatch} style={{ background: i.color }} aria-hidden />
           {i.label}
-        </span>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

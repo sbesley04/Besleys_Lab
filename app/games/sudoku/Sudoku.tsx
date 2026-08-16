@@ -7,7 +7,7 @@ import SaveSlot from "../_components/SaveSlot";
 import { unlock, recordPlayed, recordWin, postResult } from "@/lib/arcade";
 import {
   generate, seededRng, dailySeed, todayString, isSolved, streakEndingToday,
-  DIFFICULTIES, type Difficulty, type Grid,
+  peers, DIFFICULTIES, type Difficulty, type Grid,
 } from "./engine";
 
 // Sudoku with pencil marks, hints, mistake tracking, four difficulties, and a
@@ -71,6 +71,7 @@ export default function Sudoku() {
   const [now, setNow] = useState(Date.now());
   const [statRefresh, setStatRefresh] = useState(0);
   const [generating, setGenerating] = useState(false);
+  const generationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function pick(p: { puzzle: Grid; solution: Grid }, difficulty: Difficulty) {
     return { puzzle: p.puzzle, solution: p.solution, difficulty };
@@ -88,6 +89,10 @@ export default function Sudoku() {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, [solved]);
+
+  useEffect(() => () => {
+    if (generationTimer.current) clearTimeout(generationTimer.current);
+  }, []);
   // Once solved the clock stops, but it must keep *showing* the finishing
   // time — hence finalElapsed, frozen by the win effect below. (Reading the
   // live expression here would collapse to baseElapsed, i.e. 0:00 on a fresh
@@ -99,8 +104,9 @@ export default function Sudoku() {
 
   function newGame(difficulty: Difficulty, daily = false) {
     setGenerating(true);
+    if (generationTimer.current) clearTimeout(generationTimer.current);
     // Let the button repaint before the generator blocks the main thread.
-    setTimeout(() => {
+    generationTimer.current = setTimeout(() => {
       const date = daily ? todayString() : null;
       const g = daily
         ? generate("medium", seededRng(dailySeed(date!)))
@@ -112,11 +118,13 @@ export default function Sudoku() {
       setMistakes(0);
       setHints(0);
       setNotesUsed(false);
+      setPencil(false);
       setWrongCells(new Set());
       setStartedAt(Date.now());
       setBaseElapsed(0);
       setFinalElapsed(null);
       setGenerating(false);
+      generationTimer.current = null;
     }, 30);
   }
 
@@ -139,10 +147,19 @@ export default function Sudoku() {
       return next;
     });
     setNotes((n) => {
-      if (n[i] === 0) return n;
       const next = n.slice();
+      let changed = next[i] !== 0;
       next[i] = 0;
-      return next;
+      if (v !== 0) {
+        const bit = 1 << (v - 1);
+        for (const peer of peers(i)) {
+          if (next[peer] & bit) {
+            next[peer] &= ~bit;
+            changed = true;
+          }
+        }
+      }
+      return changed ? next : n;
     });
     setWrongCells((w) => {
       const next = new Set(w);
@@ -150,7 +167,7 @@ export default function Sudoku() {
       else next.delete(i);
       return next;
     });
-    if (v !== 0 && v !== game.solution[i]) setMistakes((m) => m + 1);
+    if (v !== 0 && v !== game.solution[i] && entries[i] !== v) setMistakes((m) => m + 1);
   }
 
   function hint() {
@@ -173,12 +190,21 @@ export default function Sudoku() {
       next.delete(t);
       return next;
     });
+    setNotes((n) => {
+      if (n[t] === 0) return n;
+      const next = n.slice();
+      next[t] = 0;
+      return next;
+    });
+    setSelected(t);
   }
 
   // Keyboard input.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (selected == null) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("input, select, textarea, [contenteditable='true']")) return;
       if (e.key >= "1" && e.key <= "9") {
         e.preventDefault();
         enter(selected, parseInt(e.key, 10));
@@ -189,8 +215,15 @@ export default function Sudoku() {
         setPencil((p) => !p);
       } else if (e.key.startsWith("Arrow")) {
         e.preventDefault();
-        const d = { ArrowUp: -9, ArrowDown: 9, ArrowLeft: -1, ArrowRight: 1 }[e.key]!;
-        setSelected((s) => (s == null ? 0 : Math.max(0, Math.min(80, s + d))));
+        setSelected((s) => {
+          if (s == null) return 0;
+          const row = Math.floor(s / 9);
+          const col = s % 9;
+          if (e.key === "ArrowUp") return Math.max(0, row - 1) * 9 + col;
+          if (e.key === "ArrowDown") return Math.min(8, row + 1) * 9 + col;
+          if (e.key === "ArrowLeft") return row * 9 + Math.max(0, col - 1);
+          return row * 9 + Math.min(8, col + 1);
+        });
       }
     }
     window.addEventListener("keydown", onKey);
@@ -240,6 +273,7 @@ export default function Sudoku() {
             className={`${styles.button} ${!game.daily && game.difficulty === d ? styles.buttonActive : ""}`}
             onClick={() => newGame(d)}
             disabled={generating}
+            aria-pressed={!game.daily && game.difficulty === d}
           >
             {DIFF_LABELS[d]}
           </button>
@@ -249,6 +283,7 @@ export default function Sudoku() {
           className={`${styles.button} ${game.daily ? styles.buttonActive : ""}`}
           onClick={() => newGame("medium", true)}
           disabled={generating}
+          aria-pressed={Boolean(game.daily)}
         >
           📅 Daily
         </button>
@@ -263,7 +298,7 @@ export default function Sudoku() {
       </div>
 
       {solved && (
-        <div className={styles.winBanner}>
+        <div className={styles.winBanner} role="status">
           <strong style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem" }}>Solved! 🎉</strong>
           <p className={styles.help} style={{ marginTop: "0.3rem" }}>
             {game.daily ? "Daily puzzle" : DIFF_LABELS[game.difficulty]} · {fmtTime(elapsed)} ·{" "}
@@ -274,7 +309,7 @@ export default function Sudoku() {
       )}
 
       <div className={styles.boardWrap}>
-        <div className={styles.board} role="grid" aria-label="Sudoku board">
+        <div className={styles.board} role="grid" aria-label="Sudoku board" aria-busy={generating}>
           {entries.map((v, i) => {
             const isPeer =
               selected != null &&
@@ -292,7 +327,22 @@ export default function Sudoku() {
               wrongCells.has(i) ? styles.wrong : "",
             ].join(" ");
             return (
-              <button key={i} type="button" className={cls} onClick={() => setSelected(i)} aria-label={`Cell ${Math.floor(i / 9) + 1},${(i % 9) + 1}`}>
+              <button
+                key={i}
+                type="button"
+                className={cls}
+                onClick={() => setSelected(i)}
+                aria-pressed={selected === i}
+                aria-label={
+                  `Row ${Math.floor(i / 9) + 1}, column ${(i % 9) + 1}: ${
+                    v !== 0
+                      ? `${v}${given(i) ? ", given" : wrongCells.has(i) ? ", incorrect entry" : ", entry"}`
+                      : notes[i]
+                        ? `notes ${Array.from({ length: 9 }, (_, k) => notes[i] & (1 << k) ? k + 1 : null).filter(Boolean).join(", ")}`
+                        : "empty"
+                  }`
+                }
+              >
                 {v !== 0 ? (
                   v
                 ) : notes[i] !== 0 ? (
@@ -309,11 +359,11 @@ export default function Sudoku() {
 
         <div className={styles.pad}>
           {Array.from({ length: 9 }, (_, k) => (
-            <button key={k} type="button" className={styles.padButton} onClick={() => selected != null && enter(selected, k + 1)}>
+            <button key={k} type="button" className={styles.padButton} onClick={() => selected != null && enter(selected, k + 1)} disabled={selected == null || given(selected) || solved}>
               {k + 1}
             </button>
           ))}
-          <button type="button" className={styles.padButton} onClick={() => selected != null && enter(selected, 0)} aria-label="Erase">
+          <button type="button" className={styles.padButton} onClick={() => selected != null && enter(selected, 0)} aria-label="Erase" disabled={selected == null || given(selected) || solved}>
             ⌫
           </button>
           <button
@@ -325,7 +375,7 @@ export default function Sudoku() {
           >
             ✏️
           </button>
-          <button type="button" className={styles.padButton} onClick={hint} title="Fill one correct cell">
+          <button type="button" className={styles.padButton} onClick={hint} title="Fill one correct cell" aria-label="Hint: fill one correct cell" disabled={solved}>
             💡
           </button>
           <p className={`${styles.help} ${styles.padWide}`}>
@@ -356,6 +406,7 @@ export default function Sudoku() {
           setFinalElapsed(null);
           setStartedAt(Date.now());
           setSelected(null);
+          setPencil(false);
         }}
         validate={(s): s is SavePayload =>
           !!s && typeof s === "object" &&

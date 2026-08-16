@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import styles from "../lab.module.css";
 import { useDemoVisit } from "../_components/useDemoVisit";
 import PointCanvas from "../_components/PointCanvas";
 import { Axes, demoScale } from "../_components/Axes";
 import { Button, Legend, Readout, Slider } from "../_components/Controls";
-import { CLASS_COLORS, SERIES, seededRng } from "../_components/plot";
+import { CLASS_COLORS, SERIES, seededRng, stablePoint } from "../_components/plot";
 import {
   fitSVM, svmMargin, svmDecision, supportVectors, sampleTwoBlobs, sampleRings,
   type LabeledPt,
@@ -23,14 +23,12 @@ const RANGE: [number, number] = [-4, 4];
 export default function SVM() {
   useDemoVisit("svm");
   const scale = useMemo(() => demoScale(DOMAIN, RANGE, W, H, 34), []);
-  const [points, setPoints] = useState<LabeledPt[]>([]);
+  const [points, setPoints] = useState<LabeledPt[]>(() =>
+    sampleTwoBlobs(24, seededRng(3)).map(stablePoint),
+  );
   const [brush, setBrush] = useState(0);
   const [C, setC] = useState(1);
   const [mode, setMode] = useState<"linear" | "rings">("linear");
-
-  useEffect(() => {
-    setPoints(sampleTwoBlobs(24, seededRng(3)));
-  }, []);
 
   const fit = useMemo(() => fitSVM(points, 1500, C), [points, C]);
   const margin = svmMargin(fit);
@@ -56,11 +54,14 @@ export default function SVM() {
 
   // --- Kernel view ---
   const kernelScale = useMemo(() => demoScale([0, 4], [0, 14], 420, 300, 38), []);
-  const kernelPoints = points.map((p) => ({
-    x: Math.hypot(p.x, p.y),
-    y: p.x * p.x + p.y * p.y,
-    label: p.label,
-  }));
+  const kernelPoints = useMemo(
+    () => points.map((p) => ({
+      x: Math.hypot(p.x, p.y),
+      y: p.x * p.x + p.y * p.y,
+      label: p.label,
+    })),
+    [points],
+  );
 
   const misclassified = points.filter(
     (p) => (svmDecision(fit, p.x, p.y) > 0 ? 1 : 0) !== p.label,
@@ -123,7 +124,7 @@ export default function SVM() {
         </PointCanvas>
       </div>
 
-      <div className={styles.controls}>
+      <div className={styles.controls} role="group" aria-label="Class for new points">
         <span className={styles.note}>Add points as:</span>
         <Button active={brush === 0} onClick={() => setBrush(0)}>● Class A</Button>
         <Button active={brush === 1} onClick={() => setBrush(1)}>● Class B</Button>
@@ -156,7 +157,7 @@ export default function SVM() {
 
       <p className={styles.aside}>
         Drag a circled point — those are the support vectors. Move one and the boundary follows;
-        move any other point and nothing happens at all.
+        move any other point and nothing happens at all. The plot also supports arrow-key editing.
       </p>
 
       <p className={styles.note}>
@@ -169,7 +170,7 @@ export default function SVM() {
 
       {mode === "rings" && (
         <>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", margin: "1.5rem 0 0.3rem" }}>
+          <h2 className={styles.sectionHeading}>
             The kernel trick
           </h2>
           <p className={styles.note}>

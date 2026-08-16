@@ -25,6 +25,13 @@
   cursor: pointer;
 }
 .button:hover { background: var(--paper-deep); }
+.button:focus-visible,
+.cell:focus-visible,
+.padButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  z-index: 2;
+}
 .buttonActive {
   background: var(--accent);
   color: var(--paper);
@@ -109,6 +116,7 @@
   color: var(--ink);
 }
 .padButton:hover { background: var(--paper-deep); }
+.padButton:disabled { opacity: 0.45; cursor: default; }
 .padActive { background: var(--accent); color: var(--paper); border-color: var(--accent); }
 
 .winBanner {

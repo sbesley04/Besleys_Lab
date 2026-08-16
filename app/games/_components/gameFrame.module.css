@@ -1,0 +1,45 @@
+.frame {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 3.5rem) clamp(1rem, 4vw, 1.5rem) 4.5rem;
+}
+
+.header {
+  max-width: 72ch;
+  margin-bottom: clamp(1.35rem, 3vw, 2rem);
+}
+
+.backLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.kicker {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0.2rem 0 0;
+  font-size: clamp(2.2rem, 7vw, 3rem);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.content {
+  min-width: 0;
+}
+
+@media (max-width: 520px) {
+  .frame {
+    padding-inline: 0.85rem;
+    padding-bottom: 3rem;
+  }
+}

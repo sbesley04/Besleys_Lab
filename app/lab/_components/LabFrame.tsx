@@ -13,16 +13,15 @@ export default function LabFrame({
   children: React.ReactNode;
 }) {
   return (
-    <main style={{ maxWidth: 860, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <Link href="/lab" style={{ fontSize: "0.9rem" }}>
-        ← Lab
-      </Link>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.6rem", margin: "0.5rem 0 0.35rem" }}>
-        {title}
-      </h1>
-      <p className={styles.aside} style={{ marginBottom: "1.6rem" }}>
-        {takeaway}
-      </p>
+    <main className={styles.page}>
+      <header className={styles.pageHeader}>
+        <Link href="/lab" className={styles.backLink}>
+          ← All labs
+        </Link>
+        <p className={styles.eyebrow}>Interactive notebook</p>
+        <h1 className={styles.pageTitle}>{title}</h1>
+        <p className={styles.aside}>{takeaway}</p>
+      </header>
       {children}
     </main>
   );

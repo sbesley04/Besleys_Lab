@@ -16,6 +16,18 @@ const FIELD = 100;
 const VIEW = 420;
 const TRAIT_COLORS = { speed: "#2b5f8b", size: "#a03c2e", sense: "#3f7d4f" };
 
+/** Advance several simulation ticks in one state update. At high speed this
+ * avoids scheduling up to twelve React updates every 40 ms. */
+function advanceWorld(world: World, ticks: number): World {
+  let next = world;
+  for (let i = 0; i < ticks && !next.extinct; i++) {
+    next = stepWorld(next);
+    const everyoneDone = next.creatures.every((c) => !c.alive || c.eaten >= 2);
+    if (next.tick >= TICKS_PER_GENERATION || everyoneDone) next = nextGeneration(next);
+  }
+  return next;
+}
+
 export interface SavePayload {
   world: World;
 }
@@ -47,22 +59,14 @@ export default function Evolution() {
   }, [params]);
 
   const tick = useCallback(() => {
-    setWorld((w) => {
-      if (w.extinct) return w;
-      let next = stepWorld(w);
-      const everyoneDone = next.creatures.every((c) => !c.alive || c.eaten >= 2);
-      if (next.tick >= TICKS_PER_GENERATION || everyoneDone) next = nextGeneration(next);
-      return next;
-    });
+    setWorld((w) => advanceWorld(w, 1));
   }, []);
 
   useEffect(() => {
     if (!running) return;
-    const id = setInterval(() => {
-      for (let i = 0; i < speed; i++) tick();
-    }, 40);
+    const id = setInterval(() => setWorld((w) => advanceWorld(w, speed)), 40);
     return () => clearInterval(id);
-  }, [running, speed, tick]);
+  }, [running, speed]);
 
   useEffect(() => {
     if (world.extinct) setRunning(false);
@@ -87,6 +91,13 @@ export default function Evolution() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const backingSize = Math.round(VIEW * dpr);
+    if (canvas.width !== backingSize || canvas.height !== backingSize) {
+      canvas.width = backingSize;
+      canvas.height = backingSize;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const s = VIEW / FIELD;
     ctx.clearRect(0, 0, VIEW, VIEW);
 
@@ -153,6 +164,7 @@ export default function Evolution() {
           width={VIEW}
           height={VIEW}
           className={styles.field}
+          role="img"
           aria-label="Evolution field: creatures foraging for food"
         />
 
@@ -238,6 +250,7 @@ export default function Evolution() {
           type="button"
           className={`${styles.button} ${params.predation ? styles.buttonActive : ""}`}
           onClick={() => setParams((p) => ({ ...p, predation: !p.predation }))}
+          aria-pressed={params.predation}
         >
           🦖 Predation {params.predation ? "on" : "off"}
         </button>
@@ -299,6 +312,7 @@ function Slider({
       <span>{label}</span>
       <span className={styles.sliderValue}>{format(value)}</span>
       <input type="range" min={min} max={max} step={step} value={value}
+        aria-valuetext={format(value)}
         onChange={(e) => onChange(Number(e.target.value))} />
     </label>
   );

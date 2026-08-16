@@ -117,12 +117,29 @@ const GRID_SERIES: Record<SeriesKey, string> = {
 const PAPER_CLUSTER_TAIL = ["#8a6d3b", "#4a4a4a"];
 const GRID_CLUSTER_TAIL = ["#ffffff", "#8ea9b8"];
 
+type HeatStop = [number, [number, number, number]];
+
+const PAPER_HEAT_STOPS: HeatStop[] = [
+  [0, [245, 240, 232]],
+  [0.45, [222, 195, 138]],
+  [0.75, [199, 124, 76]],
+  [1, [122, 42, 32]],
+];
+const GRID_HEAT_STOPS: HeatStop[] = [
+  [0, [4, 22, 32]],
+  [0.45, [0, 150, 190]],
+  [0.75, [125, 249, 255]],
+  [1, [240, 252, 255]],
+];
+let gridPaletteActive = false;
+
 function paletteIsGrid(): boolean {
   return typeof document !== "undefined" && document.documentElement.dataset.egg === "tron";
 }
 
 function refreshPalette(): void {
   const grid = paletteIsGrid();
+  gridPaletteActive = grid;
   const s = grid ? GRID_SERIES : PAPER_SERIES;
   Object.assign(SERIES, s);
   CLASS_COLORS[0] = s.blue;
@@ -141,21 +158,10 @@ if (typeof window !== "undefined") {
  *  paper; a cool cyan→white-hot ramp on the Grid. */
 export function heatRamp(t: number): [number, number, number] {
   const u = Math.max(0, Math.min(1, t));
-  const stops: [number, [number, number, number]][] = paletteIsGrid()
-    ? [
-        // Grid: deep teal → electric cyan → white-hot
-        [0.0, [4, 22, 32]],
-        [0.45, [0, 150, 190]],
-        [0.75, [125, 249, 255]],
-        [1.0, [240, 252, 255]],
-      ]
-    : [
-        // paper cream → gold → rust → deep ink-red
-        [0.0, [245, 240, 232]],
-        [0.45, [222, 195, 138]],
-        [0.75, [199, 124, 76]],
-        [1.0, [122, 42, 32]],
-      ];
+  // These arrays are hoisted and the active theme is cached. Gradient Descent
+  // calls this nearly 200,000 times per repaint, so allocating stops and
+  // querying the DOM for every pixel made surface changes needlessly costly.
+  const stops = gridPaletteActive ? GRID_HEAT_STOPS : PAPER_HEAT_STOPS;
   for (let i = 0; i < stops.length - 1; i++) {
     const [t0, c0] = stops[i];
     const [t1, c1] = stops[i + 1];
@@ -187,4 +193,17 @@ export function gauss(rng: () => number): number {
   while (u === 0) u = rng();
   while (v === 0) v = rng();
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+/**
+ * Normalize generated coordinates before SSR. Node and browser trig functions
+ * can differ in their final floating-point bit, which is enough for React to
+ * report mismatched SVG attributes even though the point is visually identical.
+ */
+export function stablePoint<T extends { x: number; y: number }>(point: T): T {
+  return {
+    ...point,
+    x: Number(point.x.toFixed(6)),
+    y: Number(point.y.toFixed(6)),
+  };
 }

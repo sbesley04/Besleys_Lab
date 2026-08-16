@@ -136,6 +136,7 @@ export function DataLine({
   color,
   width = 2,
   dashed = false,
+  dash,
   opacity = 1,
 }: {
   points: [number, number][];
@@ -143,6 +144,8 @@ export function DataLine({
   color: string;
   width?: number;
   dashed?: boolean;
+  /** Optional distinct line pattern for charts where color alone is ambiguous. */
+  dash?: string;
   opacity?: number;
 }) {
   if (points.length < 2) return null;
@@ -155,7 +158,7 @@ export function DataLine({
       strokeWidth={width}
       strokeLinejoin="round"
       strokeLinecap="round"
-      strokeDasharray={dashed ? "5 4" : undefined}
+      strokeDasharray={dash ?? (dashed ? "5 4" : undefined)}
       opacity={opacity}
     />
   );
