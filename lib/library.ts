@@ -42,14 +42,27 @@ export const DECOR_LABELS: Record<DecorKind, string> = {
   "calvin-hobbes-bookends": "Calvin & Hobbes bookends",
 };
 
-export function decorProblems(d: { kind?: unknown; bookcase?: unknown; shelf?: unknown }): string[] {
+export function decorProblems(d: { kind?: unknown; bookcase?: unknown; shelf?: unknown; position?: unknown }): string[] {
   const errors: string[] = [];
   if (!DECOR_KINDS.includes(d.kind as DecorKind)) errors.push("Unknown decor kind.");
   if (d.bookcase !== undefined && (!Number.isInteger(d.bookcase) || (d.bookcase as number) < 0 || (d.bookcase as number) >= MAX_BOOKCASES))
     errors.push(`Bookcase must be between 0 and ${MAX_BOOKCASES - 1}.`);
   if (d.shelf !== undefined && (!Number.isInteger(d.shelf) || (d.shelf as number) < 0 || (d.shelf as number) >= MAX_SHELVES))
     errors.push(`Shelf must be between 0 and ${MAX_SHELVES - 1}.`);
+  if (d.position !== undefined && (!Number.isInteger(d.position) || (d.position as number) < 0))
+    errors.push("Shelf position must be a non-negative whole number.");
   return errors;
+}
+
+/** Return the next free shared position for books and decor on one shelf. */
+export function nextShelfPosition(...positions: Array<number | null | undefined>): number {
+  let last = -1;
+  for (const position of positions) {
+    if (Number.isInteger(position) && (position as number) >= 0) {
+      last = Math.max(last, position as number);
+    }
+  }
+  return last + 1;
 }
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
@@ -117,6 +130,8 @@ export function bookProblems(b: Partial<BookInput>): string[] {
     errors.push(`Shelf must be between 0 and ${MAX_SHELVES - 1}.`);
   if (b.bookcase !== undefined && (!Number.isInteger(b.bookcase) || b.bookcase < 0 || b.bookcase >= MAX_BOOKCASES))
     errors.push(`Bookcase must be between 0 and ${MAX_BOOKCASES - 1}.`);
+  if (b.position !== undefined && (!Number.isInteger(b.position) || b.position < 0))
+    errors.push("Shelf position must be a non-negative whole number.");
   if (b.rating !== undefined && b.rating !== null && (!Number.isInteger(b.rating) || b.rating < 1 || b.rating > 5))
     errors.push("Rating must be 1–5 (or empty).");
   return errors;

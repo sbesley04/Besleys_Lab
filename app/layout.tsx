@@ -103,24 +103,47 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               blur/scale the whole page away while the starfield canvas (a
               sibling, below) stays sharp on top. */}
           <div id="bl-stage">
-          <SiteHeader />
-          {children}
-          <footer className="site-footer">
-            <span>
-              <GridText
-                paper={<>Besley&rsquo;s Lab — built by hand, one commit at a time.</>}
-                grid="BESLEY'S LAB // COMPILED BY HAND — END OF LINE"
-              />
-            </span>
-            <nav aria-label="Footer" style={{ display: "flex", gap: "1.1rem", flexWrap: "wrap" }}>
-              <Link href="/contact">Contact</Link>
-              <Link href="/resume">Resume</Link>
-              <a href="https://github.com/sbesley04" target="_blank" rel="noopener noreferrer">
-                GitHub
-              </a>
-            </nav>
-            <span className="margin-note"><ThemeAtmosphere /><GridText paper="thanks for stopping by ✌︎" grid="end of line ▮" /></span>
-          </footer>
+            <a href="#main-content" className="skip-link">
+              Skip to main content
+            </a>
+            <SiteHeader />
+            <div id="main-content" className="site-content" tabIndex={-1}>
+              {children}
+            </div>
+            <footer className="site-footer">
+              <div className="site-footer-signoff">
+                <span>
+                  <GridText
+                    paper={<>Besley&rsquo;s Lab — built by hand, one commit at a time.</>}
+                    grid="BESLEY'S LAB // COMPILED BY HAND — END OF LINE"
+                  />
+                </span>
+                <span className="margin-note">
+                  <ThemeAtmosphere />
+                  <GridText paper="thanks for stopping by ✌︎" grid="end of line ▮" />
+                </span>
+              </div>
+              <div className="site-footer-navs">
+                <nav aria-label="Explore" className="site-footer-nav">
+                  <span className="site-footer-label" aria-hidden="true">Explore</span>
+                  <Link href="/blog">Blog</Link>
+                  <Link href="/projects">Projects</Link>
+                  <Link href="/lab">Lab</Link>
+                  <Link href="/games">Games</Link>
+                  <Link href="/library">Library</Link>
+                </nav>
+                <nav aria-label="More information" className="site-footer-nav">
+                  <span className="site-footer-label" aria-hidden="true">More</span>
+                  <Link href="/about">About</Link>
+                  <Link href="/contact">Contact</Link>
+                  <Link href="/resume">Resume</Link>
+                  <a href="https://github.com/sbesley04" target="_blank" rel="noopener noreferrer">
+                    GitHub<span aria-hidden="true"> ↗</span>
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                </nav>
+              </div>
+            </footer>
           </div>
           <AchievementToaster />
           <EggEffects />

@@ -20,6 +20,15 @@ export const dynamic = "force-dynamic";
 // Until the admin places their own decor, each shelf gets a default plant so
 // a fresh install still looks lived-in (same pattern as the field notebook).
 const FALLBACK_DECOR = [PottedPlant, Monstera, Fern, Armillary, PenMug];
+const WIDE_DECOR = new Set([
+  "monstera",
+  "fern",
+  "hanging-philodendron",
+  "armillary",
+  "pen-mug",
+  "lantern-stems",
+  "calvin-hobbes-bookends",
+]);
 
 type ShelfThing =
   | { type: "book"; position: number; key: string; book: Parameters<typeof BookSpine>[0]["book"] }
@@ -31,17 +40,19 @@ export default async function LibraryPage({
   searchParams?: Promise<{ case?: string }>;
 }) {
   const query = await searchParams;
-  const [books, decor, cases, session] = await Promise.all([
+  const [loadedBooks, decor, cases, session] = await Promise.all([
     prisma.book
       .findMany({
         where: { published: true },
         orderBy: [{ bookcase: "asc" }, { shelf: "asc" }, { position: "asc" }],
       })
-      .catch(() => []),
+      .catch(() => null),
     prisma.shelfDecorItem.findMany({ orderBy: { position: "asc" } }).catch(() => []),
     prisma.bookcase.findMany({ orderBy: { idx: "asc" } }).catch(() => []),
-    getSession(),
+    getSession().catch(() => null),
   ]);
+  const booksUnavailable = loadedBooks === null;
+  const books = loadedBooks ?? [];
 
   // Pages = every case that exists as a row or holds content.
   const caseIndexes = [
@@ -68,24 +79,30 @@ export default async function LibraryPage({
       ...caseDecor
         .filter((d) => d.shelf === idx)
         .map((d): ShelfThing => ({ type: "decor", position: d.position, key: d.id, kind: d.kind })),
-    ].sort((a, b) => a.position - b.position);
+    ].sort(
+      (a, b) =>
+        a.position - b.position ||
+        a.type.localeCompare(b.type) ||
+        a.key.localeCompare(b.key),
+    );
     return { idx, things };
   });
-
-  const noCustomDecor = decor.length === 0;
+  const shelfMayScroll = shelves.some(
+    ({ things }) =>
+      things.length >= 4 ||
+      things.some((thing) => thing.type === "decor" && WIDE_DECOR.has(thing.kind)),
+  );
 
   return (
-    <main style={{ maxWidth: 1080, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.6rem", margin: "0 0 0.25rem" }}>
-        Library
-      </h1>
-      <p style={{ color: "var(--ink-soft)", marginBottom: "1.5rem", maxWidth: "56ch" }}>
+    <main className={styles.page}>
+      <h1 className={styles.pageTitle}>Library</h1>
+      <p className={styles.intro}>
         What I&rsquo;ve been reading. Pull a spine off the shelf to read the review — and if
         you&rsquo;ve read it too, sign in and leave your own.
       </p>
 
       {/* --- Bookcase pager --- */}
-      {pages.length > 1 && (
+      {!booksUnavailable && pages.length > 1 && (
         <nav className={styles.pager} aria-label="Bookcases">
           {pages.map((idx) => {
             const name = cases.find((c) => c.idx === idx)?.name;
@@ -105,42 +122,72 @@ export default async function LibraryPage({
         </nav>
       )}
 
-      {caseName && pages.length <= 1 && (
-        <p className="margin-note" style={{ margin: "0 0 0.75rem" }}>
+      {!booksUnavailable && caseName && pages.length <= 1 && (
+        <p className={`margin-note ${styles.caseName}`}>
           {caseName}
         </p>
       )}
 
-      {books.length === 0 ? (
-        <div className="paper-card" style={{ padding: "2.5rem", textAlign: "center" }}>
-          <p style={{ margin: 0, color: "var(--ink-soft)" }}>
+      {!booksUnavailable && books.length > 0 && (
+        <div className={styles.caseSummary}>
+          <span>{caseBooks.length} {caseBooks.length === 1 ? "title" : "titles"}</span>
+          <span aria-hidden="true">·</span>
+          <span>{shelves.length} {shelves.length === 1 ? "shelf" : "shelves"}</span>
+          {shelfMayScroll && (
+            <span className={styles.swipeHint}>
+              Swipe a shelf to browse <span aria-hidden="true">→</span>
+            </span>
+          )}
+        </div>
+      )}
+
+      {booksUnavailable ? (
+        <div className={`paper-card ${styles.statusCard}`} role="status">
+          <p>The card catalog is temporarily unavailable. Please try the shelf again in a moment.</p>
+        </div>
+      ) : books.length === 0 ? (
+        <div className={`paper-card ${styles.statusCard}`}>
+          <p>
             The shelves are still being stocked — check back soon.
           </p>
         </div>
       ) : (
-        <div className={styles.case}>
+        <div className={styles.case} role="region" aria-label={caseName || `Bookcase ${activeCase + 1}`}>
           {shelves.length === 0 ? (
-            <div className={styles.shelf}>
-              <span className={styles.emptyShelfNote}>this bookcase is waiting for books…</span>
+            <div className={styles.shelfUnit}>
+              <div className={styles.shelf}>
+                <span className={styles.emptyShelfNote}>this bookcase is waiting for books…</span>
+              </div>
+              <div className={styles.plank} aria-hidden="true">
+                <span className={styles.shelfPlate}>Shelf 1</span>
+              </div>
             </div>
           ) : (
             shelves.map(({ idx, things }, i) => {
               const Fallback = FALLBACK_DECOR[i % FALLBACK_DECOR.length];
+              const hasDecor = things.some((thing) => thing.type === "decor");
+              const shelfBookCount = things.filter((thing) => thing.type === "book").length;
               return (
-                <div key={idx}>
-                  <div className={styles.shelf}>
+                <div key={idx} className={styles.shelfUnit}>
+                  <div
+                    className={styles.shelf}
+                    role="group"
+                    aria-label={`Shelf ${idx + 1}: ${shelfBookCount} ${shelfBookCount === 1 ? "book" : "books"}`}
+                  >
                     <Bookend side="left" />
                     {things.map((t) =>
                       t.type === "book" ? (
-                        <BookSpine key={t.key} book={t.book} />
+                        <BookSpine key={t.key} book={t.book} caseIndex={activeCase} />
                       ) : (
                         <Decor key={t.key} kind={t.kind} />
                       ),
                     )}
+                    {!hasDecor && <Fallback />}
                     <Bookend side="right" />
-                    {noCustomDecor && <Fallback />}
                   </div>
-                  <div className={styles.plank} />
+                  <div className={styles.plank} aria-hidden="true">
+                    <span className={styles.shelfPlate}>Shelf {idx + 1}</span>
+                  </div>
                 </div>
               );
             })

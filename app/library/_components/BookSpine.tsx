@@ -42,10 +42,16 @@ export function Spine({ book, scale = 1 }: { book: SpineBook; scale?: number }) 
   );
 }
 
-export default function BookSpine({ book }: { book: SpineBook }) {
+export default function BookSpine({
+  book,
+  caseIndex,
+}: {
+  book: SpineBook;
+  caseIndex: number;
+}) {
   return (
     <Link
-      href={`/library/${book.slug}`}
+      href={`/library/${book.slug}?case=${caseIndex}`}
       className={styles.spineLink}
       aria-label={`${book.title} by ${book.author} — read the review`}
     >

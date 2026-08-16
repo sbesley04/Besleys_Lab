@@ -33,10 +33,6 @@ const gallery = [
 export default function AboutPage() {
   return (
     <main style={{ maxWidth: 880, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <Link href="/" style={{ fontSize: "0.9rem" }}>
-        ← Home
-      </Link>
-
       {/* --- Bio beside the portrait --- */}
       <div
         style={{
@@ -44,7 +40,6 @@ export default function AboutPage() {
           gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
           gap: "clamp(2rem, 5vw, 3rem)",
           alignItems: "start",
-          marginTop: "0.5rem",
         }}
       >
         <div>

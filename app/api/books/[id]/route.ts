@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireApiStaff } from "@/lib/api";
 import { slugify } from "@/lib/slug";
-import { bookProblems } from "@/lib/library";
+import { bookProblems, nextShelfPosition } from "@/lib/library";
 
 // Item endpoints for a single book (staff).
 //   PUT    /api/books/:id → full edit, or partial {shelf, position} moves from
@@ -23,6 +23,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   // Shelf-manager moves: only bookcase/shelf/position change, no other validation.
   if (body.move === true) {
+    const errors = bookProblems({ ...existing, ...body });
+    if (errors.length) return NextResponse.json({ error: errors.join(" ") }, { status: 400 });
     const bookcase = Number.isInteger(body.bookcase) ? body.bookcase : existing.bookcase;
     const shelf = Number.isInteger(body.shelf) ? body.shelf : existing.shelf;
     const position = Number.isInteger(body.position) ? body.position : existing.position;
@@ -37,6 +39,27 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (errors.length) return NextResponse.json({ error: errors.join(" ") }, { status: 400 });
 
   const slug = body.slug?.trim() ? slugify(body.slug) : existing.slug;
+  const bookcase = Number.isInteger(body.bookcase) ? body.bookcase : existing.bookcase;
+  const shelf = Number.isInteger(body.shelf) ? body.shelf : existing.shelf;
+  let position = existing.position;
+
+  // Moving from the editor appends to the destination shelf's shared
+  // book/decor order instead of carrying over a colliding old position.
+  if (bookcase !== existing.bookcase || shelf !== existing.shelf) {
+    const [lastBook, lastDecor] = await Promise.all([
+      prisma.book.findFirst({
+        where: { bookcase, shelf },
+        orderBy: { position: "desc" },
+        select: { position: true },
+      }),
+      prisma.shelfDecorItem.findFirst({
+        where: { bookcase, shelf },
+        orderBy: { position: "desc" },
+        select: { position: true },
+      }),
+    ]);
+    position = nextShelfPosition(lastBook?.position, lastDecor?.position);
+  }
 
   try {
     const book = await prisma.book.update({
@@ -51,8 +74,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         height: body.height ?? existing.height,
         thickness: body.thickness ?? existing.thickness,
         design: body.design ?? existing.design,
-        bookcase: Number.isInteger(body.bookcase) ? body.bookcase : existing.bookcase,
-        shelf: Number.isInteger(body.shelf) ? body.shelf : existing.shelf,
+        bookcase,
+        shelf,
+        position,
         published: body.published ?? existing.published,
       },
     });

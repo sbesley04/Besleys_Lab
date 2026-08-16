@@ -15,7 +15,7 @@
   --paper-deep:   #EDE6DA; /* slightly darker panel tone   */
   --ink:          #1A1A1A; /* deep ink black, primary type  */
   --ink-soft:     #4A463E; /* secondary text                */
-  --accent:       #7A6A52; /* muted rust / aged-green        */
+  --accent:       #74644F; /* muted rust, AA on paper panels */
   --accent-warm:  #6A5B45; /* hover warmth — keeps text AA   */
   --line:         rgba(0, 0, 0, 0.12); /* pencil-stroke border */
 
@@ -27,6 +27,14 @@
   /* Photo print */
   --print:        #FDFBF7; /* white border of a photo print */
   --tape:         rgba(224, 205, 158, 0.5); /* translucent masking tape */
+
+  /* Media overlays stay dark regardless of the paper theme. Keep their ink
+     separate from --paper: dark themes otherwise rendered lightbox captions
+     and controls dark-on-dark. */
+  --overlay-ink:           #F5F0E8;
+  --overlay-line:          rgba(245, 240, 232, 0.42);
+  --overlay-control:       rgba(26, 24, 20, 0.68);
+  --overlay-control-hover: rgba(122, 106, 82, 0.92);
 
   /* Elevation — soft, paper-like, never glassy */
   --shadow-rest:  0 1px 2px rgba(0, 0, 0, 0.05);
@@ -111,7 +119,7 @@
 }
 :root[data-theme='slate'] {
   --paper: #e8ecef; --paper-deep: #dce2e6; --ink: #29363e; --ink-soft: #51636d;
-  --accent: #516f81; --accent-warm: #344f5f; --line: rgba(41, 54, 62, 0.16);
+  --accent: #4b6879; --accent-warm: #344f5f; --line: rgba(41, 54, 62, 0.16);
   --print: #f8fafb; --tape: rgba(112, 139, 154, 0.28);
   --shadow-rest: 0 1px 2px rgba(30, 45, 53, 0.08); --shadow-lift: 0 8px 20px rgba(30, 45, 53, 0.16);
 }
@@ -126,6 +134,14 @@
   --accent: #d3aa59; --accent-warm: #efcc83; --line: rgba(244, 238, 226, 0.18);
   --print: #302e2b; --tape: rgba(211, 170, 89, 0.24);
   --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.48); --shadow-lift: 0 8px 20px rgba(0, 0, 0, 0.58);
+}
+
+:root[data-theme='blueprint'],
+:root[data-theme='copper'],
+:root[data-theme='forest'],
+:root[data-theme='plum'],
+:root[data-theme='noir'] {
+  color-scheme: dark;
 }
 
 /* ===========================================================================
@@ -146,6 +162,10 @@
   --tape:         rgba(125, 249, 255, 0.16);
   --shadow-rest:  0 0 0 1px rgba(125, 249, 255, 0.08);
   --shadow-lift:  0 0 22px rgba(0, 184, 212, 0.4), 0 0 2px rgba(125, 249, 255, 0.7);
+  --overlay-ink:           #EAF9FF;
+  --overlay-line:          rgba(125, 249, 255, 0.55);
+  --overlay-control:       rgba(3, 6, 10, 0.78);
+  --overlay-control-hover: rgba(0, 120, 150, 0.88);
 
   /* Techno display + mono body, loaded via next/font in layout.tsx. */
   --font-display: var(--font-grid-display), 'Michroma', ui-sans-serif, sans-serif;
@@ -655,6 +675,12 @@ html.bl-jumping { overflow: hidden; }
 }
 :root[data-egg='tron'] #primary-navigation a:hover::before,
 :root[data-egg='tron'] #primary-navigation a:hover::after { opacity: 0.9; }
+@media (max-width: 860px) {
+  /* The compact navigation uses bordered destination cards; the desktop HUD
+     brackets would become separate flex rows inside those cards. */
+  :root[data-egg='tron'] #primary-navigation a::before,
+  :root[data-egg='tron'] #primary-navigation a::after { display: none; }
+}
 
 /* Photos: cyan holograms — tape stripped, scanline overlay, occasional tear. */
 :root[data-egg='tron'] .snapshot {
@@ -704,6 +730,7 @@ html.bl-jumping { overflow: hidden; }
 *::after { box-sizing: border-box; }
 
 html, body { margin: 0; padding: 0; }
+html { scrollbar-gutter: stable; }
 
 body {
   background-color: var(--paper);
@@ -715,6 +742,49 @@ body {
   position: relative;
   min-height: 100vh;
 }
+
+/* Keep the shared footer at the bottom of short routes (404/error pages) while
+   preserving the existing four-rem breathing room after longer content. */
+#bl-stage {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+.site-content {
+  width: 100%;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+.site-content > main {
+  width: 100%;
+  flex: 1 0 auto;
+}
+
+/* Keyboard users can bypass the persistent site chrome. The shortcut remains
+   off-canvas until focused, then appears as a small notebook tab above the
+   sticky header. */
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.75rem;
+  z-index: 1000;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--paper-deep);
+  color: var(--ink);
+  font: 600 0.85rem var(--font-body);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(calc(-100% - 1rem));
+  transition: transform 0.15s ease;
+}
+.skip-link:focus { transform: translateY(0); }
+.site-content:focus { outline: none; }
 
 /* --- Grain / noise texture overlay ---------------------------------------
    A fixed, pointer-transparent layer of fractal noise sits above the cream
@@ -783,9 +853,11 @@ a:hover { color: var(--accent-warm); }
   min-height: 44px;
   padding: 0.58rem 0.95rem;
   border-radius: 4px;
+  font-family: var(--font-body);
   font-size: 0.92rem;
   font-weight: 600;
   text-decoration: none;
+  cursor: pointer;
 }
 .button-primary {
   background: var(--accent);
@@ -796,6 +868,85 @@ a:hover { color: var(--accent-warm); }
 .button-primary:hover { background: var(--accent-warm); color: var(--paper); }
 .button-secondary { border: 1px solid var(--line); color: var(--ink); background: var(--paper-deep); }
 .button-secondary:hover { border-color: var(--accent); color: var(--ink); }
+
+/* Shared states for the small public utility pages. These keep error actions,
+   standalone contact links, and resume controls on the same 44px interaction
+   rhythm as the rest of the shell. */
+.system-page {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: clamp(3.5rem, 10vw, 5rem) 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+.system-action-row,
+.system-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 0.75rem;
+}
+.system-link-row a,
+.standalone-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.system-link-row a {
+  justify-content: center;
+  min-width: 44px;
+}
+.contact-channel-value {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.contact-resume-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+  font-size: 0.95rem;
+}
+.contact-resume-actions a,
+.resume-download {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.contact-resume-actions a {
+  justify-content: center;
+  min-width: 44px;
+}
+.resume-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.9rem;
+  margin: 0.55rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-style: normal;
+}
+.resume-contact a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
 .section-card { position: relative; overflow: hidden; }
 .section-card-featured {
   border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
@@ -812,7 +963,7 @@ a:hover { color: var(--accent-warm); }
 
 /* Project cards receive a small visual dossier mark so text-heavy case studies
    are easier to scan without inventing screenshots of products. */
-.project-card { position: relative; padding-left: clamp(1.5rem, 9vw, 8rem) !important; }
+.project-card { position: relative; padding-left: clamp(7.5rem, 9vw, 8rem) !important; }
 .project-dossier {
   position: absolute;
   top: 1.45rem;
@@ -956,6 +1107,15 @@ a:hover { color: var(--accent-warm); }
   gap: 1.75rem 1.5rem;
   align-items: start;
 }
+@media (max-width: 560px) {
+  /* The image `sizes` contract already assumes half-width mobile prints. The
+     former 210px minimum forced all eight About photos into one very long
+     column on 320‑390px screens. */
+  .photo-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.35rem 1rem;
+  }
+}
 
 /* Strip photos that open the lightbox — an unstyled button wrapper so the
    print inside stays a plain <figure>. */
@@ -1017,7 +1177,7 @@ a:hover { color: var(--accent-warm); }
 }
 
 .lightbox-caption {
-  color: var(--paper);
+  color: var(--overlay-ink);
   font-size: 1.5rem;
   padding: 0;
 }
@@ -1031,24 +1191,27 @@ a:hover { color: var(--accent-warm); }
   width: 44px;
   height: 44px;
   border-radius: 999px;
-  border: 1px solid rgba(245, 240, 232, 0.35);
-  background: rgba(26, 24, 20, 0.55);
-  color: var(--paper);
+  border: 1px solid var(--overlay-line);
+  background: var(--overlay-control);
+  color: var(--overlay-ink);
   font-size: 1.15rem;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 .lightbox-close:hover,
 .lightbox-nav:hover {
-  background: rgba(122, 106, 82, 0.75);
+  background: var(--overlay-control-hover);
 }
 .lightbox-close:focus-visible,
 .lightbox-nav:focus-visible {
-  outline: 2px solid var(--paper);
+  outline: 2px solid var(--overlay-ink);
   outline-offset: 2px;
 }
 
-.lightbox-close { top: 1rem; right: 1rem; }
+.lightbox-close {
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+}
 .lightbox-prev { left: 0.75rem; top: 50%; transform: translateY(-50%); }
 .lightbox-next { right: 0.75rem; top: 50%; transform: translateY(-50%); }
 
@@ -1067,14 +1230,39 @@ a:hover { color: var(--accent-warm); }
 .site-footer {
   margin-top: 4rem;
   border-top: 1px solid var(--line);
-  padding: 1.5rem clamp(1rem, 4vw, 2rem) 2rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
+  padding: 1.5rem clamp(1rem, 4vw, 2rem) max(2rem, env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: minmax(230px, 0.8fr) minmax(420px, 1.2fr);
+  align-items: start;
+  gap: 1.5rem clamp(2rem, 6vw, 5rem);
   font-size: 0.85rem;
   color: var(--ink-soft);
+}
+.site-footer-signoff {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.55rem;
+}
+.site-footer-navs {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 1rem 2rem;
+}
+.site-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0 1rem;
+}
+.site-footer-label {
+  flex-basis: 100%;
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 .site-footer a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-soft); }
 .site-footer a:hover { color: var(--accent); }
@@ -1084,6 +1272,23 @@ a:hover { color: var(--accent-warm); }
   color: var(--accent);
 }
 .theme-atmosphere::after { content: "·"; margin-left: 0.55rem; color: var(--ink-soft); }
+
+@media (max-width: 760px) {
+  .site-footer { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 440px) {
+  .site-footer-navs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .site-footer-nav {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+  .site-footer-label {
+    flex-basis: auto;
+    min-height: 24px;
+  }
+}
 
 /* --- Rendered markdown ("prose") -------------------------------------------
    Applied to blog post bodies and the editor preview so both match. */
@@ -1127,26 +1332,43 @@ a:hover { color: var(--accent-warm); }
 /* --- Zote the Mighty, loss heckler ------------------------------------------ */
 .zote-wrap {
   position: fixed;
-  left: 1rem;
-  bottom: 1rem;
+  left: max(1rem, env(safe-area-inset-left));
+  bottom: max(1rem, env(safe-area-inset-bottom));
   z-index: 190;
   display: flex;
   align-items: flex-end;
   gap: 0.5rem;
   max-width: min(400px, calc(100vw - 2rem));
-  cursor: pointer;
   animation: zote-in 0.35s ease;
 }
 .zote-head { flex-shrink: 0; width: 66px; height: 66px; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.28)); }
 .zote-bubble {
+  position: relative;
   background: var(--print);
   border: 1px solid var(--ink);
   border-radius: 8px 8px 8px 2px;
-  padding: 0.6rem 0.8rem;
+  padding: 0.6rem 2.65rem 0.6rem 0.8rem;
   font-size: 0.85rem;
   line-height: 1.45;
   box-shadow: var(--shadow-lift);
 }
+.zote-dismiss {
+  position: absolute;
+  top: 50%;
+  right: 0.15rem;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font: 600 0.9rem var(--font-body);
+  cursor: pointer;
+}
+.zote-dismiss:hover { color: var(--accent); }
 @keyframes zote-in {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }

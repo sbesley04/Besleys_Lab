@@ -1,17 +1,20 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/session";
 import PostForm from "../_components/PostForm";
+import styles from "../../_components/accountArea.module.css";
+
+export const metadata = { title: "New post — Admin" };
 
 // Create a new post. Guarded server-side; the form itself is a client island.
 export default async function NewPostPage() {
   await requireStaff();
 
   return (
-    <main style={{ maxWidth: 720, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <Link href="/admin/blog" style={{ fontSize: "0.9rem" }}>
+    <main className={`${styles.page} ${styles.pageEditor} ${styles.accountPage}`}>
+      <Link href="/admin/blog" className={styles.backLink}>
         ← Posts
       </Link>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.4rem", margin: "0.5rem 0 1.5rem" }}>
+      <h1 className={`${styles.pageTitle} ${styles.pageTitleAfterBack}`}>
         New post
       </h1>
       <PostForm />

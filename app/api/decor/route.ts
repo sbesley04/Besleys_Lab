@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiStaff } from "@/lib/api";
-import { decorProblems } from "@/lib/library";
+import { decorProblems, nextShelfPosition } from "@/lib/library";
 
 // Shelf decor (plants etc.), staff-managed.
 //   GET  /api/decor → all decor items in shelf order
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       select: { position: true },
     }),
   ]);
-  const position = Math.max(lastDecor?.position ?? -1, lastBook?.position ?? -1) + 1;
+  const position = nextShelfPosition(lastDecor?.position, lastBook?.position);
 
   const item = await prisma.shelfDecorItem.create({
     data: { kind: body.kind, bookcase, shelf, position },

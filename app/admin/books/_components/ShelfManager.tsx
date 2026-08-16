@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Spine } from "@/app/library/_components/BookSpine";
 import { Decor } from "@/app/library/_components/ShelfDecor";
 import { MAX_SHELVES, MAX_BOOKCASES, DECOR_KINDS, DECOR_LABELS, type DecorKind } from "@/lib/library";
+import { errorText } from "../../_components/formStyles";
+import styles from "../../_components/accountArea.module.css";
 
 // Admin shelf arrangement across bookcases. Books and decor share each
 // shelf's position space, so one set of ←/→/↑/↓ controls moves either kind.
@@ -45,6 +47,11 @@ type Thing =
   | ({ type: "decor" } & DecorRow);
 
 const btn: React.CSSProperties = {
+  display: "inline-flex",
+  minWidth: 44,
+  minHeight: 44,
+  alignItems: "center",
+  justifyContent: "center",
   fontFamily: "var(--font-body)",
   fontSize: "0.85rem",
   padding: "0.3rem 0.6rem",
@@ -56,6 +63,8 @@ const btn: React.CSSProperties = {
 };
 
 const inputStyle: React.CSSProperties = {
+  minWidth: 0,
+  minHeight: 44,
   fontFamily: "var(--font-body)",
   fontSize: "0.9rem",
   padding: "0.4rem 0.6rem",
@@ -128,13 +137,15 @@ export default function ShelfManager() {
   async function run(fn: () => Promise<unknown>) {
     setBusy(true);
     setError(null);
+    let requestError: string | null = null;
     try {
       await fn();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      requestError = e instanceof Error ? e.message : "Something went wrong.";
     } finally {
+      await refresh();
+      if (requestError) setError(requestError);
       setBusy(false);
-      void refresh();
     }
   }
 
@@ -146,14 +157,18 @@ export default function ShelfManager() {
 
   /** Swap a thing with its neighbour on the same shelf. */
   function swap(things: Thing[], index: number, dir: -1 | 1) {
-    const a = things[index];
     const b = things[index + dir];
+    const a = things[index];
     if (!a || !b) return;
     void run(async () => {
-      const [pathA, extraA] = moveEndpoint(a);
-      const [pathB, extraB] = moveEndpoint(b);
-      await api(pathA, "PUT", { ...extraA, position: b.position });
-      await api(pathB, "PUT", { ...extraB, position: a.position });
+      const reordered = [...things];
+      [reordered[index], reordered[index + dir]] = [b, a];
+      // Keep SQLite writes ordered while normalizing every position. This also
+      // repairs legacy shelves where a book and a plant shared the same slot.
+      for (const [position, thing] of reordered.entries()) {
+        const [path, extra] = moveEndpoint(thing);
+        await api(path, "PUT", { ...extra, position });
+      }
     });
   }
 
@@ -189,7 +204,7 @@ export default function ShelfManager() {
   }
 
   if (!loaded) {
-    return <p style={{ color: "var(--ink-soft)" }}>{error ?? "Loading the shelf…"}</p>;
+    return <p role="status" aria-live="polite" style={{ color: "var(--ink-soft)" }}>{error ?? "Loading the shelf…"}</p>;
   }
 
   const caseBooks = books.filter((b) => b.bookcase === activeCase);
@@ -199,9 +214,9 @@ export default function ShelfManager() {
   ].sort((a, b) => a - b);
 
   return (
-    <div style={{ display: "grid", gap: "1.25rem" }}>
+    <div className={styles.manager} aria-busy={busy}>
       {/* --- Bookcase tabs --- */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "center" }}>
+      <div className={styles.tabRow} role="group" aria-label="Bookcases">
         {pages.map((idx) => {
           const name = cases.find((c) => c.idx === idx)?.name;
           const active = idx === activeCase;
@@ -233,11 +248,13 @@ export default function ShelfManager() {
       </div>
 
       {/* --- Case tools --- */}
-      <div className="paper-card" style={{ padding: "0.9rem 1.1rem", display: "flex", flexWrap: "wrap", gap: "0.75rem 1.5rem", alignItems: "center" }}>
-        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--ink-soft)" }}>
-          Name
+      <div className={`paper-card ${styles.toolPanel} ${styles.staticCard}`}>
+        <div className={styles.toolGroup}>
+          <label htmlFor="bookcase-name">Bookcase name</label>
           <input
+            id="bookcase-name"
             style={inputStyle}
+            className={styles.compactControl}
             value={renameValue}
             onChange={(e) => setRenameValue(e.target.value)}
             placeholder={`Bookcase ${activeCase + 1}`}
@@ -246,40 +263,53 @@ export default function ShelfManager() {
           <button type="button" style={btn} onClick={renameCase} disabled={busy}>
             Save
           </button>
-        </label>
+        </div>
 
-        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--ink-soft)" }}>
-          Add shelf decor
-          <select style={inputStyle} value={decorKind} onChange={(e) => setDecorKind(e.target.value as DecorKind)}>
+        <div className={styles.decorTools}>
+          <span>Add shelf decor</span>
+          <select
+            style={inputStyle}
+            className={styles.compactControl}
+            aria-label="Shelf decor type"
+            value={decorKind}
+            onChange={(e) => setDecorKind(e.target.value as DecorKind)}
+          >
             {DECOR_KINDS.map((k) => (
               <option key={k} value={k}>
                 {DECOR_LABELS[k]}
               </option>
             ))}
           </select>
-          to shelf
-          <select style={inputStyle} value={decorShelf} onChange={(e) => setDecorShelf(Number(e.target.value))}>
-            {Array.from({ length: MAX_SHELVES }, (_, i) => (
-              <option key={i} value={i}>
-                {i + 1}
-              </option>
-            ))}
-          </select>
+          <label className={styles.inlineSelectLabel}>
+            Shelf
+            <select
+              style={inputStyle}
+              aria-label="Shelf number"
+              value={decorShelf}
+              onChange={(e) => setDecorShelf(Number(e.target.value))}
+            >
+              {Array.from({ length: MAX_SHELVES }, (_, i) => (
+                <option key={i} value={i}>
+                  {i + 1}
+                </option>
+              ))}
+            </select>
+          </label>
           <button type="button" style={btn} onClick={addDecor} disabled={busy}>
-            Add
+            Add decor
           </button>
-        </label>
+        </div>
       </div>
 
       {error && (
-        <p role="alert" style={{ color: "#9b3a2f", fontSize: "0.9rem", margin: 0 }}>
+        <p role="alert" style={{ ...errorText, fontSize: "0.9rem", margin: 0 }}>
           {error}
         </p>
       )}
 
       {/* --- Shelves --- */}
       {shelfIndexes.length === 0 ? (
-        <div className="paper-card" style={{ padding: "2rem", textAlign: "center" }}>
+        <div className={`paper-card ${styles.staticCard}`} style={{ padding: "2rem", textAlign: "center" }}>
           <p style={{ margin: 0, color: "var(--ink-soft)" }}>
             This bookcase is empty. <Link href="/admin/books/new">Add a book</Link> (pick this
             bookcase in the editor) or add shelf decor above.
@@ -293,79 +323,78 @@ export default function ShelfManager() {
           ].sort((a, b) => a.position - b.position);
 
           return (
-            <section key={idx} className="paper-card" style={{ padding: "1.25rem" }} aria-label={`Shelf ${idx + 1}`}>
+            <section key={idx} className={`paper-card ${styles.shelfCard} ${styles.staticCard}`} aria-label={`Shelf ${idx + 1}`}>
               <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", margin: "0 0 1rem" }}>
                 Shelf {idx + 1}
               </h2>
-              <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "0.75rem" }}>
+              <ul className={styles.shelfList}>
                 {things.map((t, i) => (
                   <li
                     key={t.id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.9rem",
-                      flexWrap: "wrap",
-                      paddingBottom: "0.75rem",
-                      borderBottom: i < things.length - 1 ? "1px solid var(--line)" : "none",
-                    }}
+                    className={styles.shelfRow}
                   >
                     {t.type === "book" ? (
                       <>
-                        <Spine book={t} scale={0.3} />
-                        <div style={{ minWidth: 160, flex: 1 }}>
+                        <span aria-hidden="true"><Spine book={t} scale={0.3} /></span>
+                        <div className={styles.shelfIdentity}>
                           <Link href={`/admin/books/${t.id}`} style={{ fontWeight: 600, color: "var(--ink)" }}>
                             {t.title}
                           </Link>
                           <div style={{ color: "var(--ink-soft)", fontSize: "0.82rem" }}>
                             {t.author}
-                            {!t.published && <span style={{ marginLeft: "0.5rem", color: "#7c2d23" }}>· hidden</span>}
+                            {!t.published && <span style={{ ...errorText, marginLeft: "0.5rem" }}>· hidden</span>}
                           </div>
                         </div>
                       </>
                     ) : (
                       <>
-                        <span style={{ transform: "scale(0.75)", transformOrigin: "left bottom", display: "inline-flex" }}>
+                        <span aria-hidden="true" style={{ transform: "scale(0.75)", transformOrigin: "left bottom", display: "inline-flex" }}>
                           <Decor kind={t.kind} />
                         </span>
-                        <div style={{ minWidth: 160, flex: 1 }}>
+                        <div className={styles.shelfIdentity}>
                           <span style={{ fontWeight: 600 }}>{DECOR_LABELS[t.kind as DecorKind] ?? t.kind}</span>
                           <div style={{ color: "var(--ink-soft)", fontSize: "0.82rem" }}>shelf decor</div>
                         </div>
                       </>
                     )}
-                    <div style={{ display: "flex", gap: "0.35rem" }} aria-label={`Move ${t.type === "book" ? t.title : "decor"}`}>
-                      <button type="button" style={btn} disabled={busy || i === 0} onClick={() => swap(things, i, -1)} title="Move left">
+                    <div className={styles.itemControls} role="group" aria-label={`Move ${t.type === "book" ? t.title : "decor"}`}>
+                      <button type="button" className={styles.smallButton} style={btn} disabled={busy || i === 0} onClick={() => swap(things, i, -1)} title="Move left" aria-label={`Move ${t.type === "book" ? t.title : "decor"} left`}>
                         ←
                       </button>
                       <button
                         type="button"
+                        className={styles.smallButton}
                         style={btn}
                         disabled={busy || i === things.length - 1}
                         onClick={() => swap(things, i, 1)}
                         title="Move right"
+                        aria-label={`Move ${t.type === "book" ? t.title : "decor"} right`}
                       >
                         →
                       </button>
-                      <button type="button" style={btn} disabled={busy || idx === 0} onClick={() => changeShelf(t, -1)} title="Move up a shelf">
+                      <button type="button" className={styles.smallButton} style={btn} disabled={busy || idx === 0} onClick={() => changeShelf(t, -1)} title="Move up a shelf" aria-label={`Move ${t.type === "book" ? t.title : "decor"} up a shelf`}>
                         ↑
                       </button>
                       <button
                         type="button"
+                        className={styles.smallButton}
                         style={btn}
                         disabled={busy || idx >= MAX_SHELVES - 1}
                         onClick={() => changeShelf(t, 1)}
                         title="Move down a shelf"
+                        aria-label={`Move ${t.type === "book" ? t.title : "decor"} down a shelf`}
                       >
                         ↓
                       </button>
                       {t.type === "decor" && (
                         <button
                           type="button"
-                          style={{ ...btn, color: "#9b3a2f", borderColor: "rgba(155,58,47,0.4)" }}
+                          className={styles.smallButton}
+                          style={{ ...btn, ...errorText, borderColor: "color-mix(in srgb, #b94738 55%, var(--line))" }}
                           disabled={busy}
                           onClick={() => removeDecor(t.id)}
                           title="Remove decor"
+                          aria-label="Remove decor"
                         >
                           ✕
                         </button>

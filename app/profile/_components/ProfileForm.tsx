@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { field, input, primaryButton, ghostButton } from "../../admin/_components/formStyles";
+import { field, input, primaryButton, ghostButton, errorText } from "../../admin/_components/formStyles";
+import styles from "../../admin/_components/accountArea.module.css";
 
 // Self-service profile editor. PATCHes /api/profile, then refreshes the session
 // so the header/handle update immediately. Password change is optional and
@@ -38,31 +39,40 @@ export default function ProfileForm({ initial }: { initial: ProfileInitial }) {
       payload.currentPassword = currentPassword;
     }
 
-    const res = await fetch("/api/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    setSaving(false);
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error || "Could not save changes.");
-      return;
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Could not save changes.");
+        return;
+      }
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setMessage("Profile updated.");
+      try {
+        await update(); // refresh the JWT/session so the header reflects changes
+      } catch {
+        setMessage("Profile updated. Refresh the page if the header still shows your old name.");
+      }
+      router.refresh();
+    } catch {
+      setError("Network error — your profile was not updated. Your changes are still here.");
+    } finally {
+      setSaving(false);
     }
-
-    setCurrentPassword("");
-    setNewPassword("");
-    setMessage("Profile updated.");
-    await update(); // refresh the JWT/session so the header reflects changes
-    router.refresh();
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+    <form onSubmit={handleSubmit} className={styles.form} aria-busy={saving}>
       <label style={field}>
         Email <span style={{ fontWeight: 400 }}>(can&rsquo;t be changed here)</span>
-        <input style={{ ...input, opacity: 0.7 }} value={initial.email} readOnly disabled />
+        <input style={{ ...input, color: "var(--ink-soft)" }} value={initial.email} readOnly aria-readonly="true" />
       </label>
 
       <label style={field}>
@@ -72,13 +82,16 @@ export default function ProfileForm({ initial }: { initial: ProfileInitial }) {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           autoComplete="off"
+          minLength={3}
+          maxLength={20}
+          pattern="[A-Za-z0-9][A-Za-z0-9_]{2,19}"
           required
         />
       </label>
 
       <label style={field}>
         Name <span style={{ fontWeight: 400 }}>(optional)</span>
-        <input style={input} value={name} onChange={(e) => setName(e.target.value)} />
+        <input style={input} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
       </label>
 
       <fieldset style={{ border: "1px solid var(--line)", borderRadius: 6, padding: "1rem", margin: 0 }}>
@@ -94,6 +107,7 @@ export default function ProfileForm({ initial }: { initial: ProfileInitial }) {
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               autoComplete="current-password"
+              required={Boolean(newPassword)}
             />
           </label>
           <label style={field}>
@@ -104,25 +118,26 @@ export default function ProfileForm({ initial }: { initial: ProfileInitial }) {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               autoComplete="new-password"
+              minLength={8}
             />
           </label>
         </div>
       </fieldset>
 
       {error && (
-        <p role="alert" style={{ color: "#9b3a2f", fontSize: "0.9rem", margin: 0 }}>
+        <p role="alert" style={{ ...errorText, fontSize: "0.9rem", margin: 0 }}>
           {error}
         </p>
       )}
       {message && (
-        <p style={{ color: "var(--accent)", fontSize: "0.9rem", margin: 0 }}>{message}</p>
+        <p role="status" style={{ color: "var(--accent)", fontSize: "0.9rem", margin: 0 }}>{message}</p>
       )}
 
-      <div style={{ display: "flex", gap: "0.75rem" }}>
+      <div className={styles.formActions}>
         <button type="submit" style={primaryButton} disabled={saving}>
           {saving ? "Saving…" : "Save changes"}
         </button>
-        <button type="button" style={ghostButton} onClick={() => router.push("/profile")}>
+        <button type="button" style={ghostButton} disabled={saving} onClick={() => router.push("/profile")}>
           Back
         </button>
       </div>

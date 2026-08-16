@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiStaff } from "@/lib/api";
+import { decorProblems } from "@/lib/library";
 
 // Single decor item (staff): move or remove.
 //   PUT    /api/decor/:id → { bookcase?, shelf?, position? }
@@ -17,13 +18,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const existing = await prisma.shelfDecorItem.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Decor not found." }, { status: 404 });
 
+  const errors = decorProblems({ ...existing, ...body });
+  if (errors.length) return NextResponse.json({ error: errors.join(" ") }, { status: 400 });
+
+  const next = {
+    kind: existing.kind,
+    bookcase: Number.isInteger(body.bookcase) ? body.bookcase : existing.bookcase,
+    shelf: Number.isInteger(body.shelf) ? body.shelf : existing.shelf,
+    position: Number.isInteger(body.position) ? body.position : existing.position,
+  };
   const item = await prisma.shelfDecorItem.update({
     where: { id },
-    data: {
-      bookcase: Number.isInteger(body.bookcase) ? body.bookcase : existing.bookcase,
-      shelf: Number.isInteger(body.shelf) ? body.shelf : existing.shelf,
-      position: Number.isInteger(body.position) ? body.position : existing.position,
-    },
+    data: next,
   });
   return NextResponse.json(item);
 }

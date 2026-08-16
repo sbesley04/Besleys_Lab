@@ -12,6 +12,7 @@
   padding: 0.7rem clamp(1rem, 4vw, 2rem);
   background: var(--paper);
   border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--paper-deep) 72%, transparent);
 }
 
 .brand {
@@ -24,7 +25,10 @@
   color: var(--ink);
   text-decoration: none;
   white-space: nowrap;
+  text-underline-offset: 0.3em;
+  transition: color 0.15s ease;
 }
+.brand:hover { color: var(--accent); }
 .navToggle { display: none; }
 
 /* --- Primary navigation --- */
@@ -71,8 +75,14 @@
   color: var(--ink);
   border-bottom-color: var(--accent);
 }
+.navLabel { display: inline; }
+.navDescription,
+.navIntro { display: none; }
 
-@media (max-width: 560px) {
+/* Collapse before the desktop links start clipping. At 640px the old layout
+   silently cut "Contact" down to "Con" beside a signed-in profile because the
+   scrollable nav had no visible overflow affordance. */
+@media (max-width: 860px) {
   .bar { flex-wrap: wrap; row-gap: 0.4rem; }
   .navToggle {
     display: inline-flex;
@@ -87,20 +97,89 @@
     color: var(--ink);
     font: 600 0.8rem var(--font-body);
     cursor: pointer;
+    gap: 0.4rem;
   }
+  .toggleSection {
+    padding-left: 0.4rem;
+    border-left: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .toggleChevron {
+    display: inline-block;
+    color: var(--accent);
+    font-size: 0.9rem;
+    line-height: 1;
+    transform: translateY(-1px);
+    transition: transform 0.15s ease;
+  }
+  .toggleChevronOpen { transform: translateY(1px) rotate(180deg); }
   .nav {
     display: none;
     order: 4;
     flex-basis: 100%;
     overflow: visible;
-    flex-wrap: wrap;
-    gap: 0.15rem 1rem;
-    padding: 0.45rem 0 0.1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+    padding: 0.55rem 0 0.15rem;
+    border-top: 1px dashed var(--line);
   }
-  .navOpen { display: flex; }
+  .navOpen { display: grid; }
+  .navIntro {
+    display: block;
+    grid-column: 1 / -1;
+    margin: 0 0 0.05rem;
+    color: var(--accent);
+    font: 600 1.05rem/1.2 var(--font-hand);
+  }
+  .navLink,
+  .navLinkActive {
+    min-width: 0;
+    min-height: 62px;
+    padding: 0.55rem 0.7rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.05rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--paper-deep) 72%, transparent);
+    white-space: normal;
+  }
+  .navLink:hover,
+  .navLinkActive:hover {
+    border-color: color-mix(in srgb, var(--accent) 70%, var(--line));
+    background: var(--paper-deep);
+  }
+  .navLinkActive {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--paper-deep) 76%, var(--accent) 24%);
+  }
+  .navLabel { font-weight: 600; }
+  .navDescription {
+    display: block;
+    color: var(--ink-soft);
+    font-size: 0.7rem;
+    line-height: 1.25;
+  }
   .right { margin-left: 0; }
-  .link { display: none; }
-  .signupLink { font-size: 0.8rem; padding: 0.35rem 0.6rem; }
+}
+
+@media (max-width: 560px) {
+  .right .link { display: none; }
+  .right .signupLink { font-size: 0.8rem; padding: 0.35rem 0.6rem; }
+  .handle { display: none; }
+}
+
+@media (max-width: 360px) {
+  .bar { column-gap: 0.5rem; padding-inline: 0.75rem; }
+  .brand { font-size: 1.05rem; }
+  .navToggle { gap: 0.3rem; padding-inline: 0.45rem; }
+  .toggleSection { padding-left: 0.3rem; }
+  .toggleChevron { display: none; }
+  .navLink,
+  .navLinkActive { padding-inline: 0.55rem; }
 }
 
 .right {
@@ -135,7 +214,48 @@
   color: var(--paper);
   text-decoration: none;
 }
+.signupLink:hover {
+  border-color: var(--accent-warm);
+  background: var(--accent-warm);
+  color: var(--paper);
+}
+.signupShort { display: none; }
+@media (max-width: 360px) {
+  .signupFull { display: none; }
+  .signupShort { display: inline; }
+}
 
+/* Preserve the account area's footprint while next-auth restores the session.
+   Without it the Menu control visibly jumped sideways and signed-in controls
+   appeared to be missing on fresh routes, especially the mobile 404. */
+.accountPlaceholder {
+  width: 92px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem 0.3rem 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  opacity: 0.55;
+}
+.accountPlaceholder span {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 35%, var(--paper-deep));
+}
+.accountPlaceholder i {
+  width: 38px;
+  height: 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink-soft) 30%, transparent);
+}
+@media (max-width: 560px) {
+  .accountPlaceholder { width: 46px; }
+  .accountPlaceholder i { display: none; }
+}
 /* Profile button + dropdown */
 .profileWrap {
   position: relative;
@@ -183,6 +303,7 @@
   right: 0;
   top: calc(100% + 0.4rem);
   min-width: 180px;
+  max-width: min(280px, calc(100vw - 2rem));
   background: var(--paper-deep);
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -200,10 +321,12 @@
 .menuName {
   font-weight: 600;
   font-size: 0.9rem;
+  overflow-wrap: anywhere;
 }
 .menuMeta {
   font-size: 0.75rem;
   color: var(--ink-soft);
+  overflow-wrap: anywhere;
 }
 
 .menuItem {
@@ -221,7 +344,10 @@
   cursor: pointer;
   text-decoration: none;
 }
-.menuItem:hover { background: rgba(0, 0, 0, 0.05); }
+.menuItem:hover {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  color: var(--ink);
+}
 
 .roleTag {
   display: inline-block;

@@ -14,6 +14,7 @@ export const field: CSSProperties = {
 export const input: CSSProperties = {
   fontFamily: "var(--font-body)",
   fontSize: "1rem",
+  minHeight: 44,
   padding: "0.55rem 0.7rem",
   border: "1px solid var(--line)",
   borderRadius: 4,
@@ -32,6 +33,10 @@ export const textarea: CSSProperties = {
 };
 
 export const primaryButton: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 44,
   fontFamily: "var(--font-body)",
   fontSize: "1rem",
   fontWeight: 600,
@@ -44,6 +49,10 @@ export const primaryButton: CSSProperties = {
 };
 
 export const ghostButton: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 44,
   fontFamily: "var(--font-body)",
   fontSize: "0.95rem",
   fontWeight: 500,
@@ -57,6 +66,14 @@ export const ghostButton: CSSProperties = {
 
 export const dangerButton: CSSProperties = {
   ...ghostButton,
-  color: "#9b3a2f",
-  borderColor: "rgba(155, 58, 47, 0.4)",
+  color: "color-mix(in srgb, #b94738 68%, var(--ink))",
+  borderColor: "color-mix(in srgb, #b94738 55%, var(--line))",
+};
+
+export const errorText: CSSProperties = {
+  color: "color-mix(in srgb, #b94738 68%, var(--ink))",
+};
+
+export const invalidControl: CSSProperties = {
+  borderColor: "color-mix(in srgb, #b94738 68%, var(--line))",
 };

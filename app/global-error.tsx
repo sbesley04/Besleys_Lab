@@ -15,6 +15,7 @@ export default function GlobalError({
         style={{
           margin: 0,
           minHeight: "100vh",
+          boxSizing: "border-box",
           display: "grid",
           placeItems: "center",
           background: "#F5F0E8",
@@ -24,7 +25,8 @@ export default function GlobalError({
           padding: "2rem",
         }}
       >
-        <div>
+        <style>{`button:focus-visible { outline: 3px solid #1A1A1A; outline-offset: 3px; }`}</style>
+        <main style={{ width: "100%", maxWidth: 560 }}>
           <h1 style={{ fontSize: "2rem", margin: "0 0 0.5rem" }}>Besley&rsquo;s Lab hit a snag</h1>
           <p style={{ color: "#4A463E", margin: "0 0 1.5rem" }}>
             Something broke at the very top of the app. A refresh usually fixes it.
@@ -34,6 +36,7 @@ export default function GlobalError({
             onClick={reset}
             style={{
               fontSize: "1rem",
+              minHeight: 44,
               padding: "0.6rem 1.4rem",
               border: "1px solid #7A6A52",
               borderRadius: 4,
@@ -42,9 +45,9 @@ export default function GlobalError({
               cursor: "pointer",
             }}
           >
-            Reload
+            Try again
           </button>
-        </div>
+        </main>
       </body>
     </html>
   );

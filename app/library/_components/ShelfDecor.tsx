@@ -127,7 +127,8 @@ export function CalvinHobbesBookends() {
     <Image
       className={`${styles.decor} ${styles.calvinHobbesBookends}`}
       src="/artifacts/calvin-hobbes-bookends.png"
-      alt="Calvin and Hobbes bicycle bookends"
+      alt=""
+      aria-hidden="true"
       width={800}
       height={500}
     />

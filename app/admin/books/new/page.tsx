@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/session";
 import BookForm from "../_components/BookForm";
+import styles from "../../_components/accountArea.module.css";
 
 export const metadata = { title: "New book — Admin" };
 
@@ -8,11 +9,11 @@ export default async function NewBookPage() {
   await requireStaff();
 
   return (
-    <main style={{ maxWidth: 880, margin: "0 auto", padding: "4rem 1.5rem" }}>
-      <Link href="/admin/books" style={{ fontSize: "0.9rem" }}>
+    <main className={`${styles.page} ${styles.pageWide} ${styles.accountPage}`}>
+      <Link href="/admin/books" className={styles.backLink}>
         ← Library
       </Link>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.4rem", margin: "0.5rem 0 1.5rem" }}>
+      <h1 className={`${styles.pageTitle} ${styles.pageTitleAfterBack}`}>
         Add a book
       </h1>
       <BookForm />

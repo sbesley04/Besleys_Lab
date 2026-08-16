@@ -1,0 +1,532 @@
+.page {
+  width: 100%;
+  max-width: var(--account-page-width, 760px);
+  margin: 0 auto;
+  padding: clamp(2.75rem, 7vw, 4rem) clamp(1rem, 4vw, 1.5rem);
+  min-width: 0;
+}
+
+.pageNarrow { --account-page-width: 560px; }
+.pageEditor { --account-page-width: 720px; }
+.pageWide { --account-page-width: 880px; }
+.pageDashboard { --account-page-width: 960px; }
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.9rem;
+}
+
+.pageTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.05rem, 7vw, 2.6rem);
+  overflow-wrap: anywhere;
+}
+
+.pageTitleAfterBack { margin: 0.15rem 0 1.5rem; }
+
+.pageHeader,
+.listHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.pageHeader { margin: 0 0 0.5rem; }
+.listHeader { margin: 0.15rem 0 1.5rem; }
+
+.pageHeader > *,
+.listHeader > * { min-width: 0; }
+
+.subtle {
+  color: var(--ink-soft);
+}
+
+.breakable {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.staticCard:hover,
+.staticCard:focus-visible {
+  animation: none !important;
+  transform: none !important;
+  box-shadow: var(--shadow-rest) !important;
+}
+
+.primaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--paper);
+  font: 600 0.95rem var(--font-body);
+  text-decoration: none;
+  box-shadow: var(--shadow-rest);
+}
+
+.primaryLink:hover {
+  background: var(--accent-warm);
+  color: var(--paper);
+}
+
+.inlineAction {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+.form {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dangerPush { margin-left: auto; }
+
+.form button:disabled,
+.manager button:disabled,
+.accountPage button:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.55;
+}
+
+.checkboxRow {
+  display: flex;
+  min-height: 44px;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.checkboxRow input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  accent-color: var(--accent);
+}
+
+.rangeControl {
+  min-height: 44px;
+  accent-color: var(--accent);
+}
+
+.fileInput {
+  max-width: 100%;
+  min-height: 44px;
+  padding-block: 0.5rem;
+  color: var(--ink-soft);
+  font: 0.85rem var(--font-body);
+}
+
+.editorLabelRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
+}
+
+.tabList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.previewPanel {
+  min-height: 240px;
+  overflow-x: auto;
+  padding: 1rem 1.25rem;
+  background: var(--paper);
+}
+
+.recordList {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recordLink {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  min-height: 58px;
+  padding: 0.8rem 1rem;
+  color: var(--ink);
+}
+
+.recordPrimary {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+
+.recordSecondary {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+.statusBadge {
+  justify-self: end;
+  padding: 0.18rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bookForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 210px);
+  align-items: start;
+  gap: 1.5rem 2rem;
+  min-width: 0;
+}
+
+.bookFields {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.bookPreview {
+  position: sticky;
+  top: 5rem;
+  width: 100%;
+  text-align: center;
+}
+
+.manager {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.tabRow {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolPanel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  align-items: end;
+  gap: 1rem 1.25rem;
+  min-width: 0;
+  padding: 1rem;
+}
+
+.toolGroup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.45rem;
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.toolGroup > :is(span, label) { grid-column: 1 / -1; }
+
+.decorTools {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: end;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.decorTools > span:first-child { grid-column: 1 / -1; }
+
+.inlineSelectLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.compactControl {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.smallButton {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+.shelfCard {
+  min-width: 0;
+  padding: 1.1rem;
+}
+
+.shelfList {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shelfRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.shelfRow:last-child { border-bottom: 0; }
+
+.shelfIdentity {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.itemControls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.noteRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8rem 1rem;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+}
+
+.noteActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.userRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  min-width: 0;
+  padding: 0.9rem 1rem;
+}
+
+.userIdentity {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.userActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.inlineDelete {
+  display: grid;
+  justify-items: end;
+  gap: 0.25rem;
+}
+
+.inlineError {
+  max-width: 16rem;
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.authShell {
+  display: grid;
+  min-height: calc(100svh - 14rem);
+  place-items: center;
+  padding: clamp(2.5rem, 8vh, 5rem) 1rem;
+}
+
+.authCard {
+  display: flex;
+  width: 100%;
+  max-width: 400px;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1.4rem, 5vw, 2rem);
+}
+
+.authTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 8vw, 2rem);
+}
+
+.authFooter {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.dashboardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin: 0.15rem 0 0.35rem;
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  align-items: start;
+  gap: 1.25rem;
+}
+
+.dashboardCard { padding: 1.4rem; }
+
+.dataRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  min-width: 0;
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.dataRow > * { min-width: 0; }
+
+.dataMeta {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+.profileDetails dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.achievementSection {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 250px;
+}
+
+.statePanel {
+  display: grid;
+  max-width: 600px;
+  gap: 0.75rem;
+  padding: 1.5rem;
+}
+
+.statePanel p { margin: 0; }
+
+.skeleton {
+  min-height: 0.9rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--paper-deep), var(--line), var(--paper-deep));
+  background-size: 200% 100%;
+  animation: account-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeletonTitle { width: min(70%, 20rem); height: 2.25rem; }
+.skeletonLine { width: min(90%, 32rem); }
+.skeletonCard { min-height: 10rem; border-radius: var(--radius); }
+
+@keyframes account-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 700px) {
+  .bookForm { grid-template-columns: minmax(0, 1fr); }
+
+  .bookPreview {
+    position: static;
+    width: min(100%, 230px);
+    justify-self: center;
+  }
+
+  .recordLink,
+  .userRow,
+  .dataRow { grid-template-columns: minmax(0, 1fr); }
+
+  .statusBadge { justify-self: start; }
+  .dataMeta { text-align: left; }
+
+  .shelfRow,
+  .noteRow { grid-template-columns: auto minmax(0, 1fr); }
+
+  .itemControls,
+  .noteActions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .dangerPush { margin-left: 0; }
+}
+
+@media (max-width: 430px) {
+  .page { padding-inline: 1rem; }
+  .authShell { padding-inline: 0.75rem; }
+  .authCard { padding: 1.35rem; }
+
+  .listHeader .primaryLink,
+  .pageHeader .primaryLink { width: 100%; }
+
+  .formActions > button:not(.dangerPush) { flex: 1 1 auto; }
+
+  .decorTools { grid-template-columns: minmax(0, 1fr) auto; }
+  .decorTools > button { grid-column: 1 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}

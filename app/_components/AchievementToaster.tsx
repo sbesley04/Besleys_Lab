@@ -49,8 +49,8 @@ export default function AchievementToaster() {
       aria-live="polite"
       style={{
         position: "fixed",
-        right: "1rem",
-        bottom: "1rem",
+        right: "max(1rem, env(safe-area-inset-right))",
+        bottom: "max(1rem, env(safe-area-inset-bottom))",
         zIndex: 200,
         display: "flex",
         flexDirection: "column",

@@ -56,10 +56,18 @@ export default function ZoteHeckler() {
   if (!line) return null;
 
   return (
-    <div className="zote-wrap" role="status" onClick={() => setLine(null)}>
+    <div className="zote-wrap">
       <Image src="/artifacts/lab-gremlin.png" alt="" width={66} height={66} aria-hidden className="zote-head" />
-      <div className="zote-bubble">
+      <div className="zote-bubble" role="status">
         <strong>Lab Gremlin:</strong> {line}
+        <button
+          type="button"
+          className="zote-dismiss"
+          onClick={() => setLine(null)}
+          aria-label="Dismiss Lab Gremlin"
+        >
+          ✕
+        </button>
       </div>
     </div>
   );

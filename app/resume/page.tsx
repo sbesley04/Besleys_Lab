@@ -80,26 +80,25 @@ export default function ResumePage() {
         </div>
         <a
           href="/resume.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="paper-card"
+          download
+          className="paper-card resume-download"
           style={{ padding: "0.55rem 1rem", fontSize: "0.92rem", color: "var(--ink)", fontWeight: 600 }}
         >
-          ⇩ Download PDF
+          <span aria-hidden="true">⇩</span> Download PDF
         </a>
       </header>
 
-      <p style={{ color: "var(--ink-soft)", fontSize: "0.9rem", margin: "0.75rem 0 0" }}>
+      <address className="resume-contact">
         <a href="mailto:sambesley04@gmail.com">sambesley04@gmail.com</a>
-        {" · "}
         <a href="https://linkedin.com/in/sbesley" target="_blank" rel="noopener noreferrer">
           linkedin.com/in/sbesley
+          <span className="sr-only"> (opens in a new tab)</span>
         </a>
-        {" · "}
         <a href="https://github.com/sbesley04" target="_blank" rel="noopener noreferrer">
           github.com/sbesley04
+          <span className="sr-only"> (opens in a new tab)</span>
         </a>
-      </p>
+      </address>
 
       <section aria-label="Summary">
         <h2 style={h2}>Summary</h2>
@@ -217,7 +216,9 @@ export default function ResumePage() {
       </section>
 
       <p style={{ marginTop: "2.5rem", fontSize: "0.9rem" }}>
-        <Link href="/contact">Get in touch →</Link>
+        <Link href="/contact" className="standalone-link">
+          Get in touch <span aria-hidden="true">→</span>
+        </Link>
       </p>
     </main>
   );

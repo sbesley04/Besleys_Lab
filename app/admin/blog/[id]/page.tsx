@@ -4,9 +4,11 @@ import { requireStaff } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { canEditContent } from "@/lib/validation";
 import PostForm from "../_components/PostForm";
+import styles from "../../_components/accountArea.module.css";
 
 // Edit an existing post. Loads the record server-side and hydrates the form.
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Edit post — Admin" };
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,11 +19,11 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   if (!canEditContent(session.user.role, session.user.id, post.authorId)) notFound();
 
   return (
-    <main style={{ maxWidth: 720, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <Link href="/admin/blog" style={{ fontSize: "0.9rem" }}>
+    <main className={`${styles.page} ${styles.pageEditor} ${styles.accountPage}`}>
+      <Link href="/admin/blog" className={styles.backLink}>
         ← Posts
       </Link>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.4rem", margin: "0.5rem 0 1.5rem" }}>
+      <h1 className={`${styles.pageTitle} ${styles.pageTitleAfterBack}`}>
         Edit post
       </h1>
       <PostForm

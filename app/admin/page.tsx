@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireStaff } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import SignOutButton from "./_components/SignOutButton";
+import styles from "./_components/accountArea.module.css";
 
 // Admin dashboard — the protected hub for managing site content. Shows live
 // counts so it's obvious what's published vs. drafted, plus quick actions for
@@ -69,22 +70,13 @@ export default async function AdminDashboard() {
   ];
 
   return (
-    <main style={{ maxWidth: 880, margin: "0 auto", padding: "4rem 1.5rem" }}>
+    <main className={`${styles.page} ${styles.pageWide} ${styles.accountPage}`}>
       <header
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-          gap: "1rem",
-          marginBottom: "0.5rem",
-        }}
+        className={styles.pageHeader}
       >
-        <div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.4rem", margin: 0 }}>
-            Admin
-          </h1>
-          <p style={{ color: "var(--ink-soft)", margin: "0.25rem 0 0" }}>
+        <div className={styles.breakable}>
+          <h1 className={styles.pageTitle}>Admin</h1>
+          <p className={styles.breakable} style={{ color: "var(--ink-soft)", margin: "0.25rem 0 0" }}>
             Signed in as {session.user.email} · {session.user.role}
           </p>
         </div>
@@ -103,7 +95,7 @@ export default async function AdminDashboard() {
         }}
       >
         {manage.map((m) => (
-          <section key={m.href} className="paper-card" style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+          <section key={m.href} className={`paper-card ${styles.staticCard}`} style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", margin: 0 }}>
               <Link href={m.href} style={{ color: "var(--ink)" }}>
                 {m.title}
@@ -113,10 +105,10 @@ export default async function AdminDashboard() {
             <p style={{ color: "var(--ink-soft)", margin: "0.2rem 0 0", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
               {m.stat}
             </p>
-            <p style={{ margin: "0.5rem 0 0", fontSize: "0.9rem" }}>
-              <Link href={m.action.href}>{m.action.label}</Link>
+            <p style={{ display: "flex", flexWrap: "wrap", alignItems: "center", margin: "0.25rem 0 -0.4rem", fontSize: "0.9rem" }}>
+              <Link className={styles.inlineAction} href={m.action.href}>{m.action.label}</Link>
               <span style={{ margin: "0 0.5rem", color: "var(--line)" }}>|</span>
-              <Link href={m.href}>Manage</Link>
+              <Link className={styles.inlineAction} href={m.href}>Manage</Link>
             </p>
           </section>
         ))}

@@ -4,10 +4,12 @@ import { requireAdmin } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { primaryButton } from "../_components/formStyles";
 import DeleteUserButton from "./_components/DeleteUserButton";
+import styles from "../_components/accountArea.module.css";
 
 // Account management list (ADMIN only). EDITOR users are bounced to the
 // dashboard — only admins manage accounts.
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Accounts — Admin" };
 
 export default async function AdminUsersList() {
   const session = await requireAdmin();
@@ -19,56 +21,29 @@ export default async function AdminUsersList() {
   });
 
   return (
-    <main style={{ maxWidth: 760, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <Link href="/admin" style={{ fontSize: "0.9rem" }}>
+    <main className={`${styles.page} ${styles.accountPage}`}>
+      <Link href="/admin" className={styles.backLink}>
         ← Dashboard
       </Link>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          margin: "0.5rem 0 1.5rem",
-          gap: "1rem",
-        }}
-      >
-        <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.4rem", margin: 0 }}>
-          Accounts
-        </h1>
-        <Link href="/admin/users/new" style={{ ...primaryButton, textDecoration: "none" }}>
+      <div className={styles.listHeader}>
+        <h1 className={styles.pageTitle}>Accounts</h1>
+        <Link href="/admin/users/new" className={styles.primaryLink} style={{ ...primaryButton, textDecoration: "none" }}>
           New account
         </Link>
       </div>
 
-      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "0.75rem" }}>
+      <ul className={styles.recordList}>
         {users.map((u) => (
           <li
             key={u.id}
-            className="paper-card"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "1rem",
-              padding: "0.9rem 1.1rem",
-            }}
+            className={`paper-card ${styles.userRow} ${styles.staticCard}`}
           >
-            <div>
+            <div className={styles.userIdentity}>
               <span style={{ fontWeight: 500 }}>{u.username ? `@${u.username}` : u.name || u.email}</span>
               <span style={{ color: "var(--ink-soft)", fontSize: "0.85rem" }}> · {u.email}</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <span
-                style={{
-                  fontSize: "0.72rem",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  padding: "0.15rem 0.5rem",
-                  borderRadius: 999,
-                  border: "1px solid var(--line)",
-                  color: "var(--ink-soft)",
-                }}
-              >
+            <div className={styles.userActions}>
+              <span className={styles.statusBadge}>
                 {u.role}
               </span>
               {u.id === session.user.id ? (

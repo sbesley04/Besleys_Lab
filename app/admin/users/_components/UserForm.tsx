@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { field, input, primaryButton, ghostButton } from "../../_components/formStyles";
+import { field, input, primaryButton, ghostButton, errorText } from "../../_components/formStyles";
+import styles from "../../_components/accountArea.module.css";
 
 // Create-account form (admin only). Posts to /api/users; on success returns to
 // the user list.
@@ -21,24 +22,28 @@ export default function UserForm() {
     setError(null);
     setSaving(true);
 
-    const res = await fetch("/api/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, username, name, password, role }),
-    });
-
-    setSaving(false);
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error || "Could not create the account.");
-      return;
+    try {
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, username, name, password, role }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Could not create the account.");
+        return;
+      }
+      router.push("/admin/users");
+      router.refresh();
+    } catch {
+      setError("Network error — the account was not created.");
+    } finally {
+      setSaving(false);
     }
-    router.push("/admin/users");
-    router.refresh();
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+    <form onSubmit={handleSubmit} className={styles.form} aria-busy={saving}>
       <label style={field}>
         Email
         <input
@@ -59,6 +64,9 @@ export default function UserForm() {
           onChange={(e) => setUsername(e.target.value)}
           autoComplete="off"
           placeholder="3–20 chars: letters, numbers, _"
+          minLength={3}
+          maxLength={20}
+          pattern="[A-Za-z0-9][A-Za-z0-9_]{2,19}"
           required
         />
       </label>
@@ -76,6 +84,7 @@ export default function UserForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="new-password"
+          minLength={8}
           required
         />
       </label>
@@ -94,16 +103,16 @@ export default function UserForm() {
       </label>
 
       {error && (
-        <p role="alert" style={{ color: "#9b3a2f", fontSize: "0.9rem", margin: 0 }}>
+        <p role="alert" style={{ ...errorText, fontSize: "0.9rem", margin: 0 }}>
           {error}
         </p>
       )}
 
-      <div style={{ display: "flex", gap: "0.75rem" }}>
+      <div className={styles.formActions}>
         <button type="submit" style={primaryButton} disabled={saving}>
           {saving ? "Creating…" : "Create account"}
         </button>
-        <button type="button" style={ghostButton} onClick={() => router.push("/admin/users")}>
+        <button type="button" style={ghostButton} disabled={saving} onClick={() => router.push("/admin/users")}>
           Cancel
         </button>
       </div>

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { field, input, textarea, primaryButton, ghostButton, dangerButton } from "../../_components/formStyles";
+import { field, input, textarea, primaryButton, ghostButton, dangerButton, errorText } from "../../_components/formStyles";
+import styles from "../../_components/accountArea.module.css";
 import { Spine } from "@/app/library/_components/BookSpine";
 import {
   BOOK_DESIGNS,
@@ -95,30 +96,39 @@ export default function BookForm({ book }: { book?: BookInputForm }) {
 
   async function handleDelete() {
     if (!book?.id || !confirm("Remove this book and all its reader reviews?")) return;
-    await fetch(`/api/books/${book.id}`, { method: "DELETE" }).catch(() => null);
-    router.push("/admin/books");
-    router.refresh();
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/books/${book.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "The book could not be deleted.");
+        return;
+      }
+      router.push("/admin/books");
+      router.refresh();
+    } catch {
+      setError("Network error — the book was not deleted.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      style={{
-        display: "grid",
-        gridTemplateColumns: "minmax(0, 1fr) auto",
-        gap: "1.5rem 2rem",
-        alignItems: "start",
-      }}
+      className={styles.bookForm}
+      aria-busy={saving}
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem", minWidth: 0 }}>
+      <div className={styles.bookFields}>
         <label style={field}>
           Title *
-          <input style={input} value={form.title} onChange={(e) => set("title", e.target.value)} />
+          <input style={input} value={form.title} onChange={(e) => set("title", e.target.value)} required />
         </label>
 
         <label style={field}>
           Author *
-          <input style={input} value={form.author} onChange={(e) => set("author", e.target.value)} />
+          <input style={input} value={form.author} onChange={(e) => set("author", e.target.value)} required />
         </label>
 
         <label style={field}>
@@ -139,7 +149,7 @@ export default function BookForm({ book }: { book?: BookInputForm }) {
               value={form.color}
               onChange={(e) => set("color", e.target.value)}
               aria-label="Spine color"
-              style={{ width: 48, height: 32, padding: 2, border: "1px solid var(--line)", borderRadius: 4, background: "var(--paper)", cursor: "pointer" }}
+              style={{ width: 52, height: 44, padding: 4, border: "1px solid var(--line)", borderRadius: 4, background: "var(--paper)", cursor: "pointer" }}
             />
             <span style={{ fontWeight: 400, color: "var(--ink-soft)" }}>{form.color}</span>
           </label>
@@ -152,7 +162,7 @@ export default function BookForm({ book }: { book?: BookInputForm }) {
               max={SPINE_HEIGHT.max}
               value={form.height}
               onChange={(e) => set("height", Number(e.target.value))}
-              style={{ accentColor: "var(--accent)" }}
+              className={styles.rangeControl}
             />
           </label>
 
@@ -164,7 +174,7 @@ export default function BookForm({ book }: { book?: BookInputForm }) {
               max={SPINE_THICKNESS.max}
               value={form.thickness}
               onChange={(e) => set("thickness", Number(e.target.value))}
-              style={{ accentColor: "var(--accent)" }}
+              className={styles.rangeControl}
             />
           </label>
 
@@ -233,26 +243,26 @@ export default function BookForm({ book }: { book?: BookInputForm }) {
           />
         </label>
 
-        <label style={{ ...field, flexDirection: "row", alignItems: "center", gap: "0.5rem" }}>
+        <label className={styles.checkboxRow}>
           <input type="checkbox" checked={form.published} onChange={(e) => set("published", e.target.checked)} />
           On the shelf <span style={{ fontWeight: 400 }}>(visible to visitors)</span>
         </label>
 
         {error && (
-          <p role="alert" style={{ color: "#9b3a2f", fontSize: "0.9rem", margin: 0 }}>
+          <p role="alert" style={{ ...errorText, fontSize: "0.9rem", margin: 0 }}>
             {error}
           </p>
         )}
 
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+        <div className={styles.formActions}>
           <button type="submit" style={primaryButton} disabled={saving}>
             {saving ? "Saving…" : isEdit ? "Save changes" : "Add to shelf"}
           </button>
-          <button type="button" style={ghostButton} onClick={() => router.push("/admin/books")}>
+          <button type="button" style={ghostButton} disabled={saving} onClick={() => router.push("/admin/books")}>
             Cancel
           </button>
           {isEdit && (
-            <button type="button" style={{ ...dangerButton, marginLeft: "auto" }} onClick={handleDelete}>
+            <button type="button" className={styles.dangerPush} style={dangerButton} disabled={saving} onClick={handleDelete}>
               Delete
             </button>
           )}
@@ -260,7 +270,7 @@ export default function BookForm({ book }: { book?: BookInputForm }) {
       </div>
 
       {/* --- Live preview --- */}
-      <div style={{ position: "sticky", top: "5rem", textAlign: "center" }}>
+      <div className={styles.bookPreview} role="img" aria-label="Live book spine preview">
         <p style={{ fontSize: "0.8rem", color: "var(--ink-soft)", margin: "0 0 0.75rem" }}>Preview</p>
         <div
           style={{

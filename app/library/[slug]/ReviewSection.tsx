@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { REVIEW_MAX_LENGTH } from "@/lib/library";
+import styles from "./detail.module.css";
 
 // Visitor reviews under a book: post/update your own (one per account),
 // delete your own, and — as admin — moderate any. Server passes the current
@@ -21,23 +21,28 @@ export interface ReviewItem {
 
 function Stars({ n }: { n: number }) {
   return (
-    <span aria-label={`${n} out of 5`} style={{ color: "var(--accent)", letterSpacing: "0.1em" }}>
-      {"★".repeat(n)}
-      <span style={{ opacity: 0.3 }}>{"★".repeat(5 - n)}</span>
+    <span role="img" aria-label={`${n} out of 5 stars`} className={styles.stars}>
+      <span aria-hidden="true">{"★".repeat(n)}</span>
+      <span className={styles.mutedStars} aria-hidden="true">
+        {"★".repeat(5 - n)}
+      </span>
     </span>
   );
 }
 
 export default function ReviewSection({
   bookId,
+  bookSlug,
   reviews,
+  currentUser,
 }: {
   bookId: string;
+  bookSlug: string;
   reviews: ReviewItem[];
+  currentUser: { id: string; role?: string | null } | null;
 }) {
-  const { data: session } = useSession();
   const router = useRouter();
-  const me = session?.user;
+  const me = currentUser;
   const mine = me ? reviews.find((r) => r.userId === me.id) : undefined;
 
   const [body, setBody] = useState(mine?.body ?? "");
@@ -75,9 +80,13 @@ export default function ReviewSection({
     }
   }
 
-  async function remove(reviewId?: string) {
+  async function remove(reviewId?: string, reviewer?: string) {
+    const label = reviewId ? `${reviewer ?? "this reader"}'s review` : "your review";
+    if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+
     setBusy(true);
     setError(null);
+    setNotice(null);
     try {
       const url = reviewId
         ? `/api/books/${bookId}/reviews?reviewId=${reviewId}`
@@ -101,124 +110,115 @@ export default function ReviewSection({
     }
   }
 
-  const inputStyle: React.CSSProperties = {
-    fontFamily: "var(--font-body)",
-    fontSize: "0.95rem",
-    padding: "0.6rem 0.75rem",
-    border: "1px solid var(--line)",
-    borderRadius: 4,
-    background: "var(--paper)",
-    color: "var(--ink)",
-    width: "100%",
-  };
+  const messageIds = [error ? "review-error" : null, notice ? "review-notice" : null, "review-count"]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <section aria-label="Reader reviews" style={{ marginTop: "2.5rem" }}>
-      <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.6rem", margin: "0 0 0.25rem" }}>
+    <section aria-labelledby="reader-reviews-title" className={styles.reviewSection}>
+      <h2 id="reader-reviews-title" className={styles.reviewHeading}>
         Reader reviews
       </h2>
-      <p style={{ color: "var(--ink-soft)", fontSize: "0.9rem", margin: "0 0 1.25rem" }}>
+      <p className={styles.reviewSummary}>
         {reviews.length === 0
           ? "No reviews yet — be the first."
           : `${reviews.length} review${reviews.length === 1 ? "" : "s"} from readers.`}
       </p>
 
       {reviews.length > 0 && (
-        <ul style={{ listStyle: "none", margin: "0 0 1.5rem", padding: 0, display: "grid", gap: "0.9rem" }}>
+        <ul className={styles.reviewList}>
           {reviews.map((r) => (
-            <li key={r.id} className="paper-card" style={{ padding: "1rem 1.2rem" }}>
-              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "0.4rem 0.9rem" }}>
-                <strong style={{ fontSize: "0.92rem" }}>{r.userName}</strong>
+            <li key={r.id} className={`paper-card ${styles.reviewCard}`}>
+              <div className={styles.reviewMeta}>
+                <strong className={styles.reviewer}>{r.userName}</strong>
                 {r.rating ? <Stars n={r.rating} /> : null}
-                <span style={{ color: "var(--ink-soft)", fontSize: "0.78rem" }}>
-                  {new Date(r.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-                </span>
+                <time dateTime={r.createdAt} className={styles.reviewDate}>
+                  {new Date(r.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    timeZone: "UTC",
+                  })}
+                </time>
                 {(me?.id === r.userId || me?.role === "ADMIN") && (
                   <button
                     type="button"
-                    onClick={() => remove(me?.id === r.userId ? undefined : r.id)}
+                    onClick={() => remove(me?.id === r.userId ? undefined : r.id, r.userName)}
                     disabled={busy}
-                    style={{
-                      marginLeft: "auto",
-                      background: "none",
-                      border: "none",
-                      color: "#9b3a2f",
-                      fontSize: "0.8rem",
-                      cursor: "pointer",
-                    }}
+                    className={styles.deleteButton}
+                    aria-label={
+                      me?.id === r.userId ? "Delete your review" : `Delete review by ${r.userName}`
+                    }
                   >
                     Delete
                   </button>
                 )}
               </div>
-              <p style={{ margin: "0.5rem 0 0", fontSize: "0.95rem", whiteSpace: "pre-wrap" }}>{r.body}</p>
+              <p className={styles.reviewBody}>{r.body}</p>
             </li>
           ))}
         </ul>
       )}
 
       {me ? (
-        <form onSubmit={submit} className="paper-card" style={{ padding: "1.25rem 1.4rem", display: "grid", gap: "0.8rem" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
-            <strong style={{ fontSize: "0.95rem" }}>{mine ? "Update your review" : "Add your review"}</strong>
-            <label style={{ fontSize: "0.85rem", color: "var(--ink-soft)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+        <form onSubmit={submit} className={`paper-card ${styles.reviewForm}`} aria-labelledby="review-form-title">
+          <div className={styles.formHeader}>
+            <h3 id="review-form-title" className={styles.formTitle}>
+              {mine ? "Update your review" : "Add your review"}
+            </h3>
+            <label className={styles.ratingField}>
               Rating
               <select
                 value={rating}
                 onChange={(e) => setRating(Number(e.target.value))}
-                style={{ ...inputStyle, width: "auto", padding: "0.35rem 0.5rem" }}
+                className={`${styles.input} ${styles.select}`}
               >
-                <option value={0}>—</option>
+                <option value={0}>No rating</option>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <option key={n} value={n}>
-                    {"★".repeat(n)}
+                    {n} {n === 1 ? "star" : "stars"} — {"★".repeat(n)}
                   </option>
                 ))}
               </select>
             </label>
           </div>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            maxLength={REVIEW_MAX_LENGTH}
-            rows={4}
-            placeholder="What did you think?"
-            style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }}
-            aria-label="Your review"
-          />
-          {error && (
-            <p role="alert" style={{ color: "#9b3a2f", fontSize: "0.88rem", margin: 0 }}>
-              {error}
+          <label htmlFor="review-body" className={styles.field}>
+            Your review
+            <textarea
+              id="review-body"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              maxLength={REVIEW_MAX_LENGTH}
+              rows={4}
+              placeholder="What did you think?"
+              className={`${styles.input} ${styles.textarea}`}
+              aria-describedby={messageIds}
+            />
+          </label>
+          <div className={styles.fieldFooter}>
+            <div>
+              {error && (
+                <p id="review-error" role="alert" className={styles.error}>
+                  {error}
+                </p>
+              )}
+              {notice && (
+                <p id="review-notice" role="status" className={styles.message}>
+                  {notice}
+                </p>
+              )}
+            </div>
+            <p id="review-count" className={styles.characterCount}>
+              {body.length} / {REVIEW_MAX_LENGTH} characters
             </p>
-          )}
-          {notice && (
-            <p role="status" style={{ color: "var(--ink-soft)", fontSize: "0.88rem", margin: 0 }}>
-              {notice}
-            </p>
-          )}
-          <div style={{ display: "flex", gap: "0.75rem" }}>
-            <button
-              type="submit"
-              disabled={busy}
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "0.95rem",
-                fontWeight: 600,
-                padding: "0.55rem 1.1rem",
-                border: "1px solid var(--accent)",
-                borderRadius: 4,
-                background: "var(--accent)",
-                color: "var(--paper)",
-                cursor: busy ? "default" : "pointer",
-              }}
-            >
-              {busy ? "Posting…" : mine ? "Update review" : "Post review"}
-            </button>
           </div>
+          <button type="submit" disabled={busy} className={styles.submitButton}>
+            {busy ? "Posting…" : mine ? "Update review" : "Post review"}
+          </button>
         </form>
       ) : (
-        <p className="paper-card" style={{ padding: "1rem 1.25rem", fontSize: "0.92rem", color: "var(--ink-soft)" }}>
-          <Link href={`/login?callbackUrl=${encodeURIComponent(`/library`)}`}>Sign in</Link> or{" "}
+        <p className={`paper-card ${styles.authCard}`}>
+          <Link href={`/login?callbackUrl=${encodeURIComponent(`/library/${bookSlug}`)}`}>Sign in</Link> or{" "}
           <Link href="/signup">create an account</Link> to leave a review.
         </p>
       )}

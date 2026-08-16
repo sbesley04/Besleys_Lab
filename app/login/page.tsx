@@ -4,19 +4,30 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { field, input, primaryButton } from "../admin/_components/formStyles";
+import { field, input, primaryButton, errorText } from "../admin/_components/formStyles";
 import { safeCallbackPath } from "@/lib/navigation";
+import styles from "../admin/_components/accountArea.module.css";
 
 // General sign-in for everyone (USER/EDITOR/ADMIN). Accepts an email OR a
 // username in a single field. useSearchParams is isolated in LoginForm and
 // wrapped in Suspense so the page prerenders cleanly.
 export default function LoginPage() {
   return (
-    <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "1.5rem" }}>
-      <Suspense fallback={null}>
+    <main className={styles.authShell}>
+      <Suspense fallback={<LoginFallback />}>
         <LoginForm />
       </Suspense>
     </main>
+  );
+}
+
+function LoginFallback() {
+  return (
+    <div className={`paper-card ${styles.authCard} ${styles.staticCard}`} role="status" aria-live="polite" aria-busy="true">
+      <span className={`${styles.skeleton} ${styles.skeletonTitle}`} />
+      <span className={`${styles.skeleton} ${styles.skeletonLine}`} />
+      <span>Preparing sign in…</span>
+    </div>
   );
 }
 
@@ -68,11 +79,11 @@ function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="paper-card"
-      style={{ width: "100%", maxWidth: 380, padding: "2.25rem 2rem", display: "flex", flexDirection: "column", gap: "1rem" }}
+      className={`paper-card ${styles.authCard} ${styles.staticCard}`}
+      aria-busy={loading}
     >
       <div>
-        <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.9rem", margin: 0 }}>Sign in</h1>
+        <h1 className={styles.authTitle}>Sign in</h1>
         <p style={{ color: "var(--ink-soft)", margin: "0.25rem 0 0", fontSize: "0.9rem" }}>
           Welcome back to the lab.
         </p>
@@ -86,6 +97,8 @@ function LoginForm() {
           onChange={(e) => setIdentifier(e.target.value)}
           autoComplete="username"
           autoFocus
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? "login-error" : undefined}
           required
         />
       </label>
@@ -98,12 +111,14 @@ function LoginForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? "login-error" : undefined}
           required
         />
       </label>
 
       {error && (
-        <p role="alert" style={{ color: "#9b3a2f", fontSize: "0.85rem", margin: 0 }}>
+        <p id="login-error" role="alert" style={{ ...errorText, fontSize: "0.85rem", margin: 0 }}>
           {error}
         </p>
       )}
@@ -112,8 +127,8 @@ function LoginForm() {
         {loading ? "Signing in…" : "Sign in"}
       </button>
 
-      <p style={{ fontSize: "0.85rem", color: "var(--ink-soft)", margin: 0, textAlign: "center" }}>
-        No account? <Link href="/signup">Create one</Link>
+      <p className={styles.authFooter}>
+        No account? <Link className={styles.inlineAction} href="/signup">Create one</Link>
       </p>
     </form>
   );

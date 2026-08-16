@@ -13,7 +13,7 @@ const channels = [
     label: "Email",
     value: "sambesley04@gmail.com",
     href: "mailto:sambesley04@gmail.com",
-    blurb: "The fastest way to reach me",
+    blurb: "The fastest way to reach me.",
     external: false,
   },
   {
@@ -27,14 +27,14 @@ const channels = [
     label: "GitHub",
     value: "github.com/sbesley04",
     href: "https://github.com/sbesley04",
-    blurb: "Where the code lives (this site included)",
+    blurb: "Where the code lives (this site included).",
     external: true,
   },
-    {
+  {
     label: "Instagram",
     value: "instagram.com/sam.besley",
     href: "https://www.instagram.com/sam.besley",
-    blurb: "If you want to reach me, but not for work",
+    blurb: "For photos, travels, and less technical hellos.",
     external: true,
   },
 ];
@@ -76,8 +76,9 @@ export default function ContactPage() {
                 {c.blurb}
               </span>
             </span>
-            <span style={{ color: "var(--accent)", fontSize: "0.95rem" }}>
-              {c.value} {c.external ? "↗" : "→"}
+            <span className="contact-channel-value" style={{ color: "var(--accent)", fontSize: "0.95rem" }}>
+              {c.value} <span aria-hidden="true">{c.external ? "↗" : "→"}</span>
+              {c.external && <span className="sr-only"> (opens in a new tab)</span>}
             </span>
           </a>
         ))}
@@ -95,10 +96,10 @@ export default function ContactPage() {
             Education, experience, projects, and skills.
           </span>
         </span>
-        <span style={{ display: "flex", gap: "1.25rem", fontSize: "0.95rem" }}>
-          <Link href="/resume">Read it here →</Link>
+        <span className="contact-resume-actions">
+          <Link href="/resume">Read it here <span aria-hidden="true">→</span></Link>
           <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
-            PDF ↗
+            PDF <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span>
           </a>
         </span>
       </div>

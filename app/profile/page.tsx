@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { games } from "@/app/games/registry";
 import { isStaff } from "@/lib/validation";
 import { ACHIEVEMENTS, ACHIEVEMENT_SECTIONS } from "@/lib/achievements";
+import styles from "../admin/_components/accountArea.module.css";
 
 // The signed-in dashboard: profile settings, saved game states, saved
 // Hunger Games rosters, and recent simulation runs — everything a user has
@@ -37,18 +38,6 @@ const list: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: "0.55rem",
-};
-const row: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "baseline",
-  gap: "0.75rem",
-  fontSize: "0.92rem",
-};
-const meta: React.CSSProperties = {
-  color: "var(--ink-soft)",
-  fontSize: "0.8rem",
-  whiteSpace: "nowrap",
 };
 const empty: React.CSSProperties = {
   color: "var(--ink-soft)",
@@ -110,7 +99,7 @@ export default async function DashboardPage() {
 
   if (!user) {
     return (
-      <main style={{ maxWidth: 560, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
+      <main className={`${styles.page} ${styles.pageNarrow}`}>
         <p>Account not found. <Link href="/login">Sign in again</Link>.</p>
       </main>
     );
@@ -119,24 +108,15 @@ export default async function DashboardPage() {
   const staff = isStaff(user.role);
 
   return (
-    <main style={{ maxWidth: 960, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <Link href="/" style={{ fontSize: "0.9rem" }}>
+    <main className={`${styles.page} ${styles.pageDashboard} ${styles.accountPage}`}>
+      <Link href="/" className={styles.backLink}>
         ← Home
       </Link>
-      <header
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-          gap: "0.5rem 1rem",
-          margin: "0.5rem 0 0.35rem",
-        }}
-      >
-        <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.6rem", margin: 0 }}>
+      <header className={styles.dashboardHeader}>
+        <h1 className={styles.pageTitle}>
           {user.name ? `Welcome back, ${user.name.split(" ")[0]}` : "Your dashboard"}
         </h1>
-        <span style={{ color: "var(--ink-soft)", fontSize: "0.9rem" }}>
+        <span className={styles.breakable} style={{ color: "var(--ink-soft)", fontSize: "0.9rem" }}>
           {user.username ? `@${user.username}` : user.email}
         </span>
       </header>
@@ -144,16 +124,9 @@ export default async function DashboardPage() {
         Saved games, rosters, and simulation history — everything lives here.
       </p>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
-          gap: "1.25rem",
-          alignItems: "start",
-        }}
-      >
+      <div className={styles.dashboardGrid}>
         {/* --- Saved game states --- */}
-        <section className="paper-card" style={card} aria-label="Saved games">
+        <section className={`paper-card ${styles.staticCard}`} style={card} aria-label="Saved games">
           <h2 style={cardTitle}>Saved games</h2>
           <p style={cardHint}>Autosaves from the arcade — open a game and hit Load.</p>
           {saves.length === 0 ? (
@@ -164,9 +137,9 @@ export default async function DashboardPage() {
           ) : (
             <ul style={list}>
               {saves.map((s) => (
-                <li key={s.id} style={row}>
+                <li key={s.id} className={styles.dataRow}>
                   <Link href={`/games/${s.game}`}>{GAME_TITLES.get(s.game) ?? s.game}</Link>
-                  <span style={meta}>{fmt(s.updatedAt)}</span>
+                  <span className={styles.dataMeta}>{fmt(s.updatedAt)}</span>
                 </li>
               ))}
             </ul>
@@ -174,7 +147,7 @@ export default async function DashboardPage() {
         </section>
 
         {/* --- Rosters --- */}
-        <section className="paper-card" style={card} aria-label="Saved rosters">
+        <section className={`paper-card ${styles.staticCard}`} style={card} aria-label="Saved rosters">
           <h2 style={cardTitle}>Hunger Games rosters</h2>
           <p style={cardHint}>Your saved casts of tributes. Load one straight into the arena.</p>
           {rosters.length === 0 ? (
@@ -192,9 +165,9 @@ export default async function DashboardPage() {
                   /* corrupted roster row — still listed, just without a count */
                 }
                 return (
-                  <li key={r.id} style={row}>
+                  <li key={r.id} className={styles.dataRow}>
                     <Link href={`/games/hunger-games?roster=${r.id}`}>{r.name}</Link>
-                    <span style={meta}>
+                    <span className={styles.dataMeta}>
                       {count ? `${count} tributes · ` : ""}
                       {fmt(r.updatedAt)}
                     </span>
@@ -206,7 +179,7 @@ export default async function DashboardPage() {
         </section>
 
         {/* --- Recent simulations --- */}
-        <section className="paper-card" style={card} aria-label="Recent simulations">
+        <section className={`paper-card ${styles.staticCard}`} style={card} aria-label="Recent simulations">
           <h2 style={cardTitle}>Recent simulations</h2>
           <p style={cardHint}>Deterministic replays — same seed, same fate.</p>
           {runs.length === 0 ? (
@@ -217,11 +190,11 @@ export default async function DashboardPage() {
           ) : (
             <ul style={list}>
               {runs.map((r) => (
-                <li key={r.id} style={row}>
+                <li key={r.id} className={styles.dataRow}>
                   <Link href={`/games/hunger-games?run=${r.id}`}>
                     {r.winner ? `🏆 ${r.winner}` : "No survivors"}
                   </Link>
-                  <span style={meta}>
+                  <span className={styles.dataMeta}>
                     {r.players} tributes · {r.turns} turns · {fmt(r.createdAt)}
                   </span>
                 </li>
@@ -231,10 +204,11 @@ export default async function DashboardPage() {
         </section>
 
         {/* --- Profile settings --- */}
-        <section className="paper-card" style={card} aria-label="Profile settings">
+        <section className={`paper-card ${styles.staticCard}`} style={card} aria-label="Profile settings">
           <h2 style={cardTitle}>Profile</h2>
           <p style={cardHint}>Account details and settings.</p>
           <dl
+            className={styles.profileDetails}
             style={{
               margin: 0,
               display: "grid",
@@ -269,18 +243,18 @@ export default async function DashboardPage() {
             ))}
           </dl>
           <p style={{ margin: "1rem 0 0" }}>
-            <Link href="/profile/edit">Edit profile →</Link>
+            <Link className={styles.inlineAction} href="/profile/edit">Edit profile →</Link>
           </p>
           {staff && (
             <p style={{ margin: "0.4rem 0 0" }}>
-              <Link href="/admin">Admin dashboard →</Link>
+              <Link className={styles.inlineAction} href="/admin">Admin dashboard →</Link>
             </p>
           )}
         </section>
       </div>
 
       {/* --- Trophy case --- */}
-      <section className="paper-card" style={{ ...card, marginTop: "1.25rem" }} aria-label="Trophy case">
+      <section className={`paper-card ${styles.staticCard}`} style={{ ...card, marginTop: "1.25rem" }} aria-label="Trophy case">
         <h2 style={cardTitle}>Trophy case</h2>
         <p style={cardHint}>
           {unlocked.size} of {ACHIEVEMENTS.length} unlocked. Hidden ones stay ??? until you stumble into them.
@@ -289,7 +263,7 @@ export default async function DashboardPage() {
           const defs = ACHIEVEMENTS.filter((a) => a.game === game);
           if (defs.length === 0) return null;
           return (
-            <div key={game} style={{ margin: "0 0 1rem" }}>
+            <div key={game} className={styles.achievementSection} style={{ margin: "0 0 1rem" }}>
               <h3
                 style={{
                   fontSize: "0.78rem",

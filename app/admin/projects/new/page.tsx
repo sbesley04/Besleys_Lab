@@ -1,16 +1,19 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/session";
 import ProjectForm from "../_components/ProjectForm";
+import styles from "../../_components/accountArea.module.css";
+
+export const metadata = { title: "New project — Admin" };
 
 export default async function NewProjectPage() {
   await requireStaff();
 
   return (
-    <main style={{ maxWidth: 720, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <Link href="/admin/projects" style={{ fontSize: "0.9rem" }}>
+    <main className={`${styles.page} ${styles.pageEditor} ${styles.accountPage}`}>
+      <Link href="/admin/projects" className={styles.backLink}>
         ← Projects
       </Link>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.4rem", margin: "0.5rem 0 1.5rem" }}>
+      <h1 className={`${styles.pageTitle} ${styles.pageTitleAfterBack}`}>
         New project
       </h1>
       <ProjectForm />

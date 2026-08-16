@@ -2,6 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/session";
 import UserForm from "../_components/UserForm";
+import styles from "../../_components/accountArea.module.css";
+
+export const metadata = { title: "New account — Admin" };
 
 // Create a new account (ADMIN only).
 export default async function NewUserPage() {
@@ -9,11 +12,11 @@ export default async function NewUserPage() {
   if (session.user.role !== "ADMIN") redirect("/admin");
 
   return (
-    <main style={{ maxWidth: 560, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <Link href="/admin/users" style={{ fontSize: "0.9rem" }}>
+    <main className={`${styles.page} ${styles.pageNarrow} ${styles.accountPage}`}>
+      <Link href="/admin/users" className={styles.backLink}>
         ← Accounts
       </Link>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.4rem", margin: "0.5rem 0 1.5rem" }}>
+      <h1 className={`${styles.pageTitle} ${styles.pageTitleAfterBack}`}>
         New account
       </h1>
       <UserForm />

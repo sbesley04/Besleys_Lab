@@ -24,8 +24,18 @@ export async function POST(req: NextRequest) {
 
   const name = typeof body.name === "string" ? body.name.trim().slice(0, 40) : "";
 
+  if (body.idx !== undefined && !Number.isInteger(body.idx)) {
+    return NextResponse.json({ error: "Bookcase index must be a whole number." }, { status: 400 });
+  }
+
   // Rename an existing case.
   if (Number.isInteger(body.idx)) {
+    if (body.idx < 0 || body.idx >= MAX_BOOKCASES) {
+      return NextResponse.json(
+        { error: `Bookcase must be between 0 and ${MAX_BOOKCASES - 1}.` },
+        { status: 400 },
+      );
+    }
     const bookcase = await prisma.bookcase.upsert({
       where: { idx: body.idx },
       update: { name },

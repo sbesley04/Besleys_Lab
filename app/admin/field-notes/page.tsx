@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/session";
 import FieldNotesManager from "./_components/FieldNotesManager";
+import styles from "../_components/accountArea.module.css";
 
 // Admin: manage the home page's "From the field notebook" photo strip.
 export const dynamic = "force-dynamic";
@@ -10,11 +11,11 @@ export default async function AdminFieldNotesPage() {
   await requireStaff();
 
   return (
-    <main style={{ maxWidth: 760, margin: "0 auto", padding: "4rem 1.5rem" }}>
-      <Link href="/admin" style={{ fontSize: "0.9rem" }}>
+    <main className={`${styles.page} ${styles.accountPage}`}>
+      <Link href="/admin" className={styles.backLink}>
         ← Admin
       </Link>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.4rem", margin: "0.5rem 0 0.25rem" }}>
+      <h1 className={styles.pageTitle} style={{ margin: "0.15rem 0 0.25rem" }}>
         Field notebook
       </h1>
       <p style={{ color: "var(--ink-soft)", margin: "0 0 1.75rem", fontSize: "0.92rem" }}>

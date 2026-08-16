@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireApiStaff } from "@/lib/api";
 import { slugify } from "@/lib/slug";
-import { bookProblems, SPINE_HEIGHT, SPINE_THICKNESS } from "@/lib/library";
+import { bookProblems, nextShelfPosition, SPINE_HEIGHT, SPINE_THICKNESS } from "@/lib/library";
 
 // Collection endpoints for library books.
 //   GET  /api/books → all books incl. unpublished (staff; the shelf manager)
@@ -35,11 +35,18 @@ export async function POST(req: NextRequest) {
   // New books land at the end of their shelf (in their bookcase).
   const bookcase = Number.isInteger(body.bookcase) ? body.bookcase : 0;
   const shelf = Number.isInteger(body.shelf) ? body.shelf : 0;
-  const last = await prisma.book.findFirst({
-    where: { bookcase, shelf },
-    orderBy: { position: "desc" },
-    select: { position: true },
-  });
+  const [lastBook, lastDecor] = await Promise.all([
+    prisma.book.findFirst({
+      where: { bookcase, shelf },
+      orderBy: { position: "desc" },
+      select: { position: true },
+    }),
+    prisma.shelfDecorItem.findFirst({
+      where: { bookcase, shelf },
+      orderBy: { position: "desc" },
+      select: { position: true },
+    }),
+  ]);
 
   try {
     const book = await prisma.book.create({
@@ -55,7 +62,7 @@ export async function POST(req: NextRequest) {
         design: body.design ?? "plain",
         bookcase,
         shelf,
-        position: (last?.position ?? -1) + 1,
+        position: nextShelfPosition(lastBook?.position, lastDecor?.position),
         published: body.published ?? true,
       },
     });

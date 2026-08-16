@@ -3,7 +3,17 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { renderMarkdown } from "@/lib/markdown";
-import { field, input, textarea, primaryButton, ghostButton, dangerButton } from "../../_components/formStyles";
+import {
+  field,
+  input,
+  textarea,
+  primaryButton,
+  ghostButton,
+  dangerButton,
+  errorText,
+  invalidControl,
+} from "../../_components/formStyles";
+import styles from "../../_components/accountArea.module.css";
 
 // Create/edit form for blog posts with a write/preview toggle, slug preview,
 // inline validation, and an explicit draft/publish choice. Talks to
@@ -89,6 +99,8 @@ export default function PostForm({ post }: { post?: PostInput }) {
 
   async function handleDelete() {
     if (!post?.id || !confirm("Delete this post? This cannot be undone.")) return;
+    setSaving(true);
+    setError(null);
     try {
       const res = await fetch(`/api/posts/${post.id}`, { method: "DELETE" });
       if (!res.ok) {
@@ -99,7 +111,17 @@ export default function PostForm({ post }: { post?: PostInput }) {
       router.refresh();
     } catch {
       setError("Network error — the post was not deleted.");
+    } finally {
+      setSaving(false);
     }
+  }
+
+  function handleTabKey(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === "ArrowLeft" || event.key === "Home" ? "write" : "preview";
+    setTab(next);
+    document.getElementById(`post-${next}-tab`)?.focus();
   }
 
   const tabBtn = (active: boolean): React.CSSProperties => ({
@@ -117,19 +139,22 @@ export default function PostForm({ post }: { post?: PostInput }) {
         e.preventDefault();
         void submit(form.published);
       }}
-      style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}
+      className={styles.form}
+      aria-busy={saving}
     >
       <label style={field}>
         Title *
         <input
-          style={{ ...input, ...(fieldErrors.title ? { borderColor: "#9b3a2f" } : {}) }}
+          style={{ ...input, ...(fieldErrors.title ? invalidControl : {}) }}
           value={form.title}
           onChange={(e) => set("title", e.target.value)}
           placeholder="What's the post about?"
           aria-invalid={Boolean(fieldErrors.title)}
+          aria-describedby={fieldErrors.title ? "post-title-error" : undefined}
+          required
         />
         {fieldErrors.title && (
-          <span role="alert" style={{ color: "#9b3a2f", fontWeight: 400 }}>
+          <span id="post-title-error" role="alert" style={{ ...errorText, fontWeight: 400 }}>
             {fieldErrors.title}
           </span>
         )}
@@ -170,13 +195,16 @@ export default function PostForm({ post }: { post?: PostInput }) {
       </label>
 
       <div style={field}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
-          <span>Body * <span style={{ fontWeight: 400 }}>(Markdown)</span></span>
-          <div style={{ display: "flex", gap: "0.4rem" }} role="tablist" aria-label="Editor mode">
+        <div className={styles.editorLabelRow}>
+          <label htmlFor="post-body">Body * <span style={{ fontWeight: 400 }}>(Markdown)</span></label>
+          <div className={styles.tabList} role="tablist" aria-label="Editor mode" onKeyDown={handleTabKey}>
             <button
               type="button"
               role="tab"
+              id="post-write-tab"
+              aria-controls="post-write-panel"
               aria-selected={tab === "write"}
+              tabIndex={tab === "write" ? 0 : -1}
               style={tabBtn(tab === "write")}
               onClick={() => setTab("write")}
             >
@@ -185,7 +213,10 @@ export default function PostForm({ post }: { post?: PostInput }) {
             <button
               type="button"
               role="tab"
+              id="post-preview-tab"
+              aria-controls="post-preview-panel"
               aria-selected={tab === "preview"}
+              tabIndex={tab === "preview" ? 0 : -1}
               style={tabBtn(tab === "preview")}
               onClick={() => setTab("preview")}
             >
@@ -194,37 +225,47 @@ export default function PostForm({ post }: { post?: PostInput }) {
           </div>
         </div>
 
-        {tab === "write" ? (
+        <div
+          id="post-write-panel"
+          role="tabpanel"
+          aria-labelledby="post-write-tab"
+          hidden={tab !== "write"}
+        >
           <textarea
-            style={{ ...textarea, ...(fieldErrors.body ? { borderColor: "#9b3a2f" } : {}) }}
+            id="post-body"
+            style={{ ...textarea, ...(fieldErrors.body ? invalidControl : {}) }}
             value={form.body}
             onChange={(e) => set("body", e.target.value)}
             placeholder={"## Heading\n\nWrite in markdown — **bold**, *italics*, code blocks, lists, links…"}
             aria-invalid={Boolean(fieldErrors.body)}
+            aria-describedby={fieldErrors.body ? "post-body-error" : undefined}
+            aria-required="true"
           />
-        ) : (
-          <div
-            className="paper-card prose"
-            style={{ padding: "1rem 1.25rem", minHeight: 240, background: "var(--paper)" }}
-            // Safe here: preview of the author's own markdown, same rendering
-            // path as the public post page.
-            dangerouslySetInnerHTML={{ __html: previewHtml }}
-          />
-        )}
+        </div>
+        <div
+          id="post-preview-panel"
+          role="tabpanel"
+          aria-labelledby="post-preview-tab"
+          hidden={tab !== "preview"}
+          className={`paper-card prose ${styles.previewPanel} ${styles.staticCard}`}
+          // Safe here: preview of the author's own markdown, same rendering
+          // path as the public post page.
+          dangerouslySetInnerHTML={{ __html: previewHtml }}
+        />
         {fieldErrors.body && (
-          <span role="alert" style={{ color: "#9b3a2f", fontWeight: 400 }}>
+          <span id="post-body-error" role="alert" style={{ ...errorText, fontWeight: 400 }}>
             {fieldErrors.body}
           </span>
         )}
       </div>
 
       {error && (
-        <p role="alert" style={{ color: "#9b3a2f", fontSize: "0.9rem", margin: 0 }}>
+        <p role="alert" style={{ ...errorText, fontSize: "0.9rem", margin: 0 }}>
           {error}
         </p>
       )}
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
+      <div className={styles.formActions}>
         <button
           type="button"
           style={primaryButton}
@@ -241,11 +282,11 @@ export default function PostForm({ post }: { post?: PostInput }) {
         >
           {form.published ? "Unpublish to draft" : "Save draft"}
         </button>
-        <button type="button" style={ghostButton} onClick={() => router.push("/admin/blog")}>
+        <button type="button" style={ghostButton} disabled={saving} onClick={() => router.push("/admin/blog")}>
           Cancel
         </button>
         {isEdit && (
-          <button type="button" style={{ ...dangerButton, marginLeft: "auto" }} onClick={handleDelete}>
+          <button type="button" className={styles.dangerPush} style={dangerButton} disabled={saving} onClick={handleDelete}>
             Delete
           </button>
         )}

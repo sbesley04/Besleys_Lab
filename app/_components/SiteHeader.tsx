@@ -21,13 +21,13 @@ function fmtUptime(s: number): string {
 // dropdown to authenticated users (with an Admin link for staff).
 
 const NAV = [
-  { href: "/blog", label: "Blog" },
-  { href: "/projects", label: "Projects" },
-  { href: "/lab", label: "Lab" },
-  { href: "/games", label: "Games" },
-  { href: "/library", label: "Library" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/blog", label: "Blog", description: "Notes & field reports" },
+  { href: "/projects", label: "Projects", description: "Selected work" },
+  { href: "/lab", label: "Lab", description: "Interactive ML" },
+  { href: "/games", label: "Games", description: "The arcade" },
+  { href: "/library", label: "Library", description: "Books & reviews" },
+  { href: "/about", label: "About", description: "Meet Samuel" },
+  { href: "/contact", label: "Contact", description: "Start a conversation" },
 ];
 
 export default function SiteHeader() {
@@ -35,7 +35,10 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const barRef = useRef<HTMLElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const navToggleRef = useRef<HTMLButtonElement>(null);
+  const profileButtonRef = useRef<HTMLButtonElement>(null);
 
   // Grid HUD: a live-ish telemetry readout that only exists on the Grid.
   const onGrid = useOnGrid();
@@ -51,9 +54,18 @@ export default function SiteHeader() {
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+      if (barRef.current && !barRef.current.contains(e.target as Node)) setNavOpen(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        if (navOpen) {
+          setNavOpen(false);
+          navToggleRef.current?.focus();
+        } else if (open) {
+          setOpen(false);
+          profileButtonRef.current?.focus();
+        }
+      }
     }
     document.addEventListener("mousedown", onClick);
     document.addEventListener("keydown", onKey);
@@ -61,41 +73,64 @@ export default function SiteHeader() {
       document.removeEventListener("mousedown", onClick);
       document.removeEventListener("keydown", onKey);
     };
-  }, []);
+  }, [navOpen, open]);
+
+  // The header persists between App Router navigations. Make sure a disclosure
+  // opened on one route cannot arrive open on the next one (including browser
+  // back/forward navigations that did not originate from one of our links).
+  useEffect(() => {
+    setOpen(false);
+    setNavOpen(false);
+  }, [pathname]);
 
   const user = session?.user;
   const isStaff = user?.role === "ADMIN" || user?.role === "EDITOR";
   const handle = user?.username || user?.name || user?.email || "";
   const initial = (user?.username || user?.name || user?.email || "?").charAt(0);
+  const currentSection = NAV.find(
+    (item) => pathname === item.href || pathname?.startsWith(`${item.href}/`),
+  );
 
   return (
-    <header className={styles.bar}>
-      <Link href="/" className={styles.brand}>
+    <header className={styles.bar} ref={barRef}>
+      <Link href="/" className={styles.brand} aria-label="Besley's Lab, home">
         Besley&rsquo;s Lab
       </Link>
 
       <button
+        ref={navToggleRef}
         type="button"
         className={styles.navToggle}
         aria-expanded={navOpen}
         aria-controls="primary-navigation"
-        onClick={() => setNavOpen((shown) => !shown)}
+        aria-label={`${navOpen ? "Close" : "Open"} primary navigation${currentSection ? `; current section: ${currentSection.label}` : ""}`}
+        onClick={() => {
+          setNavOpen((shown) => !shown);
+          setOpen(false);
+        }}
       >
-        {navOpen ? "Close" : "Menu"}
+        <span>{navOpen ? "Close" : "Menu"}</span>
+        {currentSection && <span className={styles.toggleSection}>{currentSection.label}</span>}
+        <span className={`${styles.toggleChevron} ${navOpen ? styles.toggleChevronOpen : ""}`} aria-hidden="true">
+          ⌄
+        </span>
       </button>
 
       <nav id="primary-navigation" className={`${styles.nav} ${navOpen ? styles.navOpen : ""}`} aria-label="Primary">
+        <span className={styles.navIntro} aria-hidden="true">Explore the lab</span>
         {NAV.map((item) => {
           const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+          const exact = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
               className={active ? styles.navLinkActive : styles.navLink}
-              aria-current={active ? "page" : undefined}
+              aria-current={active ? (exact ? "page" : "location") : undefined}
               onClick={() => setNavOpen(false)}
             >
-              {item.label}
+              <span className={styles.navLabel}>{item.label}</span>
+              <span className={styles.navDescription}>{item.description}</span>
             </Link>
           );
         })}
@@ -112,39 +147,48 @@ export default function SiteHeader() {
             UP {fmtUptime(uptime)}
           </span>
         )}
-        {status === "loading" ? null : user ? (
+        {status === "loading" ? (
+          <span className={styles.accountPlaceholder} aria-hidden="true">
+            <span />
+            <i />
+          </span>
+        ) : user ? (
           <div className={styles.profileWrap} ref={wrapRef}>
             <button
+              ref={profileButtonRef}
               type="button"
               className={styles.profileButton}
-              onClick={() => setOpen((o) => !o)}
-              aria-haspopup="menu"
+              onClick={() => {
+                setOpen((o) => !o);
+                setNavOpen(false);
+              }}
               aria-expanded={open}
+              aria-controls="account-navigation"
+              aria-label={`${open ? "Close" : "Open"} account menu for ${handle}`}
             >
-              <span className={styles.avatar}>{initial}</span>
+              <span className={styles.avatar} aria-hidden="true">{initial}</span>
               <span className={styles.handle}>{handle}</span>
             </button>
 
             {open && (
-              <div className={styles.menu} role="menu">
+              <div className={styles.menu} id="account-navigation">
                 <div className={styles.menuHeader}>
                   <div className={styles.menuName}>{user.username || user.name || "Account"}</div>
                   <div className={styles.menuMeta}>{user.email}</div>
                   <span className={styles.roleTag}>{user.role}</span>
                 </div>
 
-                <Link href="/profile" className={styles.menuItem} role="menuitem" onClick={() => setOpen(false)}>
+                <Link href="/profile" className={styles.menuItem} onClick={() => setOpen(false)}>
                   Dashboard
                 </Link>
                 {isStaff && (
-                  <Link href="/admin" className={styles.menuItem} role="menuitem" onClick={() => setOpen(false)}>
+                  <Link href="/admin" className={styles.menuItem} onClick={() => setOpen(false)}>
                     Admin
                   </Link>
                 )}
                 <button
                   type="button"
                   className={styles.menuItem}
-                  role="menuitem"
                   onClick={() => signOut({ callbackUrl: "/" })}
                 >
                   Sign out
@@ -161,7 +205,8 @@ export default function SiteHeader() {
               Sign in
             </Link>
             <Link href="/signup" className={styles.signupLink}>
-              Create account
+              <span className={styles.signupFull}>Create account</span>
+              <span className={styles.signupShort}>Sign up</span>
             </Link>
           </>
         )}

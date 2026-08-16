@@ -4,8 +4,10 @@ import { requireStaff } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { canEditContent } from "@/lib/validation";
 import ProjectForm from "../_components/ProjectForm";
+import styles from "../../_components/accountArea.module.css";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Edit project — Admin" };
 
 export default async function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,11 +18,11 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
   if (!canEditContent(session.user.role, session.user.id, project.authorId)) notFound();
 
   return (
-    <main style={{ maxWidth: 720, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <Link href="/admin/projects" style={{ fontSize: "0.9rem" }}>
+    <main className={`${styles.page} ${styles.pageEditor} ${styles.accountPage}`}>
+      <Link href="/admin/projects" className={styles.backLink}>
         ← Projects
       </Link>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.4rem", margin: "0.5rem 0 1.5rem" }}>
+      <h1 className={`${styles.pageTitle} ${styles.pageTitleAfterBack}`}>
         Edit project
       </h1>
       <ProjectForm
