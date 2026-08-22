@@ -757,8 +757,11 @@ body {
   display: flex;
   flex-direction: column;
 }
+/* Only the vertical half of the sticky-footer job belongs here. Setting
+   `width: 100%` would out-specify every page module's own `width: min(100%,
+   Npx)` cap ((0,1,1) beats (0,1,0)) and stretch /lab, /games, /blog and friends
+   edge to edge; the flex column already stretches an auto-width main for us. */
 .site-content > main {
-  width: 100%;
   flex: 1 0 auto;
 }
 

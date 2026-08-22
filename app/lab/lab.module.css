@@ -126,6 +126,13 @@
 }
 
 .stage {
+  /* Widest coordinate space any demo draws into (see the per-demo W consts:
+     340–520). Plots stretch to fill their container, so on a desktop the page
+     used to blow a 520x400 plot up to ~810x623 — taller than the fold, which
+     pushed every control out of sight. Capping at the native width keeps the
+     canvas demos pixel-crisp and the whole demo on one screen; a demo that
+     genuinely wants a bigger stage can raise --plot-max locally. */
+  --plot-max: 520px;
   background:
     linear-gradient(145deg, color-mix(in srgb, var(--paper-deep) 92%, var(--paper)), var(--paper-deep));
   border: 1px solid var(--line);
@@ -145,18 +152,27 @@
   position: relative;
   flex: 1 1 340px;
   min-width: 0;
+  max-width: var(--plot-max, 520px);
+  margin-inline: auto;
 }
 .plotCanvas {
+  /* `width: auto` renders the bitmap at its own backing-store size, so a canvas
+     is never upscaled into a blurry, oversized block; it still shrinks to fit a
+     narrow column. */
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: min(100%, var(--plot-max, 520px));
   height: auto;
+  margin-inline: auto;
   background: var(--paper);
   border-radius: 4px;
 }
 .plotSvg {
   display: block;
   width: 100%;
+  max-width: var(--plot-max, 520px);
   height: auto;
+  margin-inline: auto;
   border-radius: 4px;
   overflow: visible;
   touch-action: pan-y;

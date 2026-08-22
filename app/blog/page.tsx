@@ -9,7 +9,7 @@ import styles from "./blog.module.css";
 // cover thumbnails. Server Component; drafts never reach this query.
 export const metadata = {
   title: "Blog",
-  description: "Notes on data, models, and building things from Samuel Besley's working notebook.",
+  description: "Some of the work I've done in writing and a space for new thoughts",
 };
 
 export const dynamic = "force-dynamic";

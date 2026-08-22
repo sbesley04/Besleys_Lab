@@ -29,9 +29,8 @@ export default function LabPage() {
         <p className={styles.eyebrow}>Experiments bench</p>
         <h1 className={styles.pageTitle}>The Lab</h1>
         <p className={styles.intro}>
-          Machine learning you can poke at. Every demo runs locally in your browser — no
-          server-side simulation and nothing pre-recorded. Change one thing, then watch the math
-          respond.
+          A few of my favorite concepts from my courses at emory and self study, with an attempt to make them intuitive
+          to share with other people learning them!
         </p>
       </header>
 
