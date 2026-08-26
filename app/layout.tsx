@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import Link from "next/link";
 import Script from "next/script";
 import { Playfair_Display, Inter, Caveat, Michroma, IBM_Plex_Mono } from "next/font/google";
