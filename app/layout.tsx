@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next";
 import Link from "next/link";
 import Script from "next/script";
 import { Playfair_Display, Inter, Caveat, Michroma, IBM_Plex_Mono } from "next/font/google";
@@ -16,6 +15,7 @@ import "./globals.css";
 // Grid-only global styles (scoped under :root[data-egg='tron']).
 import "./_styles/grid-motion.css";
 import "./_styles/grid-hud.css";
+import { Analytics } from "@vercel/analytics/next";
 
 // next/font self-hosts the fonts and exposes them as CSS variables that
 // globals.css references (--font-display / --font-body / --font-hand).
@@ -152,6 +152,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SecretTerminal />
           <HyperspaceJump />
         </Providers>
+        <Analytics />
       </body>
     </html>
   );

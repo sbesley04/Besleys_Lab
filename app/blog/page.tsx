@@ -33,7 +33,7 @@ export default async function BlogIndex() {
     <main className={styles.page}>
       <h1 className={styles.pageTitle}>Blog</h1>
       <p className={styles.intro}>
-        Notes on data, models, and building things — written up as I learn them.
+        Some of the work I've done in writing and a space for new thoughts
       </p>
 
       {posts === null ? (
