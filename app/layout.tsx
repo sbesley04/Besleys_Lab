@@ -138,6 +138,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <Link href="/about">About</Link>
                   <Link href="/contact">Contact</Link>
                   <Link href="/resume">Resume</Link>
+                  <Link href="/privacy">Privacy</Link>
                   <a href="https://github.com/sbesley04" target="_blank" rel="noopener noreferrer">
                     GitHub<span aria-hidden="true"> ↗</span>
                     <span className="sr-only"> (opens in a new tab)</span>

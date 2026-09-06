@@ -64,3 +64,39 @@ export async function PATCH(req: NextRequest) {
     throw err;
   }
 }
+
+// Self-service account deletion, backing the "delete your data on request"
+// promise in the privacy policy. Requires the current password as
+// confirmation. Restricted to plain USER accounts: EDITOR/ADMIN are the
+// site's staff, may own Post/Project rows (which aren't cascade-deleted —
+// see schema), and losing the only admin would lock the site's owner out.
+// Staff account removal stays an admin-only action via /api/users/[id].
+export async function DELETE(req: NextRequest) {
+  const auth = await requireApiSession();
+  if (auth instanceof NextResponse) return auth;
+
+  const me = await prisma.user.findUnique({ where: { id: auth.user.id } });
+  if (!me) return NextResponse.json({ error: "Account not found." }, { status: 404 });
+
+  if (me.role !== "USER") {
+    return NextResponse.json(
+      { error: "Staff accounts can't be self-deleted — contact the site admin." },
+      { status: 403 },
+    );
+  }
+
+  const body = await req.json().catch(() => null);
+  const password = String(body?.password ?? "").trim();
+  const passwordOk =
+    (await bcrypt.compare(password, me.passwordHash)) ||
+    (await bcrypt.compare(String(body?.password ?? ""), me.passwordHash));
+  if (!passwordOk) {
+    return NextResponse.json({ error: "Password is incorrect." }, { status: 400 });
+  }
+
+  // Cascades to Account, Session, GameSave, Roster, SimulationRun,
+  // BookReview, Achievement, and GameResult rows (all `onDelete: Cascade`
+  // in schema.prisma) — nothing further to clean up by hand.
+  await prisma.user.delete({ where: { id: me.id } });
+  return NextResponse.json({ ok: true });
+}
