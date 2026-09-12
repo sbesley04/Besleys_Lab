@@ -4,15 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { field, input, textarea, primaryButton, ghostButton, dangerButton, errorText } from "../../_components/formStyles";
 import styles from "../../_components/accountArea.module.css";
-import { Spine } from "@/app/library/_components/BookSpine";
+import { ShelfItem } from "@/app/library/_components/BookSpine";
 import {
   BOOK_DESIGNS,
   BOOK_DESIGN_LABELS,
+  DESIGN_PRESETS,
+  PERIODICAL_DESIGNS,
+  LABEL_MAX_LENGTH,
   SPINE_HEIGHT,
   SPINE_THICKNESS,
   MAX_SHELVES,
   MAX_BOOKCASES,
   bookProblems,
+  isPeriodical,
   type BookDesign,
 } from "@/lib/library";
 
@@ -30,6 +34,8 @@ export interface BookInputForm {
   height: number;
   thickness: number;
   design: string;
+  label: string;
+  faceOut: boolean;
   bookcase: number;
   shelf: number;
   published: boolean;
@@ -45,6 +51,8 @@ const empty: BookInputForm = {
   height: SPINE_HEIGHT.default,
   thickness: SPINE_THICKNESS.default,
   design: "plain",
+  label: "",
+  faceOut: false,
   bookcase: 0,
   shelf: 0,
   published: true,
@@ -56,9 +64,16 @@ export default function BookForm({ book }: { book?: BookInputForm }) {
   const [form, setForm] = useState<BookInputForm>(book ?? empty);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const periodical = isPeriodical(form.design);
 
   function set<K extends keyof BookInputForm>(key: K, value: BookInputForm[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  // Picking a design also applies its starting proportions — a stapled paper
+  // and a hardback are not the same object. Sliders still override it after.
+  function setDesign(design: string) {
+    setForm((f) => ({ ...f, design, ...(DESIGN_PRESETS[design as BookDesign] ?? {}) }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -139,7 +154,7 @@ export default function BookForm({ book }: { book?: BookInputForm }) {
         {/* --- Spine design --- */}
         <fieldset style={{ border: "1px solid var(--line)", borderRadius: 6, padding: "1rem 1.1rem", display: "grid", gap: "0.9rem" }}>
           <legend style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--ink-soft)", padding: "0 0.4rem" }}>
-            Spine design
+            Binding &amp; display
           </legend>
 
           <label style={{ ...field, flexDirection: "row", alignItems: "center", gap: "0.75rem" }}>
@@ -180,13 +195,43 @@ export default function BookForm({ book }: { book?: BookInputForm }) {
 
           <label style={field}>
             Design
-            <select style={{ ...input, width: "auto" }} value={form.design} onChange={(e) => set("design", e.target.value)}>
-              {BOOK_DESIGNS.map((d) => (
-                <option key={d} value={d}>
-                  {BOOK_DESIGN_LABELS[d as BookDesign]}
-                </option>
-              ))}
+            <select style={{ ...input, width: "auto" }} value={form.design} onChange={(e) => setDesign(e.target.value)}>
+              <optgroup label="Books">
+                {BOOK_DESIGNS.filter((d) => !isPeriodical(d)).map((d) => (
+                  <option key={d} value={d}>
+                    {BOOK_DESIGN_LABELS[d as BookDesign]}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Journals &amp; papers">
+                {PERIODICAL_DESIGNS.map((d) => (
+                  <option key={d} value={d}>
+                    {BOOK_DESIGN_LABELS[d as BookDesign]}
+                  </option>
+                ))}
+              </optgroup>
             </select>
+          </label>
+
+          <label style={field}>
+            Issue line{" "}
+            <span style={{ fontWeight: 400 }}>
+              (optional — the plate at the foot of the spine, e.g. &ldquo;Vol. 12 &middot; No. 3&rdquo; or
+              &ldquo;arXiv:2405.00123&rdquo;)
+            </span>
+            <input
+              style={input}
+              value={form.label}
+              maxLength={LABEL_MAX_LENGTH}
+              onChange={(e) => set("label", e.target.value)}
+              placeholder={periodical ? "Vol. 12 · No. 3" : "1st ed."}
+            />
+          </label>
+
+          <label className={styles.checkboxRow}>
+            <input type="checkbox" checked={form.faceOut} onChange={(e) => set("faceOut", e.target.checked)} />
+            Stand it cover-out{" "}
+            <span style={{ fontWeight: 400 }}>(face forward, the way a magazine is displayed)</span>
           </label>
 
           <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap" }}>
@@ -270,28 +315,32 @@ export default function BookForm({ book }: { book?: BookInputForm }) {
       </div>
 
       {/* --- Live preview --- */}
-      <div className={styles.bookPreview} role="img" aria-label="Live book spine preview">
+      <div className={styles.bookPreview} role="img" aria-label="Live preview of the book on the shelf">
         <p style={{ fontSize: "0.8rem", color: "var(--ink-soft)", margin: "0 0 0.75rem" }}>Preview</p>
         <div
           style={{
             display: "flex",
             alignItems: "flex-end",
             justifyContent: "center",
-            padding: "1rem 1.5rem 0",
+            padding: "1rem 0.9rem 0",
+            overflow: "hidden",
             background: "linear-gradient(90deg, #5d4a35, #4c3c2b 50%, #5d4a35)",
             borderRadius: "6px 6px 0 0",
             minHeight: 250,
           }}
         >
-          <Spine
+          <ShelfItem
+            scale={form.faceOut ? 0.78 : 1}
             book={{
               slug: "preview",
               title: form.title || "Untitled",
-              author: form.author || "Author",
+              author: form.author || (periodical ? "Journal" : "Author"),
               color: form.color,
               height: form.height,
               thickness: form.thickness,
               design: form.design,
+              label: form.label,
+              faceOut: form.faceOut,
             }}
           />
         </div>

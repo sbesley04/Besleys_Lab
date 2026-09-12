@@ -1,0 +1,195 @@
+Attributes: StaticText, 0x103237d40, {{19.5, 337.5}, {363.0, 284.3}}, identifier: 'vote.card', label: 'Little Olive. Mediterranean bowls · vegetarian choices. 18 dollars per person. 8 minutes away. Use the preference buttons below.'
+Element subtree:
+ →StaticText, 0x103237d40, {{19.5, 337.5}, {363.0, 284.3}}, identifier: 'vote.card', label: 'Little Olive. Mediterranean bowls · vegetarian choices. 18 dollars per person. 8 minutes away. Use the preference buttons below.'
+Path to element:
+ →Application, 0x107e2e800, pid: 84531, label: 'Gather'
+  ↳Window, 0x107e2d7c0, {{0.0, 0.0}, {402.0, 874.0}}
+   ↳Other, 0x107e2e1c0, {{0.0, 0.0}, {402.0, 874.0}}
+    ↳Other, 0x107e2f200, {{0.0, 62.0}, {402.0, 812.0}}
+     ↳Other, 0x107e2f340, {{0.0, 62.0}, {402.0, 812.0}}
+      ↳Other, 0x107e2f480, {{0.0, 62.0}, {402.0, 812.0}}
+       ↳Other, 0x107e2c500, {{0.0, 62.0}, {402.0, 812.0}}
+        ↳Other, 0x107e2de00, {{0.0, 62.0}, {402.0, 812.0}}
+         ↳Other, 0x107e2df40, {{0.0, 62.0}, {402.0, 812.0}}
+          ↳Other, 0x107e2e080, {{0.0, 62.0}, {402.0, 812.0}}
+           ↳Other, 0x107e2d680, {{0.0, 62.0}, {402.0, 812.0}}
+            ↳Other, 0x107e2ebc0, {{0.0, 62.0}, {402.0, 812.0}}
+             ↳Other, 0x107e2e300, {{0.0, 62.0}, {402.0, 812.0}}
+              ↳ScrollView, 0x103237980, {{0.0, 62.0}, {402.0, 812.0}}
+               ↳Other, 0x103237c00, {{0.0, 106.0}, {402.0, 734.0}}
+                ↳StaticText, 0x103237d40, {{19.5, 337.5}, {363.0, 284.3}}, identifier: 'vote.card', label: 'Little Olive. Mediterranean bowls · vegetarian choices. 18 dollars per person. 8 minutes away. Use the preference buttons below.'
+Query chain:
+ →Find: Target Application 'com.besleyslab.gather'
+  Output: {
+    Application, 0x115065180, pid: 84531, label: 'Gather'
+  }
+  ↪︎Find: Descendants matching type Any
+    Output: {
+      Window (Main), 0x11502c500, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11502c640, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11505f340, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11502c780, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11505f480, {{-402.0, -874.0}, {1206.0, 2622.0}}
+      Other, 0x11505f5c0, {{0.0, 62.0}, {402.0, 812.0}}
+      Other, 0x11502c8c0, {{-402.0, -874.0}, {1206.0, 2622.0}}
+      Other, 0x11502ca00, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11505f700, {{0.0, 62.0}, {402.0, 812.0}}
+      Other, 0x11502cb40, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11505f840, {{0.0, 62.0}, {402.0, 812.0}}
+      Other, 0x11502cc80, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11505f980, {{0.0, 62.0}, {402.0, 812.0}}
+      NavigationBar, 0x11502cdc0, {{0.0, 62.0}, {402.0, 54.0}}, identifier: '_TtGC7SwiftUI29PresentationHosting'
+      Other, 0x11502d680, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11505f0c0, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11505fac0, {{0.0, 62.0}, {402.0, 812.0}}
+      Button, 0x11502cf00, {{16.0, 62.0}, {44.0, 44.0}}, identifier: 'BackButton', label: 'Gather'
+      Other, 0x11502d040, {{346.0, 66.0}, {36.0, 36.0}}, label: 'Decision options'
+      Other, 0x11502d7c0, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11505f200, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11505fc00, {{0.0, 62.0}, {402.0, 812.0}}
+      Other, 0x11502d180, {{346.0, 66.0}, {36.0, 36.0}}
+      Other, 0x11502d900, {{0.0, 0.0}, {402.0, 874.0}}
+      NavigationBar, 0x11505fd40, {{0.0, 78.0}, {402.0, 54.0}}, identifier: 'Your preferences'
+      Other, 0x1150603c0, {{0.0, 62.0}, {402.0, 812.0}}
+      Other, 0x115064f00, {{0.0, 62.0}, {402.0, 812.0}}
+      Button, 0x11502d2c0, {{349.0, 66.0}, {30.0, 36.0}}, label: 'Decision options'
+      Other, 0x11502da40, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11505fe80, {{20.0, 82.0}, {67.0, 36.0}}, identifier: 'vote.close', label: 'Close'
+      StaticText, 0x115060280, {{132.7, 89.7}, {136.3, 20.7}}, label: 'Your preferences'
+      Other, 0x115060500, {{0.0, 62.0}, {402.0, 812.0}}
+      Other, 0x115065040, {{0.0, 62.0}, {402.0, 812.0}}
+      Button, 0x11502d400, {{349.0, 66.0}, {30.0, 36.0}}
+      ScrollView, 0x11502db80, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x115060000, {{20.0, 82.0}, {67.0, 36.0}}
+      Other, 0x115060640, {{0.0, 62.0}, {402.0, 812.0}}
+      Image, 0x11502d540, {{353.0, 73.0}, {22.0, 22.0}}, identifier: 'ellipsis.circle', label: 'More'
+      Other, 0x11502dcc0, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11502df40, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11502e080, {{0.0, 116.0}, {402.0, 1908.3}}
+      Other, 0x11505ebc0, {{369.0, 116.0}, {30.0, 696.0}}, label: 'Vertical scroll bar, 3 pages', value: 0%
+      Button, 0x115060140, {{20.0, 82.0}, {67.0, 36.0}}, identifier: 'vote.close', label: 'Close'
+      Other, 0x115060780, {{0.0, 62.0}, {402.0, 812.0}}
+      Other, 0x11502de00, {{0.0, 0.0}, {402.0, 170.8}}
+      Image, 0x11502e1c0, {{33.7, 149.0}, {15.7, 19.0}}, identifier: 'demo.banner', label: 'Sparkle'
+      StaticText, 0x11502e300, {{59.0, 151.3}, {221.7, 14.3}}, identifier: 'demo.banner', label: 'Demo · sample friends, places & votes'
+      Image, 0x11502e440, {{31.3, 210.3}, {17.7, 12.0}}, identifier: 'person.2', label: 'person.2'
+      StaticText, 0x11502e580, {{54.7, 209.0}, {76.0, 14.3}}, label: 'You organize'
+      StaticText, 0x11502e6c0, {{20.0, 239.3}, {207.0, 40.7}}, label: 'Friday dinner'
+      StaticText, 0x11502e800, {{20.0, 290.0}, {362.0, 38.0}}, label: 'Around 7 pm · keep it under $30 per person. Sample places for exploring Gather.'
+      Button, 0x11502e940, {{20.0, 350.0}, {362.0, 53.3}}, identifier: 'vote.start', label: 'Swipe your preferences'
+      StaticText, 0x11502ed00, {{38.0, 443.3}, {81.3, 20.3}}, label: 'The group'
+      StaticText, 0x11502ee40, {{341.0, 444.5}, {23.0, 18.0}}, label: '3/5'
+      ProgressIndicator, 0x11502ef80, {{38.0, 475.7}, {326.0, 4.0}}, value: 60%
+      StaticText, 0x11502f200, {{38.0, 491.7}, {25.7, 18.0}}, label: 'You'
+      StaticText, 0x11502f340, {{300.7, 493.5}, {63.3, 14.3}}, label: 'Waiting'
+      StaticText, 0x11502f480, {{38.0, 521.7}, {36.3, 18.0}}, label: 'Maya'
+      StaticText, 0x11502f5c0, {{279.0, 523.5}, {85.0, 14.3}}, label: 'Responded'
+      StaticText, 0x11502f700, {{38.0, 551.7}, {47.3, 18.0}}, label: 'Jordan'
+      StaticText, 0x11502f840, {{279.0, 553.5}, {85.0, 14.3}}, label: 'Responded'
+      StaticText, 0x11502f980, {{38.0, 581.7}, {29.3, 18.0}}, label: 'Alex'
+      StaticText, 0x11502fac0, {{279.0, 583.5}, {85.0, 14.3}}, label: 'Responded'
+      StaticText, 0x11502fc00, {{38.0, 611.7}, {30.3, 18.0}}, label: 'Sam'
+      StaticText, 0x11502fd40, {{300.7, 613.5}, {63.3, 14.3}}, label: 'Waiting'
+      StaticText, 0x11502fe80, {{38.0, 641.7}, {303.3, 46.3}}, label: 'Pass your phone around for local voting, or exchange files. Names are self-selected; files are intended for people you trust.'
+      Button, 0x11505c000, {{19.5, 727.5}, {363.0, 48.0}}, identifier: 'invitation.share', label: 'Send invitation file'
+      StaticText, 0x11505c3c0, {{20.0, 797.0}, {351.0, 69.7}}, label: 'Friends open the .gather attachment in Gather, vote, then send a response file back. Import their replies from the home screen. Files do not sync automatically; there is no web voting page.'
+      StaticText, 0x11505c500, {{20.0, 888.7}, {115.0, 14.3}}, label: 'EARLY RESULTS'
+      StaticText, 0x11505c640, {{20.0, 915.0}, {360.3, 18.0}}, label: 'Still waiting for You, Sam. These results may change.'
+      StaticText, 0x11505c780, {{38.0, 963.0}, {24.3, 24.0}}, label: '01'
+      StaticText, 0x11505c8c0, {{70.3, 963.0}, {84.3, 20.3}}, label: 'Little Olive'
+      StaticText, 0x11505ca00, {{70.3, 988.3}, {163.3, 14.3}}, label: '3 of 3 lean yes · 2 strong yes'
+      StaticText, 0x11505cb40, {{39.0, 1014.7}, {242.7, 14.3}}, label: 'No strong objections among responses'
+      Button, 0x11505cc80, {{37.5, 1040.5}, {327.0, 45.0}}, identifier: 'result.choose.0', label: 'Choose this plan'
+      StaticText, 0x11505cdc0, {{38.0, 1133.0}, {24.3, 24.0}}, label: '02'
+      StaticText, 0x11505cf00, {{70.3, 1133.0}, {97.3, 20.3}}, label: 'Corner Slice'
+      StaticText, 0x11505d040, {{70.3, 1158.3}, {161.7, 14.3}}, label: '3 of 3 lean yes · 1 strong yes'
+      StaticText, 0x11505d180, {{39.0, 1184.7}, {242.7, 14.3}}, label: 'No strong objections among responses'
+      Button, 0x11505d2c0, {{37.5, 1210.5}, {327.0, 45.0}}, identifier: 'result.choose.1', label: 'Choose this plan'
+      StaticText, 0x11505d400, {{38.0, 1303.0}, {24.3, 24.0}}, label: '03'
+      StaticText, 0x11505d540, {{70.3, 1303.0}, {105.0, 20.3}}, label: 'Garden Table'
+      StaticText, 0x11505d680, {{70.3, 1328.3}, {161.7, 14.3}}, label: '1 of 3 lean yes · 0 strong yes'
+      StaticText, 0x11505d7c0, {{39.0, 1354.7}, {242.7, 14.3}}, label: 'No strong objections among responses'
+      Button, 0x11505d900, {{37.5, 1380.5}, {327.0, 45.0}}, identifier: 'result.choose.2', label: 'Choose this plan'
+      StaticText, 0x11505da40, {{20.0, 1455.0}, {359.3, 46.3}}, label: 'Ranked by fewer strong objections, then more yes votes, then preference intensity. Ties use alphabetical order. The organizer makes the final call.'
+      StaticText, 0x11505db80, {{20.0, 1523.3}, {116.0, 14.3}}, label: 'THE SHORTLIST'
+      StaticText, 0x11505dcc0, {{38.0, 1567.7}, {84.3, 20.3}}, label: 'Little Olive'
+      StaticText, 0x11505de00, {{38.0, 1596.0}, {284.7, 18.0}}, label: 'Mediterranean bowls · vegetarian choices'
+      StaticText, 0x11505df40, {{38.7, 1622.0}, {180.7, 14.3}}, label: '$18 per person · 8 min away'
+      StaticText, 0x11505e080, {{38.0, 1684.3}, {112.0, 20.3}}, label: 'Noodle House'
+      StaticText, 0x11505e1c0, {{38.0, 1712.7}, {267.0, 18.0}}, label: 'Ramen & rice bowls · lively dining room'
+      StaticText, 0x11505e300, {{38.7, 1738.7}, {187.0, 14.3}}, label: '$22 per person · 12 min away'
+      StaticText, 0x11505e440, {{38.0, 1801.0}, {97.3, 20.3}}, label: 'Corner Slice'
+      StaticText, 0x11505e580, {{38.0, 1829.3}, {229.7, 18.0}}, label: 'Pizza to share · walk-ins welcome'
+      StaticText, 0x11505e6c0, {{38.7, 1855.3}, {180.3, 14.3}}, label: '$14 per person · 5 min away'
+      StaticText, 0x11505e800, {{38.0, 1917.7}, {105.0, 20.3}}, label: 'Garden Table'
+      StaticText, 0x11505e940, {{38.0, 1946.0}, {213.3, 18.0}}, label: 'Seasonal plates · quieter space'
+      StaticText, 0x11505ea80, {{38.7, 1972.0}, {188.0, 14.3}}, label: '$28 per person · 18 min away'
+      Other, 0x11505ed00, {{396.0, 119.0}, {3.0, 295.7}}
+      ScrollView, 0x1150608c0, {{0.0, 62.0}, {402.0, 812.0}}
+      Image, 0x11502ea80, {{93.0, 366.3}, {22.0, 20.7}}, identifier: 'hand.draw', label: 'hand.draw'
+      StaticText, 0x11502ebc0, {{93.0, 366.3}, {217.3, 20.7}}, label: 'Swipe your preferences'
+      ProgressIndicator, 0x11502f0c0, {{38.0, 465.7}, {326.0, 24.0}}, value: 60%
+      Image, 0x11505c140, {{124.0, 742.3}, {13.7, 18.3}}, identifier: 'square.and.arrow.up', label: 'Share'
+      StaticText, 0x11505c280, {{124.0, 742.3}, {156.0, 19.3}}, label: 'Send invitation file'
+      Other, 0x115060a00, {{0.0, 62.0}, {402.0, 812.0}}
+      Other, 0x115060c80, {{0.0, 62.0}, {402.0, 812.0}}
+      Other, 0x115061a40, {{0.0, 106.0}, {402.0, 734.0}}
+      Other, 0x115064a00, {{369.0, 132.0}, {30.0, 680.0}}, label: 'Vertical scroll bar, 2 pages', value: 100%
+      Other, 0x115060b40, {{0.0, 62.0}, {402.0, 124.8}}
+      Other, 0x115060dc0, {{0.0, 62.0}, {402.0, 124.8}}
+      Image, 0x115061b80, {{33.7, 139.0}, {15.7, 19.0}}, identifier: 'demo.banner', label: 'Sparkle'
+      StaticText, 0x115061cc0, {{59.0, 141.3}, {221.7, 14.3}}, identifier: 'demo.banner', label: 'Demo · sample friends, places & votes'
+      StaticText, 0x115061e00, {{20.0, 191.0}, {38.7, 26.3}}, label: 'You'
+      StaticText, 0x115061f40, {{341.7, 195.2}, {40.3, 18.0}}, label: '1 of 4'
+      ProgressIndicator, 0x115062080, {{20.0, 235.3}, {362.0, 4.0}}, label: 'Voting progress', value: 0%
+      StaticText, 0x115062300, {{20.0, 257.3}, {359.0, 30.3}}, label: 'Around 7 pm · keep it under $30 per person. Sample places for exploring Gather.'
+      StaticText, 0x115062440, {{155.5, 305.7}, {91.0, 14.3}}, label: '↑ STRONG YES'
+      StaticText, 0x115062580, {{19.5, 337.5}, {363.0, 284.3}}, identifier: 'vote.card', label: 'Little Olive. Mediterranean bowls · vegetarian choices. 18 dollars per person. 8 minutes away. Use the preference buttons below.'
+      StaticText, 0x115063340, {{158.0, 639.3}, {86.0, 14.3}}, label: '↓ STRONG NO'
+      Other, 0x115063480, {{19.5, 671.2}, {363.0, 107.0}}
+      Button, 0x115064500, {{20.0, 799.7}, {69.3, 20.3}}, identifier: 'vote.undo', label: 'Undo', Disabled
+      StaticText, 0x1150648c0, {{210.0, 802.7}, {172.0, 14.3}}, label: 'Swipe the card or tap a choice'
+      Other, 0x115064b40, {{396.0, 156.0}, {3.0, 653.0}}
+      Image, 0x115060f00, {{-120.0, -58.0}, {642.0, 240.0}}, identifier: 'AdditionalDimmingOverlay'
+      Other, 0x115061040, {{0.0, 62.0}, {402.0, 60.0}}
+      Other, 0x115061180, {{0.0, 62.0}, {402.0, 124.8}}
+      Other, 0x115061400, {{0.0, 62.0}, {402.0, 124.8}}
+      Other, 0x115061680, {{0.0, 62.0}, {402.0, 124.8}}
+      ProgressIndicator, 0x1150621c0, {{20.0, 225.3}, {362.0, 24.0}}, value: 0%
+      Image, 0x1150626c0, {{40.7, 372.7}, {27.3, 33.7}}, identifier: 'mappin.and.ellipse', label: 'Remove Map Pin'
+      StaticText, 0x115062800, {{305.0, 382.3}, {49.0, 14.3}}, label: 'Option 1'
+      StaticText, 0x115062940, {{38.0, 427.0}, {148.3, 36.0}}, label: 'Little Olive'
+      StaticText, 0x115062a80, {{38.0, 481.0}, {316.0, 20.3}}, label: 'Mediterranean bowls · vegetarian choices'
+      Image, 0x115062bc0, {{39.3, 540.0}, {15.0, 15.0}}, identifier: 'dollarsign.circle', label: 'dollarsign.circle'
+      StaticText, 0x115062d00, {{39.3, 538.3}, {101.3, 18.0}}, label: '$18/person'
+      Image, 0x115062e40, {{304.7, 538.7}, {11.0, 17.3}}, identifier: 'figure.walk', label: 'Walk'
+      StaticText, 0x115062f80, {{304.7, 538.3}, {59.3, 18.0}}, label: '8 min'
+      StaticText, 0x1150630c0, {{38.0, 575.0}, {64.0, 14.3}}, label: '← Weak no'
+      StaticText, 0x115063200, {{294.7, 575.0}, {69.3, 14.3}}, label: 'Weak yes →'
+      Button, 0x1150635c0, {{19.5, 671.2}, {178.0, 49.0}}, identifier: 'vote.strongYes', label: 'Strong yes'
+      Button, 0x115063980, {{204.5, 671.2}, {178.0, 49.0}}, identifier: 'vote.weakYes', label: 'Weak yes'
+      Button, 0x115063d40, {{19.5, 729.2}, {178.0, 49.0}}, identifier: 'vote.weakNo', label: 'Weak no'
+      Button, 0x115064140, {{204.5, 729.2}, {178.0, 49.0}}, identifier: 'vote.strongNo', label: 'Strong no'
+      Image, 0x115064640, {{22.0, 802.0}, {16.0, 15.7}}, identifier: 'arrow.uturn.backward', label: 'Undo', Disabled
+      StaticText, 0x115064780, {{20.0, 799.7}, {69.3, 20.3}}, label: 'Undo', Disabled
+      Other, 0x1150612c0, {{0.0, 62.0}, {402.0, 124.8}}
+      Other, 0x115061540, {{0.0, 62.0}, {402.0, 124.8}}
+      Other, 0x1150617c0, {{0.0, 62.0}, {402.0, 124.8}}
+      Other, 0x115061900, {{0.0, 62.0}, {402.0, 124.8}}
+      Image, 0x115063700, {{60.3, 688.7}, {11.7, 14.0}}, identifier: 'arrow.up', label: 'Up'
+      StaticText, 0x115063840, {{60.3, 686.7}, {98.5, 18.0}}, label: 'Strong yes'
+      Image, 0x115063ac0, {{248.3, 689.7}, {14.3, 11.7}}, identifier: 'arrow.right', label: 'Right'
+      StaticText, 0x115063c00, {{248.3, 686.7}, {92.3, 18.0}}, label: 'Weak yes'
+      Image, 0x115063e80, {{67.0, 747.7}, {14.3, 11.7}}, identifier: 'arrow.left', label: 'Left'
+      StaticText, 0x115064000, {{67.0, 744.7}, {85.2, 18.0}}, label: 'Weak no'
+      Image, 0x115064280, {{248.7, 746.7}, {11.7, 14.0}}, identifier: 'arrow.down', label: 'Down'
+      StaticText, 0x1150643c0, {{248.7, 744.7}, {91.7, 18.0}}, label: 'Strong no'
+    }
+    ↪︎Find: Elements matching predicate '"vote.card" IN identifiers'
+      Output: {
+        StaticText, 0x1150297c0, {{19.5, 337.5}, {363.0, 284.3}}, identifier: 'vote.card', label: 'Little Olive. Mediterranean bowls · vegetarian choices. 18 dollars per person. 8 minutes away. Use the preference buttons below.'
+      }
+      ↪︎Find: First Match
+        Output: {
+          StaticText, 0x114ffca00, {{19.5, 337.5}, {363.0, 284.3}}, identifier: 'vote.card', label: 'Little Olive. Mediterranean bowls · vegetarian choices. 18 dollars per person. 8 minutes away. Use the preference buttons below.'
+        }

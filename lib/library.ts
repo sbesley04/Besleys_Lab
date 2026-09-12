@@ -3,7 +3,12 @@
 
 import { isSafeImageSource } from "@/lib/images";
 
-export const BOOK_DESIGNS = ["plain", "bands", "ornate", "split", "dots"] as const;
+export const BOOK_DESIGNS = [
+  // Books
+  "plain", "bands", "ornate", "split", "dots", "hubs", "marbled", "tricolor", "worn",
+  // Periodicals — journals, magazines, and printed-out papers
+  "journal", "magazine", "preprint",
+] as const;
 export type BookDesign = (typeof BOOK_DESIGNS)[number];
 
 export const BOOK_DESIGN_LABELS: Record<BookDesign, string> = {
@@ -12,12 +17,56 @@ export const BOOK_DESIGN_LABELS: Record<BookDesign, string> = {
   ornate: "Gilded ornate",
   split: "Two-tone split",
   dots: "Dotted spine",
+  hubs: "Raised leather hubs",
+  marbled: "Marbled boards",
+  tricolor: "Three-band paperback",
+  worn: "Sun-faded & well read",
+  journal: "Bound journal",
+  magazine: "Glossy magazine",
+  preprint: "Stapled preprint",
+};
+
+/** Designs that render as a periodical (journal / magazine / printed paper)
+ *  rather than a bound book: paper label panel, masthead, issue plate. */
+export const PERIODICAL_DESIGNS = ["journal", "magazine", "preprint"] as const;
+const PERIODICALS = new Set<string>(PERIODICAL_DESIGNS);
+
+export function isPeriodical(design: string | null | undefined): boolean {
+  return PERIODICALS.has(design ?? "");
+}
+
+/** What to call one of these in prose — used for the badge on a book's page. */
+export const DESIGN_KIND_LABELS: Record<string, string> = {
+  journal: "Journal",
+  magazine: "Magazine",
+  preprint: "Paper",
+};
+
+/** Starting size for a design, applied when the admin picks it in the editor.
+ *  Periodicals are thin; a stapled paper is thinner still. */
+export const DESIGN_PRESETS: Partial<Record<BookDesign, { height: number; thickness: number }>> = {
+  journal: { height: 210, thickness: 26 },
+  magazine: { height: 232, thickness: 16 },
+  preprint: { height: 222, thickness: 13 },
 };
 
 export const SPINE_HEIGHT = { min: 140, max: 260, default: 200 };
-export const SPINE_THICKNESS = { min: 24, max: 72, default: 40 };
+// Down to 12px so a stapled paper can be genuinely thin next to a hardback.
+export const SPINE_THICKNESS = { min: 12, max: 72, default: 40 };
 export const MAX_SHELVES = 6;
 export const MAX_BOOKCASES = 8;
+export const LABEL_MAX_LENGTH = 28;
+
+/** Width of a cover-forward item, derived from its height. Periodicals are a
+ *  touch wider (magazine proportions) than a trade hardback. */
+export function coverWidth(height: number, design: string): number {
+  return Math.round(height * (isPeriodical(design) ? 0.76 : 0.66));
+}
+
+/** Visible page-edge stripe down the side of a cover-forward item. */
+export function coverEdge(thickness: number): number {
+  return Math.max(3, Math.min(11, Math.round(thickness * 0.4)));
+}
 
 // --- Shelf decor -----------------------------------------------------------------
 
@@ -104,6 +153,8 @@ export interface BookInput {
   height?: number;
   thickness?: number;
   design?: string;
+  label?: string;
+  faceOut?: boolean;
   bookcase?: number;
   shelf?: number;
   position?: number;
@@ -126,6 +177,12 @@ export function bookProblems(b: Partial<BookInput>): string[] {
     errors.push(`Thickness must be a whole number between ${SPINE_THICKNESS.min} and ${SPINE_THICKNESS.max}.`);
   if (b.design !== undefined && !BOOK_DESIGNS.includes(b.design as BookDesign))
     errors.push("Unknown spine design.");
+  if (b.label !== undefined && b.label !== null && typeof b.label !== "string")
+    errors.push("The issue label must be text.");
+  else if (typeof b.label === "string" && b.label.trim().length > LABEL_MAX_LENGTH)
+    errors.push(`The issue label is capped at ${LABEL_MAX_LENGTH} characters.`);
+  if (b.faceOut !== undefined && typeof b.faceOut !== "boolean")
+    errors.push("Face-out must be true or false.");
   if (b.shelf !== undefined && (!Number.isInteger(b.shelf) || b.shelf < 0 || b.shelf >= MAX_SHELVES))
     errors.push(`Shelf must be between 0 and ${MAX_SHELVES - 1}.`);
   if (b.bookcase !== undefined && (!Number.isInteger(b.bookcase) || b.bookcase < 0 || b.bookcase >= MAX_BOOKCASES))

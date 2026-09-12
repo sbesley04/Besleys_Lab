@@ -169,7 +169,9 @@ model Book {
   color     String       @default("#7a6a52") // spine base color (hex)
   height    Int          @default(200) // spine height, px
   thickness Int          @default(40) // spine width, px
-  design    String       @default("plain") // plain | bands | ornate | split | dots
+  design    String       @default("plain") // see BOOK_DESIGNS in lib/library.ts
+  label     String       @default("") // volume/issue/edition line, e.g. "Vol. 12 · No. 3"
+  faceOut   Boolean      @default(false) // display cover-forward instead of spine-out
   bookcase  Int          @default(0) // which bookcase "page"
   shelf     Int          @default(0) // which shelf row within the case
   position  Int          @default(0) // order within the shelf

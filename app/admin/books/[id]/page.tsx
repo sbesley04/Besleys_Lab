@@ -35,6 +35,8 @@ export default async function EditBookPage({ params }: { params: Promise<{ id: s
           height: book.height,
           thickness: book.thickness,
           design: book.design,
+          label: book.label,
+          faceOut: book.faceOut,
           bookcase: book.bookcase,
           shelf: book.shelf,
           published: book.published,

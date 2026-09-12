@@ -1,0 +1,692 @@
+// !$*UTF8*$!
+{
+archiveVersion = 1;
+classes = {
+
+};
+objectVersion = 56;
+objects = {
+B926A78452DA2091FA905C5A = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = Domain.swift;
+sourceTree = "<group>";
+};
+FFE6AADFD858C292E859D480 = {
+isa = PBXBuildFile;
+fileRef = B926A78452DA2091FA905C5A;
+};
+A8853DEECEE3B89D384A0486 = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = NearbyTransport.swift;
+sourceTree = "<group>";
+};
+972F6B2BD5DB8AB28744A31B = {
+isa = PBXBuildFile;
+fileRef = A8853DEECEE3B89D384A0486;
+};
+286380104700B32E23F385A2 = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = OnlineClient.swift;
+sourceTree = "<group>";
+};
+C050A161B45E0C627AA8361C = {
+isa = PBXBuildFile;
+fileRef = 286380104700B32E23F385A2;
+};
+12D38D7704B040CB2C7018EB = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = OrbitApp.swift;
+sourceTree = "<group>";
+};
+BCDBAC94FE65518CA388443F = {
+isa = PBXBuildFile;
+fileRef = 12D38D7704B040CB2C7018EB;
+};
+316CCC3C74E830C34794581B = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = OrbitIntents.swift;
+sourceTree = "<group>";
+};
+4FC946EBFCA079139EB38A9B = {
+isa = PBXBuildFile;
+fileRef = 316CCC3C74E830C34794581B;
+};
+729AAD6E7C940B30960B694B = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = OrbitStore.swift;
+sourceTree = "<group>";
+};
+3BB9C55BC587F402BE5C8472 = {
+isa = PBXBuildFile;
+fileRef = 729AAD6E7C940B30960B694B;
+};
+591EC38CC89C35F59756713A = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = OrbitViews.swift;
+sourceTree = "<group>";
+};
+38065DA5EABA470522630472 = {
+isa = PBXBuildFile;
+fileRef = 591EC38CC89C35F59756713A;
+};
+7F3E243F5EF520C062025799 = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = PhoneIntegrations.swift;
+sourceTree = "<group>";
+};
+9ACA31C6DD38B45954B0A258 = {
+isa = PBXBuildFile;
+fileRef = 7F3E243F5EF520C062025799;
+};
+6036F7E83976CFAFDB7AB8C9 = {
+isa = PBXFileReference;
+lastKnownFileType = folder.assetcatalog;
+path = Assets.xcassets;
+sourceTree = "<group>";
+};
+A23D3A48A7EA3A749C80F39A = {
+isa = PBXBuildFile;
+fileRef = 6036F7E83976CFAFDB7AB8C9;
+};
+1BA910711DE88010C46A87E8 = {
+isa = PBXFileReference;
+lastKnownFileType = text.xml;
+path = PrivacyInfo.xcprivacy;
+sourceTree = "<group>";
+};
+BD0713D07485E7FA6F2BB0E1 = {
+isa = PBXBuildFile;
+fileRef = 1BA910711DE88010C46A87E8;
+};
+37DBCFBA4D08A0E25E550C6E = {
+isa = PBXGroup;
+children = (
+B926A78452DA2091FA905C5A,
+A8853DEECEE3B89D384A0486,
+286380104700B32E23F385A2,
+12D38D7704B040CB2C7018EB,
+316CCC3C74E830C34794581B,
+729AAD6E7C940B30960B694B,
+591EC38CC89C35F59756713A,
+7F3E243F5EF520C062025799,
+6036F7E83976CFAFDB7AB8C9,
+1BA910711DE88010C46A87E8,
+);
+path = Orbit;
+sourceTree = "<group>";
+};
+D0F910432D36750DF90D3875 = {
+isa = PBXFileReference;
+explicitFileType = wrapper.application;
+includeInIndex = 0;
+path = Orbit.app;
+sourceTree = BUILT_PRODUCTS_DIR;
+};
+C72860F1189A2CA5B0F95287 = {
+isa = PBXSourcesBuildPhase;
+buildActionMask = 2147483647;
+files = (
+FFE6AADFD858C292E859D480,
+972F6B2BD5DB8AB28744A31B,
+C050A161B45E0C627AA8361C,
+BCDBAC94FE65518CA388443F,
+4FC946EBFCA079139EB38A9B,
+3BB9C55BC587F402BE5C8472,
+38065DA5EABA470522630472,
+9ACA31C6DD38B45954B0A258,
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+538FD4AE87041C61B6BAF7F3 = {
+isa = PBXFrameworksBuildPhase;
+buildActionMask = 2147483647;
+files = (
+
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+BB4FB3ED4E2165A799D6BE47 = {
+isa = PBXResourcesBuildPhase;
+buildActionMask = 2147483647;
+files = (
+A23D3A48A7EA3A749C80F39A,
+BD0713D07485E7FA6F2BB0E1,
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+31CFC73EFF784D3AD8EB7E9F = {
+isa = XCBuildConfiguration;
+buildSettings = {
+PRODUCT_NAME = "$(TARGET_NAME)";
+PRODUCT_BUNDLE_IDENTIFIER = com.besleyslab.orbit;
+SWIFT_VERSION = 5.0;
+IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+TARGETED_DEVICE_FAMILY = "1,2";
+CODE_SIGN_STYLE = Automatic;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+SUPPORTS_MACCATALYST = NO;
+SWIFT_EMIT_LOC_STRINGS = YES;
+INFOPLIST_FILE = "Configuration/Orbit-Info.plist";
+GENERATE_INFOPLIST_FILE = NO;
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+ENABLE_PREVIEWS = YES;
+LD_RUNPATH_SEARCH_PATHS = (
+"$(inherited)",
+"@executable_path/Frameworks",
+);
+MARKETING_VERSION = 1.0;
+CURRENT_PROJECT_VERSION = 1;
+SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+DEBUG_INFORMATION_FORMAT = dwarf;
+ENABLE_TESTABILITY = YES;
+ONLY_ACTIVE_ARCH = YES;
+GCC_PREPROCESSOR_DEFINITIONS = (
+"DEBUG=1",
+"$(inherited)",
+);
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+};
+name = Debug;
+};
+DF5782288E62DE1605CFB2A1 = {
+isa = XCBuildConfiguration;
+buildSettings = {
+PRODUCT_NAME = "$(TARGET_NAME)";
+PRODUCT_BUNDLE_IDENTIFIER = com.besleyslab.orbit;
+SWIFT_VERSION = 5.0;
+IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+TARGETED_DEVICE_FAMILY = "1,2";
+CODE_SIGN_STYLE = Automatic;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+SUPPORTS_MACCATALYST = NO;
+SWIFT_EMIT_LOC_STRINGS = YES;
+INFOPLIST_FILE = "Configuration/Orbit-Info.plist";
+GENERATE_INFOPLIST_FILE = NO;
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+ENABLE_PREVIEWS = YES;
+LD_RUNPATH_SEARCH_PATHS = (
+"$(inherited)",
+"@executable_path/Frameworks",
+);
+MARKETING_VERSION = 1.0;
+CURRENT_PROJECT_VERSION = 1;
+SWIFT_COMPILATION_MODE = wholemodule;
+DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+};
+name = Release;
+};
+F935AE6D23B8E95CB70B6C70 = {
+isa = XCConfigurationList;
+buildConfigurations = (
+31CFC73EFF784D3AD8EB7E9F,
+DF5782288E62DE1605CFB2A1,
+);
+defaultConfigurationIsVisible = 0;
+defaultConfigurationName = Release;
+};
+C1A1CA224EFEBDC8B14E27FE = {
+isa = PBXNativeTarget;
+buildConfigurationList = F935AE6D23B8E95CB70B6C70;
+buildPhases = (
+C72860F1189A2CA5B0F95287,
+538FD4AE87041C61B6BAF7F3,
+BB4FB3ED4E2165A799D6BE47,
+);
+buildRules = (
+
+);
+dependencies = (
+
+);
+name = Orbit;
+productName = Orbit;
+productReference = D0F910432D36750DF90D3875;
+productType = "com.apple.product-type.application";
+};
+96529569EDC56FC3A712E7EF = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = NearbyProtocolTests.swift;
+sourceTree = "<group>";
+};
+E8F4E37A89EC53248A49292B = {
+isa = PBXBuildFile;
+fileRef = 96529569EDC56FC3A712E7EF;
+};
+39D3D37C2DA55892113A266C = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = OrbitLogicTests.swift;
+sourceTree = "<group>";
+};
+D12CA02275F2DB2928C0676C = {
+isa = PBXBuildFile;
+fileRef = 39D3D37C2DA55892113A266C;
+};
+64932538BEC3D61D349C8F3A = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = OrbitStoreTests.swift;
+sourceTree = "<group>";
+};
+AF74526EE4CDFE71719AD78E = {
+isa = PBXBuildFile;
+fileRef = 64932538BEC3D61D349C8F3A;
+};
+B5F252F1F901179293187F8A = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = PhoneIntegrationTests.swift;
+sourceTree = "<group>";
+};
+1F50D4C32614C332C5F829A4 = {
+isa = PBXBuildFile;
+fileRef = B5F252F1F901179293187F8A;
+};
+32F48527981634377297DDEB = {
+isa = PBXGroup;
+children = (
+96529569EDC56FC3A712E7EF,
+39D3D37C2DA55892113A266C,
+64932538BEC3D61D349C8F3A,
+B5F252F1F901179293187F8A,
+);
+path = OrbitTests;
+sourceTree = "<group>";
+};
+D4A16008048416364A3CB0A4 = {
+isa = PBXFileReference;
+explicitFileType = wrapper.cfbundle;
+includeInIndex = 0;
+path = OrbitTests.xctest;
+sourceTree = BUILT_PRODUCTS_DIR;
+};
+2DE3EE1C91B0A5AB2F8FA9B1 = {
+isa = PBXSourcesBuildPhase;
+buildActionMask = 2147483647;
+files = (
+E8F4E37A89EC53248A49292B,
+D12CA02275F2DB2928C0676C,
+AF74526EE4CDFE71719AD78E,
+1F50D4C32614C332C5F829A4,
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+C2FDD20B3F17DCDF53EA3FCA = {
+isa = PBXFrameworksBuildPhase;
+buildActionMask = 2147483647;
+files = (
+
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+CB62D9B70F21AF22C8086F45 = {
+isa = PBXResourcesBuildPhase;
+buildActionMask = 2147483647;
+files = (
+
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+B1D3A68606FFC067EDF269DE = {
+isa = PBXContainerItemProxy;
+containerPortal = A51CF2353B7CC5C370D8B0B0;
+proxyType = 1;
+remoteGlobalIDString = C1A1CA224EFEBDC8B14E27FE;
+remoteInfo = Orbit;
+};
+FF8321A6D94495E0A4CD11F2 = {
+isa = PBXTargetDependency;
+target = C1A1CA224EFEBDC8B14E27FE;
+targetProxy = B1D3A68606FFC067EDF269DE;
+};
+F6A998F3ADD1C7EEA74D9EC3 = {
+isa = XCBuildConfiguration;
+buildSettings = {
+PRODUCT_NAME = "$(TARGET_NAME)";
+PRODUCT_BUNDLE_IDENTIFIER = com.besleyslab.orbittests;
+SWIFT_VERSION = 5.0;
+IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+TARGETED_DEVICE_FAMILY = "1,2";
+CODE_SIGN_STYLE = Automatic;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+SUPPORTS_MACCATALYST = NO;
+SWIFT_EMIT_LOC_STRINGS = YES;
+GENERATE_INFOPLIST_FILE = YES;
+LD_RUNPATH_SEARCH_PATHS = (
+"$(inherited)",
+"@executable_path/Frameworks",
+"@loader_path/Frameworks",
+);
+TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Orbit.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Orbit";
+BUNDLE_LOADER = "$(TEST_HOST)";
+SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+DEBUG_INFORMATION_FORMAT = dwarf;
+ENABLE_TESTABILITY = YES;
+ONLY_ACTIVE_ARCH = YES;
+GCC_PREPROCESSOR_DEFINITIONS = (
+"DEBUG=1",
+"$(inherited)",
+);
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+};
+name = Debug;
+};
+C2F2BD7FA3250F1882478C7A = {
+isa = XCBuildConfiguration;
+buildSettings = {
+PRODUCT_NAME = "$(TARGET_NAME)";
+PRODUCT_BUNDLE_IDENTIFIER = com.besleyslab.orbittests;
+SWIFT_VERSION = 5.0;
+IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+TARGETED_DEVICE_FAMILY = "1,2";
+CODE_SIGN_STYLE = Automatic;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+SUPPORTS_MACCATALYST = NO;
+SWIFT_EMIT_LOC_STRINGS = YES;
+GENERATE_INFOPLIST_FILE = YES;
+LD_RUNPATH_SEARCH_PATHS = (
+"$(inherited)",
+"@executable_path/Frameworks",
+"@loader_path/Frameworks",
+);
+TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Orbit.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Orbit";
+BUNDLE_LOADER = "$(TEST_HOST)";
+SWIFT_COMPILATION_MODE = wholemodule;
+DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+};
+name = Release;
+};
+761AA5580E2B801315B06DE7 = {
+isa = XCConfigurationList;
+buildConfigurations = (
+F6A998F3ADD1C7EEA74D9EC3,
+C2F2BD7FA3250F1882478C7A,
+);
+defaultConfigurationIsVisible = 0;
+defaultConfigurationName = Release;
+};
+1C9B867978DE8E2A98F7098A = {
+isa = PBXNativeTarget;
+buildConfigurationList = 761AA5580E2B801315B06DE7;
+buildPhases = (
+2DE3EE1C91B0A5AB2F8FA9B1,
+C2FDD20B3F17DCDF53EA3FCA,
+CB62D9B70F21AF22C8086F45,
+);
+buildRules = (
+
+);
+dependencies = (
+FF8321A6D94495E0A4CD11F2,
+);
+name = OrbitTests;
+productName = OrbitTests;
+productReference = D4A16008048416364A3CB0A4;
+productType = "com.apple.product-type.bundle.unit-test";
+};
+85A466E3E304923DC12047D9 = {
+isa = PBXFileReference;
+lastKnownFileType = sourcecode.swift;
+path = OrbitUITests.swift;
+sourceTree = "<group>";
+};
+CC7D637D871441AF33BE7A59 = {
+isa = PBXBuildFile;
+fileRef = 85A466E3E304923DC12047D9;
+};
+AE27E2931539CD8609317B73 = {
+isa = PBXGroup;
+children = (
+85A466E3E304923DC12047D9,
+);
+path = OrbitUITests;
+sourceTree = "<group>";
+};
+FAA600C0BB6C3880A1542B36 = {
+isa = PBXFileReference;
+explicitFileType = wrapper.cfbundle;
+includeInIndex = 0;
+path = OrbitUITests.xctest;
+sourceTree = BUILT_PRODUCTS_DIR;
+};
+0808B0FF8F6411231F1344B2 = {
+isa = PBXSourcesBuildPhase;
+buildActionMask = 2147483647;
+files = (
+CC7D637D871441AF33BE7A59,
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+D39A61CA268C8EA30B22C5ED = {
+isa = PBXFrameworksBuildPhase;
+buildActionMask = 2147483647;
+files = (
+
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+65E75E2EADF186615E879225 = {
+isa = PBXResourcesBuildPhase;
+buildActionMask = 2147483647;
+files = (
+
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+1DDDFCF81B45CDE4A360D470 = {
+isa = PBXContainerItemProxy;
+containerPortal = A51CF2353B7CC5C370D8B0B0;
+proxyType = 1;
+remoteGlobalIDString = C1A1CA224EFEBDC8B14E27FE;
+remoteInfo = Orbit;
+};
+932DCEEDB4A0AB6747B48281 = {
+isa = PBXTargetDependency;
+target = C1A1CA224EFEBDC8B14E27FE;
+targetProxy = 1DDDFCF81B45CDE4A360D470;
+};
+A99AE2FD8735DB430C3BBD06 = {
+isa = XCBuildConfiguration;
+buildSettings = {
+PRODUCT_NAME = "$(TARGET_NAME)";
+PRODUCT_BUNDLE_IDENTIFIER = com.besleyslab.orbituitests;
+SWIFT_VERSION = 5.0;
+IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+TARGETED_DEVICE_FAMILY = "1,2";
+CODE_SIGN_STYLE = Automatic;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+SUPPORTS_MACCATALYST = NO;
+SWIFT_EMIT_LOC_STRINGS = YES;
+GENERATE_INFOPLIST_FILE = YES;
+LD_RUNPATH_SEARCH_PATHS = (
+"$(inherited)",
+"@executable_path/Frameworks",
+"@loader_path/Frameworks",
+);
+TEST_TARGET_NAME = Orbit;
+SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+DEBUG_INFORMATION_FORMAT = dwarf;
+ENABLE_TESTABILITY = YES;
+ONLY_ACTIVE_ARCH = YES;
+GCC_PREPROCESSOR_DEFINITIONS = (
+"DEBUG=1",
+"$(inherited)",
+);
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+};
+name = Debug;
+};
+A983F929E7A7D92FCAD642B8 = {
+isa = XCBuildConfiguration;
+buildSettings = {
+PRODUCT_NAME = "$(TARGET_NAME)";
+PRODUCT_BUNDLE_IDENTIFIER = com.besleyslab.orbituitests;
+SWIFT_VERSION = 5.0;
+IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+TARGETED_DEVICE_FAMILY = "1,2";
+CODE_SIGN_STYLE = Automatic;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+SUPPORTS_MACCATALYST = NO;
+SWIFT_EMIT_LOC_STRINGS = YES;
+GENERATE_INFOPLIST_FILE = YES;
+LD_RUNPATH_SEARCH_PATHS = (
+"$(inherited)",
+"@executable_path/Frameworks",
+"@loader_path/Frameworks",
+);
+TEST_TARGET_NAME = Orbit;
+SWIFT_COMPILATION_MODE = wholemodule;
+DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+};
+name = Release;
+};
+29A61DACAC0A268E5417BCD0 = {
+isa = XCConfigurationList;
+buildConfigurations = (
+A99AE2FD8735DB430C3BBD06,
+A983F929E7A7D92FCAD642B8,
+);
+defaultConfigurationIsVisible = 0;
+defaultConfigurationName = Release;
+};
+1694E5CB998359BD1845E054 = {
+isa = PBXNativeTarget;
+buildConfigurationList = 29A61DACAC0A268E5417BCD0;
+buildPhases = (
+0808B0FF8F6411231F1344B2,
+D39A61CA268C8EA30B22C5ED,
+65E75E2EADF186615E879225,
+);
+buildRules = (
+
+);
+dependencies = (
+932DCEEDB4A0AB6747B48281,
+);
+name = OrbitUITests;
+productName = OrbitUITests;
+productReference = FAA600C0BB6C3880A1542B36;
+productType = "com.apple.product-type.bundle.ui-testing";
+};
+6447074A451FA67986E46686 = {
+isa = PBXGroup;
+children = (
+D0F910432D36750DF90D3875,
+D4A16008048416364A3CB0A4,
+FAA600C0BB6C3880A1542B36,
+);
+name = Products;
+sourceTree = "<group>";
+};
+FD3C4292F1FAB48745C37323 = {
+isa = PBXFileReference;
+lastKnownFileType = text.plist.xml;
+path = "Configuration/Orbit-Info.plist";
+sourceTree = "<group>";
+};
+1CA77C71A070EC53D0272B6C = {
+isa = PBXGroup;
+children = (
+37DBCFBA4D08A0E25E550C6E,
+32F48527981634377297DDEB,
+AE27E2931539CD8609317B73,
+FD3C4292F1FAB48745C37323,
+6447074A451FA67986E46686,
+);
+sourceTree = "<group>";
+};
+49FB2454543B955B282180FB = {
+isa = XCBuildConfiguration;
+buildSettings = {
+ALWAYS_SEARCH_USER_PATHS = NO;
+CLANG_ENABLE_MODULES = YES;
+CLANG_ENABLE_OBJC_ARC = YES;
+CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+GCC_C_LANGUAGE_STANDARD = gnu17;
+SDKROOT = iphoneos;
+IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+SWIFT_VERSION = 5.0;
+SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+DEBUG_INFORMATION_FORMAT = dwarf;
+ENABLE_TESTABILITY = YES;
+ONLY_ACTIVE_ARCH = YES;
+GCC_PREPROCESSOR_DEFINITIONS = (
+"DEBUG=1",
+"$(inherited)",
+);
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+};
+name = Debug;
+};
+7DE6F90272DA3B43AE06B44E = {
+isa = XCBuildConfiguration;
+buildSettings = {
+ALWAYS_SEARCH_USER_PATHS = NO;
+CLANG_ENABLE_MODULES = YES;
+CLANG_ENABLE_OBJC_ARC = YES;
+CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+GCC_C_LANGUAGE_STANDARD = gnu17;
+SDKROOT = iphoneos;
+IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+SWIFT_VERSION = 5.0;
+SWIFT_COMPILATION_MODE = wholemodule;
+DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+};
+name = Release;
+};
+54C12882F1931A6DAE321517 = {
+isa = XCConfigurationList;
+buildConfigurations = (
+49FB2454543B955B282180FB,
+7DE6F90272DA3B43AE06B44E,
+);
+defaultConfigurationIsVisible = 0;
+defaultConfigurationName = Release;
+};
+A51CF2353B7CC5C370D8B0B0 = {
+isa = PBXProject;
+attributes = {
+BuildIndependentTargetsInParallel = YES;
+LastUpgradeCheck = 2600;
+TargetAttributes = {
+C1A1CA224EFEBDC8B14E27FE = {
+CreatedOnToolsVersion = 26.6;
+};
+1C9B867978DE8E2A98F7098A = {
+CreatedOnToolsVersion = 26.6;
+};
+1694E5CB998359BD1845E054 = {
+CreatedOnToolsVersion = 26.6;
+};
+};
+};
+buildConfigurationList = 54C12882F1931A6DAE321517;
+compatibilityVersion = "Xcode 14.0";
+developmentRegion = en;
+hasScannedForEncodings = 0;
+knownRegions = (
+en,
+Base,
+);
+mainGroup = 1CA77C71A070EC53D0272B6C;
+productRefGroup = 6447074A451FA67986E46686;
+projectDirPath = "";
+projectRoot = "";
+targets = (
+C1A1CA224EFEBDC8B14E27FE,
+1C9B867978DE8E2A98F7098A,
+1694E5CB998359BD1845E054,
+);
+};
+};
+rootObject = A51CF2353B7CC5C370D8B0B0;
+}

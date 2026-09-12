@@ -60,6 +60,8 @@ export async function POST(req: NextRequest) {
         height: body.height ?? SPINE_HEIGHT.default,
         thickness: body.thickness ?? SPINE_THICKNESS.default,
         design: body.design ?? "plain",
+        label: typeof body.label === "string" ? body.label.trim() : "",
+        faceOut: body.faceOut === true,
         bookcase,
         shelf,
         position: nextShelfPosition(lastBook?.position, lastDecor?.position),

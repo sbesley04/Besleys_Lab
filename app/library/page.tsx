@@ -4,6 +4,7 @@ import { isStaff } from "@/lib/validation";
 import Link from "next/link";
 import BookSpine from "./_components/BookSpine";
 import { Bookend, Decor, PottedPlant, Monstera, Fern, Armillary, PenMug } from "./_components/ShelfDecor";
+import { isPeriodical, DESIGN_KIND_LABELS } from "@/lib/library";
 import styles from "./library.module.css";
 
 // The library: bookcases of clickable spines with plants between the books.
@@ -87,6 +88,8 @@ export default async function LibraryPage({
     );
     return { idx, things };
   });
+  const paperCount = caseBooks.filter((b) => isPeriodical(b.design)).length;
+  const bookCount = caseBooks.length - paperCount;
   const shelfMayScroll = shelves.some(
     ({ things }) =>
       things.length >= 4 ||
@@ -130,7 +133,13 @@ export default async function LibraryPage({
 
       {!booksUnavailable && books.length > 0 && (
         <div className={styles.caseSummary}>
-          <span>{caseBooks.length} {caseBooks.length === 1 ? "title" : "titles"}</span>
+          <span>{bookCount} {bookCount === 1 ? "book" : "books"}</span>
+          {paperCount > 0 && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{paperCount} {paperCount === 1 ? "paper" : "papers"}</span>
+            </>
+          )}
           <span aria-hidden="true">·</span>
           <span>{shelves.length} {shelves.length === 1 ? "shelf" : "shelves"}</span>
           {shelfMayScroll && (
@@ -193,6 +202,32 @@ export default async function LibraryPage({
             })
           )}
         </div>
+      )}
+
+      {!booksUnavailable && caseBooks.length > 0 && (
+        <details className={styles.catalog}>
+          <summary className={styles.catalogSummary}>
+            Card catalog — {caseBooks.length} {caseBooks.length === 1 ? "entry" : "entries"}
+          </summary>
+          <ul className={styles.catalogList}>
+            {caseBooks.map((b) => (
+              <li key={b.id}>
+                <Link href={`/library/${b.slug}?case=${activeCase}`} className={styles.catalogItem}>
+                  <span
+                    className={styles.catalogChip}
+                    style={{ background: b.color }}
+                    aria-hidden="true"
+                  />
+                  <span className={styles.catalogTitle}>{b.title}</span>
+                  <span className={styles.catalogAuthor}>{b.author}</span>
+                  {isPeriodical(b.design) && (
+                    <span className={styles.kindTag}>{DESIGN_KIND_LABELS[b.design]}</span>
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
 
       <div className={styles.legendRow}>

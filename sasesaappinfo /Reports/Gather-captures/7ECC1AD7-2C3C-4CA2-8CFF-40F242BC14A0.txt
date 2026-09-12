@@ -1,0 +1,25 @@
+Attributes: StaticText, 0x11509f200, {{19.5, 337.5}, {363.0, 284.3}}, identifier: 'vote.card', label: 'Little Olive. Mediterranean bowls · vegetarian choices. 18 dollars per person. 8 minutes away. Use the preference buttons below.'
+Element subtree:
+ →StaticText, 0x11509f200, {{19.5, 337.5}, {363.0, 284.3}}, identifier: 'vote.card', label: 'Little Olive. Mediterranean bowls · vegetarian choices. 18 dollars per person. 8 minutes away. Use the preference buttons below.'
+Path to element:
+ →Application, 0x11509df40, pid: 84531, label: 'Gather'
+  ↳Any, 0x11509e080, {{inf, inf}, {0.0, 0.0}}
+   ↳Any, 0x11509e1c0, {{inf, inf}, {0.0, 0.0}}
+    ↳Any, 0x11509e300, {{inf, inf}, {0.0, 0.0}}
+     ↳Any, 0x11509e440, {{inf, inf}, {0.0, 0.0}}
+      ↳Any, 0x11509e580, {{inf, inf}, {0.0, 0.0}}
+       ↳Any, 0x11509e6c0, {{inf, inf}, {0.0, 0.0}}
+        ↳Any, 0x11509e800, {{inf, inf}, {0.0, 0.0}}
+         ↳Any, 0x11509e940, {{inf, inf}, {0.0, 0.0}}
+          ↳Any, 0x11509ea80, {{inf, inf}, {0.0, 0.0}}
+           ↳Any, 0x11509ebc0, {{inf, inf}, {0.0, 0.0}}
+            ↳Any, 0x11509ed00, {{inf, inf}, {0.0, 0.0}}
+             ↳Any, 0x11509ee40, {{inf, inf}, {0.0, 0.0}}
+              ↳Any, 0x11509ef80, {{inf, inf}, {0.0, 0.0}}
+               ↳Any, 0x11509f0c0, {{inf, inf}, {0.0, 0.0}}
+                ↳StaticText, 0x11509f200, {{19.5, 337.5}, {363.0, 284.3}}, identifier: 'vote.card', label: 'Little Olive. Mediterranean bowls · vegetarian choices. 18 dollars per person. 8 minutes away. Use the preference buttons below.'
+Query chain:
+ →Find: Target Application 'com.besleyslab.gather'
+  ↪︎Find: Descendants matching type Any
+    ↪︎Find: Elements matching predicate '"vote.card" IN identifiers'
+      ↪︎Find: First Match

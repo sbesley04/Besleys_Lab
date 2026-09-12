@@ -74,6 +74,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         height: body.height ?? existing.height,
         thickness: body.thickness ?? existing.thickness,
         design: body.design ?? existing.design,
+        label: typeof body.label === "string" ? body.label.trim() : existing.label,
+        faceOut: typeof body.faceOut === "boolean" ? body.faceOut : existing.faceOut,
         bookcase,
         shelf,
         position,

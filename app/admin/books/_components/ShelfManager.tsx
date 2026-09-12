@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Spine } from "@/app/library/_components/BookSpine";
+import { ShelfItem } from "@/app/library/_components/BookSpine";
 import { Decor } from "@/app/library/_components/ShelfDecor";
 import { MAX_SHELVES, MAX_BOOKCASES, DECOR_KINDS, DECOR_LABELS, type DecorKind } from "@/lib/library";
 import { errorText } from "../../_components/formStyles";
@@ -23,6 +23,8 @@ interface BookRow {
   height: number;
   thickness: number;
   design: string;
+  label: string;
+  faceOut: boolean;
   bookcase: number;
   shelf: number;
   position: number;
@@ -335,7 +337,7 @@ export default function ShelfManager() {
                   >
                     {t.type === "book" ? (
                       <>
-                        <span aria-hidden="true"><Spine book={t} scale={0.3} /></span>
+                        <span aria-hidden="true"><ShelfItem book={t} scale={0.3} /></span>
                         <div className={styles.shelfIdentity}>
                           <Link href={`/admin/books/${t.id}`} style={{ fontWeight: 600, color: "var(--ink)" }}>
                             {t.title}

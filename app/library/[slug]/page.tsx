@@ -4,11 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { isStaff } from "@/lib/validation";
 import { renderMarkdown } from "@/lib/markdown";
-import { Spine } from "../_components/BookSpine";
+import { ShelfItem } from "../_components/BookSpine";
 import ReviewSection, { type ReviewItem } from "./ReviewSection";
 import type { Metadata } from "next";
 import { cache } from "react";
-import { MAX_BOOKCASES } from "@/lib/library";
+import { MAX_BOOKCASES, isPeriodical, DESIGN_KIND_LABELS } from "@/lib/library";
 import styles from "./detail.module.css";
 
 // A single book: the spine, the owner's review, and reader reviews below.
@@ -107,8 +107,11 @@ export default async function BookPage({
       </Link>
 
       <header className={styles.bookHeader}>
-        <div className={styles.spinePreview} aria-hidden="true">
-          <Spine book={book} scale={0.85} />
+        <div
+          className={`${styles.spinePreview} ${book.faceOut ? styles.coverPreview : ""}`}
+          aria-hidden="true"
+        >
+          <ShelfItem book={book} scale={0.85} />
         </div>
         <div className={styles.bookInfo}>
           {!book.published && (
@@ -118,6 +121,14 @@ export default async function BookPage({
           )}
           <h1 className={styles.bookTitle}>{book.title}</h1>
           <p className={styles.author}>{book.author}</p>
+          {(isPeriodical(book.design) || book.label.trim()) && (
+            <p className={styles.imprint}>
+              {isPeriodical(book.design) && (
+                <span className={styles.kindBadge}>{DESIGN_KIND_LABELS[book.design]}</span>
+              )}
+              {book.label.trim() && <span className={styles.issueLabel}>{book.label.trim()}</span>}
+            </p>
+          )}
           {book.rating && (
             <p
               role="img"
