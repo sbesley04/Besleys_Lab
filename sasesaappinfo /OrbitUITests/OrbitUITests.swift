@@ -18,7 +18,7 @@ final class OrbitUITests: XCTestCase {
     private func scrollTo(_ element: XCUIElement, attempts: Int = 9) {
         for _ in 0..<attempts {
             if element.exists && element.isHittable { return }
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.80)).press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.25)))
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.50, dy: 0.65)).press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.50, dy: 0.25)))
         }
         XCTAssertTrue(element.exists && element.isHittable, "Expected a reachable control: \(element)")
     }
@@ -92,7 +92,10 @@ final class OrbitUITests: XCTestCase {
         title.tap(); title.typeText("Library courtyard picnic")
         let note = app.descendants(matching: .any).matching(identifier: "orbit.editor.note").firstMatch
         note.tap(); note.typeText("Bring a blanket after class.")
-        scrollTo(button("orbit.editor.photo")); button("orbit.editor.photo").tap()
+        let done = button("orbit.editor.done")
+        XCTAssertTrue(done.waitForExistence(timeout: 5)); done.tap()
+        let photo = app.descendants(matching: .any).matching(identifier: "orbit.editor.photo").firstMatch
+        scrollTo(photo); photo.tap()
         XCTAssertTrue(app.buttons["Cancel"].firstMatch.waitForExistence(timeout: 8), "Native photo selection must be reachable.")
         capture("Orbit-native-photo-picker")
         let cell = app.collectionViews.cells.firstMatch

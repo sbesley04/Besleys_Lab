@@ -704,6 +704,14 @@ struct OPlaceEditor: View {
             } header: { Text("Private photo") } footer: { Text("Photos stay in your saved library and are not sent to a room. Save privately first if you want to keep the photo.") } }
             Button(store.isBusy ? "Waiting for confirmation…" : "Save idea") { save() }.fontWeight(.semibold).disabled(loading || store.isBusy).accessibilityIdentifier("orbit.editor.save")
         }.scrollContentBackground(.hidden).background(OStyle.cream).navigationTitle("Review the idea").navigationBarTitleDisplayMode(.inline)
+        .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") { UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil) }
+                    .accessibilityIdentifier("orbit.editor.done")
+            }
+        }
         .onChange(of: photo) { _, selected in
             guard let selected else { return }
             loading = true

@@ -56,7 +56,7 @@
 		</dict>
 	</array>
 	<key>OrbitServiceURL</key>
-	<string>https://orbit-together-placeholder.example</string>
+	<string>https://orbit-together.sambesley04.chatgpt.site</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Orbit connects to a nearby room when you choose Nearby. Keep Orbit open to sync with people you approve.</string>
 	<key>NSBonjourServices</key>

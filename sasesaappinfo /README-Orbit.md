@@ -34,7 +34,7 @@ Use your personal space to create an **online** or **nearby** room. Rooms suppor
 
 Online rooms use an invitation link and manual host approval. The companion website lets friends request access and participate from a browser; native clients use the same room service. Updates refresh while Orbit is open. This version does not deliver background chat notifications. Online room data expires seven days after creation.
 
-The intended service address is `https://orbit-together.sambesley04.chatgpt.site`. Deployment and native-to-browser verification status is recorded in **Reports/Orbit-Verification.md**. The native endpoint is configured by `OrbitServiceURL` in **Configuration/Orbit-Info.plist**; a placeholder configuration cannot connect to real online rooms. Regenerating the project preserves the configured endpoint.
+The companion service is deployed at https://orbit-together.sambesley04.chatgpt.site. It is currently private to the owner: allowing invited friends and native phones to reach it still requires the owner’s explicit approval to change the Sites audience. The native endpoint is already configured; no API key or code change is needed once that audience change is approved. Demo and nearby mode are independent of this access gate. See **Reports/Orbit-Verification.md** for completed checks.
 
 Nearby rooms use encrypted peer connections, with each guest connected to the host. Compare the room code before approving a request. Everyone needs Orbit installed, open, and in range. Nearby mode does not connect friends over the internet, and a host leaving interrupts the room.
 
@@ -52,7 +52,7 @@ The **Save an idea to Orbit** App Shortcut takes a title and optional note and o
 
 Personal and demo libraries are separate atomic JSON files in the app's private Application Support directory. Each library supports up to 500 saved ideas and 40 historical rooms, with a 50 MB encoded storage limit. An individual photo is limited to 3 MB. A file that cannot be decoded is preserved and further writes are blocked; the app does not silently replace it. Device backup settings may include this local data.
 
-Online room data includes selected suggestions, names, random member identifiers, votes, and chat. Room access credentials are kept in Keychain. The service retains shared room data for seven days; it does not receive the whole private library or private photos. There are no ads, tracking, or third-party analytics in the app. **You → Privacy** explains the data flows. Erasing personal data removes the local library and attempts to leave or delete the online room; an unconfirmed remote removal is reported. Shared copies on other devices may remain.
+Online room data includes selected suggestions, names, random member identifiers, votes, and chat. Room access credentials are kept in Keychain. Room access expires after seven days; expired records are purged on the next create or join request. The service does not receive the whole private library or private photos. There are no ads, tracking, or third-party analytics in the app. **You → Privacy** explains the data flows. Erasing personal data removes the local library and attempts to leave or delete the online room; an unconfirmed remote removal is reported. Shared copies on other devices may remain.
 
 Rooms accept up to 12 suggestions. Chat messages have a 1,000-character limit; older chat is trimmed to keep room snapshots bounded. Room changes and ballots are checked against the sender, host authority, and current option revision.
 

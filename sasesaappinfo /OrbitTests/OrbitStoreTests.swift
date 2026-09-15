@@ -138,11 +138,20 @@ final class OrbitStoreTests: XCTestCase {
         let (store, url, defaults) = makeStore()
         let room = ORoom(title: "Shared", hostID: store.profile.id, members: [store.profile])
         let archive = OLibrary(profile: store.profile, onboarded: true, places: [], currentRoom: room, history: [], networkRoomIDs: [room.id])
-        try OJSON.encoder().encode(archive).write(to: url.appendingPathComponent("personal.json"))
+        let file = url.appendingPathComponent("personal.json")
+        let persisted = try OJSON.encoder().encode(archive)
+        try persisted.write(to: file)
         let reopened = OrbitStore(baseURL: url, defaults: defaults, testing: true, credentialVault: OCredentialVault(memoryOnly: true))
+        let before = try XCTUnwrap(reopened.currentRoom)
+        XCTAssertEqual(before.id, room.id)
+        XCTAssertEqual(reopened.connection, "local")
+        XCTAssertNil(reopened.error)
         reopened.send(OCommand(kind: "chat", text: "Must not look confirmed"))
-        XCTAssertEqual(reopened.currentRoom, room)
-        XCTAssertNotNil(reopened.error)
+        // Compare the loaded snapshot: millisecond JSON dates need not preserve
+        // the original Date's sub-millisecond floating-point representation.
+        XCTAssertEqual(reopened.currentRoom, before)
+        XCTAssertEqual(try Data(contentsOf: file), persisted)
+        XCTAssertTrue(reopened.error?.contains("offline edits are not counted") == true)
     }
 
     func testOnlineInvitesAreRestrictedToConfiguredServiceAndExactParameters() throws {
