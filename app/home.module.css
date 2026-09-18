@@ -1,0 +1,353 @@
+/* Home page — the "cover" of the site. Clean and minimal, sans-serif, with a
+   flat portrait; every color still comes from the Paper Lab tokens so the nine
+   themes and the Grid apply for free. Inner pages keep the taped-print look. */
+
+.page {
+  /* width: 100% matters: as a column-flex item with auto side margins, <main>
+     would otherwise size to fit-content, and the notebook strip's min-content
+     is wider than a laptop viewport. */
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 2rem) 4rem;
+}
+
+/* --- Hero: sticky portrait right, scrolling copy left -------------------- */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: stretch; /* the media cell must span the whole hero for sticky to hold */
+}
+.heroText {
+  display: flex;
+  flex-direction: column;
+}
+.beat {
+  min-height: 72vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 3.5rem) 0;
+  border-top: 1px solid var(--line);
+}
+.beat:first-child {
+  border-top: 0;
+  min-height: calc(100vh - var(--header-h));
+  min-height: calc(100svh - var(--header-h));
+}
+
+.kicker {
+  margin: 0 0 1.1rem;
+  font: 600 0.72rem / 1.4 var(--font-body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.title {
+  margin: 0;
+  font: 700 clamp(3rem, 8vw, 5.5rem) / 0.98 var(--font-body);
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+.lede {
+  max-width: 40ch;
+  margin: 1.5rem 0 0;
+  font-size: clamp(1.1rem, 1.6vw, 1.3rem);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+.links {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  font-size: 0.9rem;
+}
+.links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.links a:hover { color: var(--accent); }
+
+.beatIndex {
+  margin: 0 0 0.75rem;
+  font: 500 0.72rem / 1 var(--font-body);
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+.beatTitle {
+  margin: 0 0 1.25rem;
+  font: 600 clamp(1.6rem, 3vw, 2.2rem) / 1.15 var(--font-body);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+/* "What's inside" rows */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.2rem 1.5rem;
+  align-items: baseline;
+  padding: 0.95rem 0;
+  border-bottom: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+}
+.rowTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.rowTitle::after {
+  content: " →";
+  display: inline-block;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.row:hover .rowTitle::after,
+.row:focus-visible .rowTitle::after {
+  opacity: 1;
+  transform: none;
+}
+.rowMeta {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--accent);
+}
+.rowBlurb {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+
+/* "What I do" */
+.focus {
+  list-style: none;
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+}
+.focusItem h3 {
+  margin: 0 0 0.3rem;
+  font: 600 1.05rem / 1.3 var(--font-body);
+}
+.focusItem p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+.note {
+  margin: 1.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* Portrait */
+.heroMedia { position: relative; }
+.heroSticky {
+  position: sticky;
+  top: calc(var(--header-h) + 1.25rem);
+  padding: clamp(1rem, 3vw, 2rem) 0;
+}
+.portraitFrame {
+  position: relative; /* next/image fill parent */
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: calc(100vh - var(--header-h) - 5rem);
+  max-height: calc(100svh - var(--header-h) - 5rem);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--paper-deep);
+  box-shadow: var(--shadow-lift);
+}
+.mediaCaption {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.9rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* --- Sections below the hero --------------------------------------------- */
+.section { padding: clamp(3rem, 7vw, 5rem) 0 0; }
+.sectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.sectionTitle {
+  margin: 0;
+  font: 600 clamp(1.5rem, 2.6vw, 2rem) / 1.15 var(--font-body);
+  letter-spacing: -0.02em;
+}
+.sectionLink {
+  font-size: 0.9rem;
+  white-space: nowrap;
+  color: var(--accent);
+  text-decoration: none;
+}
+.sectionLink:hover { text-decoration: underline; }
+.sectionIntro {
+  margin: -0.75rem 0 1.25rem;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+.workGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 1rem;
+}
+.workCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper-deep);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.workCard:hover,
+.workCard:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+}
+.workMark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.workMark::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--work-accent, var(--accent));
+}
+.workTitle {
+  margin: 0;
+  font: 600 1.1rem / 1.3 var(--font-body);
+}
+.workPeriod {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+.tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: auto 0 0;
+  padding: 0.4rem 0 0;
+}
+.tag {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.posts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.post {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 0.2rem 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+}
+.post:hover .postTitle { color: var(--accent); }
+.postDate {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+.postTitle { font-weight: 600; }
+.postExcerpt {
+  grid-column: 2;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+/* --- Responsive ----------------------------------------------------------- */
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .heroMedia { order: -1; } /* portrait first, then the copy */
+  .heroSticky {
+    position: static;
+    padding: 1.25rem 0 0;
+  }
+  .portraitFrame {
+    max-height: 62svh;
+    border-radius: 12px;
+  }
+  .beat {
+    min-height: 0;
+    padding: 2.25rem 0;
+  }
+  .beat:first-child { min-height: 0; }
+  .post { grid-template-columns: minmax(0, 1fr); }
+  .postExcerpt { grid-column: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Stop entirely: beats visible, portrait pinned with no drift. */
+  .beat[data-reveal],
+  .portraitFrame {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .workCard,
+  .rowTitle::after { transition: none; }
+  .workCard:hover,
+  .workCard:focus-visible { transform: none; }
+}

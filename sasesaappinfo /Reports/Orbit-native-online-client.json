@@ -1,0 +1,27 @@
+{
+  "client" : "Unmodified Orbit\/OnlineClient.swift and Orbit\/Domain.swift compiled for native macOS Foundation URLSession",
+  "failure" : null,
+  "finishedAt" : "2026-09-15T16:00:01Z",
+  "limitations" : [
+    "Native macOS harness; this run does not exercise iPhone UI, iOS Keychain storage, foreground polling, or nearby MultipeerConnectivity.",
+    "Nearby support shim only supplies the unchanged name validator and packet-size constant needed by OnlineClient."
+  ],
+  "origin" : "https:\/\/orbit-together.sambesley04.chatgpt.site",
+  "passed" : [
+    "Native URLSession create and Codable response\/date\/UUID decoding",
+    "Native HTTPS invitation generation and parser round-trip",
+    "Guest joins pending without room-data disclosure",
+    "Host approval and authenticated guest snapshot",
+    "Guest chat and duplicate-command acknowledgement\/idempotence",
+    "Host and guest native place suggestions",
+    "Native typed HTTP rejection for unauthorized guest phase control",
+    "Native host\/guest ballots with lowercase rating IDs and consensus decoding",
+    "Host final decision and guest retrieval",
+    "Native terminal leave response",
+    "Host deletion and verified room cleanup via native typed 404"
+  ],
+  "passedCount" : 11,
+  "startedAt" : "2026-09-15T15:59:57Z",
+  "success" : true,
+  "syntheticRoomDeleted" : true
+}
