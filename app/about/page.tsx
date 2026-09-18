@@ -20,9 +20,9 @@ export const metadata = {
 };
 
 const gallery = [
-  { src: samAndDonkey, alt: "Sam smiling while petting a donkey inside the barn", caption: "quality control at the barn", tilt: -2 },
+  { src: samAndDonkey, alt: "Sam smiling while petting a donkey inside the barn", caption: "Donkeys!", tilt: -2 },
   { src: graduation, alt: "Six graduates in gowns posed on marble steps", caption: "graduation day at Emory", tilt: 1.5 },
-  { src: riverBoat, alt: "Friends in a small motorboat under a railroad bridge", caption: "the trusty vessel", tilt: -1.5 },
+  { src: riverBoat, alt: "Friends in a small motorboat under a railroad bridge", caption: "the Whaler", tilt: -1.5 },
   { src: octopusVase, alt: "A handmade ceramic vase covered in octopus tentacles", caption: "a ceramics detour", tilt: 2 },
   { src: mountainGoats, alt: "Two mountain goats on a rocky slope near the snow line", caption: "hiking company", tilt: -1 },
   { src: farmCat, alt: "A fluffy gray cat sitting in the grass", caption: "senior barn cat", tilt: 1.5 },
