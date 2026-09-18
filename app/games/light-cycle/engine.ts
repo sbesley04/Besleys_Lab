@@ -13,6 +13,8 @@ export interface CycleState {
   playerDir: Dir;
   aiDir: Dir;
   pendingDir: Dir;
+  /** A second turn typed inside one tick, applied on the next (as in Snake). */
+  queuedDir?: Dir | null;
   status: CycleStatus;
   ticks: number;
   round: number;
@@ -40,7 +42,7 @@ function roundPositions() {
 
 export function initialCycleState(difficulty: CycleDifficulty = "standard"): CycleState {
   return {
-    ...roundPositions(), playerDir: "right", aiDir: "left", pendingDir: "right",
+    ...roundPositions(), playerDir: "right", aiDir: "left", pendingDir: "right", queuedDir: null,
     status: "idle", ticks: 0, round: 1, playerScore: 0, aiScore: 0,
     matchWinner: null, difficulty,
   };
@@ -50,7 +52,7 @@ export function startNextRound(state: CycleState): CycleState {
   if (state.status === "running") return state;
   if (state.matchWinner) return { ...initialCycleState(state.difficulty), status: "running" };
   return {
-    ...state, ...roundPositions(), playerDir: "right", aiDir: "left", pendingDir: "right",
+    ...state, ...roundPositions(), playerDir: "right", aiDir: "left", pendingDir: "right", queuedDir: null,
     status: "running", ticks: 0,
     round: state.status === "idle" ? state.round : state.round + 1,
   };
@@ -95,7 +97,14 @@ export function chooseAiDir(state: CycleState): Dir {
 }
 
 export function turnCycle(state: CycleState, dir: Dir): CycleState {
-  if (state.status !== "running" || dir === OPPOSITE[state.playerDir]) return state;
+  if (state.status !== "running") return state;
+  // A turn is already pending this tick — buffer one more rather than judging
+  // the key against the old heading (which swallowed quick double turns).
+  if (state.pendingDir !== state.playerDir) {
+    if (dir === state.pendingDir || dir === OPPOSITE[state.pendingDir]) return state;
+    return { ...state, queuedDir: dir };
+  }
+  if (dir === OPPOSITE[state.playerDir]) return state;
   return { ...state, pendingDir: dir };
 }
 
@@ -124,6 +133,7 @@ export function tickCycle(state: CycleState): CycleState {
     player: playerCrash ? state.player : [p, ...state.player],
     ai: aiCrash ? state.ai : [a, ...state.ai],
     playerDir, aiDir, status, ticks: state.ticks + 1,
+    pendingDir: state.queuedDir ?? playerDir, queuedDir: null,
     playerScore, aiScore, matchWinner,
   };
 }

@@ -392,7 +392,7 @@ export default function ShelfManager() {
                         <button
                           type="button"
                           className={styles.smallButton}
-                          style={{ ...btn, ...errorText, borderColor: "color-mix(in srgb, #b94738 55%, var(--line))" }}
+                          style={{ ...btn, ...errorText, borderColor: "color-mix(in srgb, var(--danger) 55%, var(--line))" }}
                           disabled={busy}
                           onClick={() => removeDecor(t.id)}
                           title="Remove decor"

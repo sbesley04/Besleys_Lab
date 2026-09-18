@@ -238,6 +238,17 @@ export function reducer(state: GameState, action: Action): GameState {
   }
 }
 
+/** Where the active piece would land on a hard drop — drawn as a ghost so
+ *  the player can aim instead of guessing. Null when there's no piece. */
+export function ghostPiece(state: GameState): Piece | null {
+  if (!state.piece) return null;
+  let dropped = state.piece;
+  while (!collides(state.board, { ...dropped, row: dropped.row + 1 })) {
+    dropped = { ...dropped, row: dropped.row + 1 };
+  }
+  return dropped;
+}
+
 /** Merge the settled board with the active piece for rendering. */
 export function renderBoard(state: GameState): Board {
   const view = state.board.map((row) => row.slice());

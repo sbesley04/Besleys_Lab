@@ -16,6 +16,13 @@ export interface GameState {
   score: number;
   status: Status;
   won: boolean; // reached 2048 at least once (play continues)
+  /** Cells that just merged, and the cell that just appeared — the component
+   *  animates them. Optional so saves from before they existed still load. */
+  merged?: number[];
+  spawned?: number | null;
+  /** Bumped on every applied move, so the animation can replay on a cell that
+   *  merges twice in a row. */
+  moveCount?: number;
 }
 
 export type Action =
@@ -27,23 +34,26 @@ function emptyBoard(): Board {
   return Array<number>(SIZE * SIZE).fill(0);
 }
 
-/** Slide+merge a single line toward index 0. Returns the new line and points. */
-export function collapseLine(line: number[]): { line: number[]; gained: number } {
+/** Slide+merge a single line toward index 0. Returns the new line, the points,
+ *  and which output slots came from a merge (for the pop animation). */
+export function collapseLine(line: number[]): { line: number[]; gained: number; merged: number[] } {
   const tiles = line.filter((n) => n !== 0);
   const out: number[] = [];
+  const merged: number[] = [];
   let gained = 0;
   for (let i = 0; i < tiles.length; i++) {
     if (i + 1 < tiles.length && tiles[i] === tiles[i + 1]) {
-      const merged = tiles[i] * 2;
-      out.push(merged);
-      gained += merged;
+      const value = tiles[i] * 2;
+      merged.push(out.length);
+      out.push(value);
+      gained += value;
       i++; // skip the consumed partner
     } else {
       out.push(tiles[i]);
     }
   }
   while (out.length < line.length) out.push(0);
-  return { line: out, gained };
+  return { line: out, gained, merged };
 }
 
 // Extract the four lines for a direction, each ordered so index 0 is where
@@ -72,20 +82,22 @@ function lineIndices(dir: Dir): number[][] {
 
 /** Apply a move without spawning. Returns the resulting board, points, and
  *  whether anything moved. Exposed for testing. */
-export function applyMove(board: Board, dir: Dir): { board: Board; gained: number; moved: boolean } {
+export function applyMove(board: Board, dir: Dir): { board: Board; gained: number; moved: boolean; merged: number[] } {
   const next = board.slice();
+  const merged: number[] = [];
   let gained = 0;
   let moved = false;
   for (const idx of lineIndices(dir)) {
     const line = idx.map((i) => board[i]);
-    const { line: collapsed, gained: g } = collapseLine(line);
+    const { line: collapsed, gained: g, merged: slots } = collapseLine(line);
     gained += g;
+    for (const slot of slots) merged.push(idx[slot]);
     idx.forEach((cellIndex, k) => {
       if (next[cellIndex] !== collapsed[k]) moved = true;
       next[cellIndex] = collapsed[k];
     });
   }
-  return { board: next, gained, moved };
+  return { board: next, gained, moved, merged };
 }
 
 export function emptyCells(board: Board): number[] {
@@ -98,12 +110,17 @@ export function emptyCells(board: Board): number[] {
 
 /** Add a 2 (90%) or 4 (10%) to a random empty cell. rng injectable for tests. */
 export function spawn(board: Board, rng: () => number = Math.random): Board {
+  return spawnAt(board, rng).board;
+}
+
+/** As spawn(), but also says which cell appeared. */
+export function spawnAt(board: Board, rng: () => number = Math.random): { board: Board; cell: number | null } {
   const cells = emptyCells(board);
-  if (cells.length === 0) return board;
+  if (cells.length === 0) return { board, cell: null };
   const cell = cells[Math.floor(rng() * cells.length)];
   const next = board.slice();
   next[cell] = rng() < 0.9 ? 2 : 4;
-  return next;
+  return { board: next, cell };
 }
 
 /** No moves remain when the board is full and no neighbors are equal. */
@@ -121,7 +138,7 @@ export function isGameOver(board: Board): boolean {
 
 export function createInitialState(rng: () => number = Math.random): GameState {
   const board = spawn(spawn(emptyBoard(), rng), rng);
-  return { board, score: 0, status: "playing", won: false };
+  return { board, score: 0, status: "playing", won: false, merged: [], spawned: null, moveCount: 0 };
 }
 
 export function reducer(state: GameState, action: Action): GameState {
@@ -134,13 +151,16 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "MOVE": {
       if (state.status !== "playing") return state;
-      const { board, gained, moved } = applyMove(state.board, action.dir);
+      const { board, gained, moved, merged } = applyMove(state.board, action.dir);
       if (!moved) return state; // illegal move — no spawn, no change
 
-      const withSpawn = spawn(board);
+      const { board: withSpawn, cell } = spawnAt(board);
       const won = state.won || withSpawn.includes(2048);
       const status: Status = isGameOver(withSpawn) ? "over" : "playing";
-      return { board: withSpawn, score: state.score + gained, status, won };
+      return {
+        board: withSpawn, score: state.score + gained, status, won,
+        merged, spawned: cell, moveCount: (state.moveCount ?? 0) + 1,
+      };
     }
 
     default:

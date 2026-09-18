@@ -7,6 +7,7 @@ import {
   renderBoard,
   cellsFor,
   gravityIntervalMs,
+  ghostPiece,
   COLS,
   ROWS,
   type GameState,
@@ -63,6 +64,13 @@ const lc = {
 } as GameState;
 const afterClear = reducer(lc, { type: "HARD_DROP" });
 check("clears a completed line", afterClear.lines === 1 && afterClear.score >= 100);
+
+// --- ghost piece ---
+const g0 = { ...createInitialState(), piece: { key: "O", rotation: 0, row: 0, col: 3 }, status: "running" } as GameState;
+const ghost = ghostPiece(g0)!;
+const ghostDropped = reducer(g0, { type: "HARD_DROP" });
+check("ghost sits where a hard drop lands", cellsFor(ghost).every(([r, c]) => ghostDropped.board[r][c] === "O"));
+check("ghost reaches the floor on an empty board", Math.max(...cellsFor(ghost).map(([r]) => r)) === ROWS - 1);
 
 // --- misc ---
 check("gravity speeds up by level", gravityIntervalMs(1) > gravityIntervalMs(5));

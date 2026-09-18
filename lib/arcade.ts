@@ -5,7 +5,7 @@
 // Achievements unlock instantly against a localStorage cache (so guests get
 // the fun too), toast via a window CustomEvent that AchievementToaster
 // listens for, and persist to /api/achievements when signed in. The POST is
-// idempotent and 401s harmlessly for guests.
+// idempotent; guests never send it (see whenSignedIn below).
 // ---------------------------------------------------------------------------
 
 import { ACHIEVEMENTS_BY_KEY } from "@/lib/achievements";
@@ -33,6 +33,25 @@ function writeSet(key: string, set: Set<string>) {
   }
 }
 
+// Guests can't persist results or achievements, so POSTing them only earned a
+// 401 — one red console error per deal, win, and unlock. The root
+// AchievementToaster reports the session here; anything sent before the
+// session is known waits in a short queue and is flushed or dropped once it is.
+let authState: "unknown" | "signed-in" | "guest" = "unknown";
+let pendingSends: Array<() => void> = [];
+
+export function setArcadeAuth(signedIn: boolean) {
+  authState = signedIn ? "signed-in" : "guest";
+  const queued = pendingSends;
+  pendingSends = [];
+  if (signedIn) queued.forEach((send) => send());
+}
+
+function whenSignedIn(send: () => void) {
+  if (authState === "signed-in") send();
+  else if (authState === "unknown" && pendingSends.length < 50) pendingSends.push(send);
+}
+
 export function localUnlocked(): Set<string> {
   return readSet(LS_UNLOCKED);
 }
@@ -54,11 +73,13 @@ export function unlock(...keys: string[]) {
 
   window.dispatchEvent(new CustomEvent(TOAST_EVENT, { detail: { keys: fresh } }));
 
-  fetch("/api/achievements", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ keys: fresh }),
-  }).catch(() => {});
+  whenSignedIn(() => {
+    fetch("/api/achievements", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ keys: fresh }),
+    }).catch(() => {});
+  });
 }
 
 /** Push every locally-unlocked achievement to the server (idempotent), so
@@ -123,7 +144,7 @@ export function recordWin(slug: string) {
   if (wins.size >= 4) unlock("meta-renaissance");
 }
 
-/** Best-effort game-result recording (high scores / stats). Guests 401 quietly. */
+/** Best-effort game-result recording (high scores / stats). Signed-in only. */
 export function postResult(r: {
   game: string;
   mode?: string;
@@ -133,9 +154,11 @@ export function postResult(r: {
   moves?: number;
   meta?: unknown;
 }) {
-  fetch("/api/results", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(r),
-  }).catch(() => {});
+  whenSignedIn(() => {
+    fetch("/api/results", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(r),
+    }).catch(() => {});
+  });
 }

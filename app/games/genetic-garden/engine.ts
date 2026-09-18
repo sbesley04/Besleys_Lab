@@ -17,13 +17,17 @@ export interface Plant {
 export interface Phenotype { color: "white" | "rose" | "plum"; height: number; petals: number; drought: boolean }
 export interface Contract { id: string; title: string; description: string; tier: 1 | 2; matches: (p: Phenotype) => boolean }
 
+// Commissions are filled by *crosses* only (see GeneticGarden's breed()). Some
+// starter plants already show a commissioned phenotype — the wording says
+// "breed" so a matching starter doesn't read as a commission that failed to
+// tick.
 export const CONTRACTS: Contract[] = [
-  { id: "plum-seven", tier: 1, title: "Plum Exhibition", description: "Plum flower with at least seven petals.", matches: (p) => p.color === "plum" && p.petals >= 7 },
-  { id: "tall", tier: 1, title: "The Long Stem", description: "Plant at least 1.75 units tall.", matches: (p) => p.height >= 1.75 },
-  { id: "dry-white", tier: 1, title: "Drought Moon", description: "White, drought-resistant flower.", matches: (p) => p.color === "white" && p.drought },
-  { id: "white-nine", tier: 2, title: "Ninefold Moon", description: "White flower with exactly nine petals.", matches: (p) => p.color === "white" && p.petals === 9 },
-  { id: "plum-survivor", tier: 2, title: "Plum Prairie", description: "Tall, drought-resistant plum flower.", matches: (p) => p.color === "plum" && p.height >= 1.75 && p.drought },
-  { id: "rose-balance", tier: 2, title: "Balanced Rose", description: "Rose flower with eight petals and height from 1.40–1.80.", matches: (p) => p.color === "rose" && p.petals === 8 && p.height >= 1.4 && p.height <= 1.8 },
+  { id: "plum-seven", tier: 1, title: "Plum Exhibition", description: "Breed a plum flower with at least seven petals.", matches: (p) => p.color === "plum" && p.petals >= 7 },
+  { id: "tall", tier: 1, title: "The Long Stem", description: "Breed a plant at least 1.75 units tall.", matches: (p) => p.height >= 1.75 },
+  { id: "dry-white", tier: 1, title: "Drought Moon", description: "Breed a white, drought-resistant flower.", matches: (p) => p.color === "white" && p.drought },
+  { id: "white-nine", tier: 2, title: "Ninefold Moon", description: "Breed a white flower with exactly nine petals.", matches: (p) => p.color === "white" && p.petals === 9 },
+  { id: "plum-survivor", tier: 2, title: "Plum Prairie", description: "Breed a tall (1.75+), drought-resistant plum flower.", matches: (p) => p.color === "plum" && p.height >= 1.75 && p.drought },
+  { id: "rose-balance", tier: 2, title: "Balanced Rose", description: "Breed a rose flower with eight petals, 1.40–1.80 tall.", matches: (p) => p.color === "rose" && p.petals === 8 && p.height >= 1.4 && p.height <= 1.8 },
 ];
 
 export function phenotype(plant: Plant): Phenotype {

@@ -54,6 +54,16 @@ export default function Snake() {
     return () => clearInterval(id);
   }, [state.status, speed]);
 
+  // Pause when the tab is hidden; background timers still tick (throttled),
+  // so the snake used to wander into a wall while you were elsewhere.
+  useEffect(() => {
+    function onVisibility() {
+      if (document.hidden && stateRef.current.status === "running") dispatch({ type: "TOGGLE_PAUSE" });
+    }
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
+
   // Keyboard controls.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -69,7 +79,9 @@ export default function Snake() {
         return;
       }
       const dir = KEY_DIR[e.key] ?? KEY_DIR[e.key.toLowerCase()];
-      if (dir) {
+      // Only claim the arrow keys mid-game — otherwise they should still
+      // scroll the page.
+      if (dir && status === "running") {
         e.preventDefault();
         dispatch({ type: "TURN", dir });
       }

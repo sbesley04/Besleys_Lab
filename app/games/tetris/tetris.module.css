@@ -56,6 +56,12 @@
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25), inset 3px 3px 0 color-mix(in srgb, white 13%, transparent);
 }
 
+/* Landing preview: the piece's outline where a hard drop would put it. */
+.ghost {
+  border: 1.5px dashed color-mix(in srgb, var(--block, #1a1a1a) 70%, transparent);
+  background: color-mix(in srgb, var(--block, #1a1a1a) 12%, transparent);
+}
+
 /* Per-piece ink tones — muted, all in the ink/rust family. */
 .I { --block: #2b3a3a; }
 .O { --block: #6e5a3a; }

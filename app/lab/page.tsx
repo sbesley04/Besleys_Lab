@@ -29,8 +29,8 @@ export default function LabPage() {
         <p className={styles.eyebrow}>Experiments bench</p>
         <h1 className={styles.pageTitle}>The Lab</h1>
         <p className={styles.intro}>
-          A few of my favorite concepts from my courses at emory and self study, with an attempt to make them intuitive
-          to share with other people learning them!
+          Favorite concepts from my Emory coursework and self-study, rebuilt as interactive demos to make them
+          intuitive for anyone learning them.
         </p>
       </header>
 

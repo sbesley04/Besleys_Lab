@@ -197,6 +197,16 @@ export function todayString(d: Date = new Date()): string {
   return `${y}-${m}-${day}`;
 }
 
+/** The streak to show: the run ending today, or — before today's puzzle is
+ *  solved — the one ending yesterday, which is still alive. */
+export function currentStreak(dates: Set<string>, today: string): number {
+  const fromToday = streakEndingToday(dates, today);
+  if (fromToday > 0) return fromToday;
+  const cursor = new Date(`${today}T12:00:00`);
+  cursor.setDate(cursor.getDate() - 1);
+  return streakEndingToday(dates, todayString(cursor));
+}
+
 /** Longest run of consecutive dates ending at `today`, given a set of
  *  YYYY-MM-DD strings. Used for the daily-puzzle streak. */
 export function streakEndingToday(dates: Set<string>, today: string): number {

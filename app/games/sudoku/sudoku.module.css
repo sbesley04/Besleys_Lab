@@ -32,10 +32,17 @@
   outline-offset: 2px;
   z-index: 2;
 }
-.buttonActive {
+/* Keep the active button readable under the cursor: the plain .button:hover
+   rule above outranks a lone .buttonActive, so hovering the selected option
+   repainted its background under its paper-coloured label. */
+.buttonActive,
+.buttonActive:hover {
   background: var(--accent);
   color: var(--paper);
   border-color: var(--accent);
+}
+.buttonActive:hover {
+  background: color-mix(in srgb, var(--accent) 86%, var(--ink));
 }
 .button:disabled { opacity: 0.5; cursor: default; }
 
@@ -117,6 +124,7 @@
 }
 .padButton:hover { background: var(--paper-deep); }
 .padButton:disabled { opacity: 0.45; cursor: default; }
+.padSpent { color: var(--ink-soft); background: var(--paper-deep); opacity: 0.6; }
 .padActive { background: var(--accent); color: var(--paper); border-color: var(--accent); }
 
 .winBanner {

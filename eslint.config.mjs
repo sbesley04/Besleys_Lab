@@ -22,5 +22,6 @@ export default defineConfig([
     "next-env.d.ts",
     "public/**",
     "hungergames/arena-ui/**",
+    "sasesaappinfo */**",
   ]),
 ]);

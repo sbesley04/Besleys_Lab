@@ -20,7 +20,8 @@ type SnapshotProps = {
   aspect?: string;
   /** Passed to next/image for responsive loading. */
   sizes?: string;
-  priority?: boolean;
+  /** Preload this image — only for the page's LCP image (Next 16 `preload`). */
+  preload?: boolean;
   taped?: boolean;
 };
 
@@ -31,7 +32,7 @@ export default function Snapshot({
   tilt = 0,
   aspect,
   sizes,
-  priority,
+  preload,
   taped = true,
 }: SnapshotProps) {
   const style = { "--tilt": `${tilt}deg` } as CSSProperties;
@@ -49,7 +50,7 @@ export default function Snapshot({
             alt={alt}
             fill
             sizes={sizes}
-            priority={priority}
+            preload={preload}
             placeholder={isStatic ? "blur" : "empty"}
             unoptimized={isExternalImage(src)}
             style={{ objectFit: "cover" }}
@@ -59,7 +60,7 @@ export default function Snapshot({
             src={src as StaticImageData}
             alt={alt}
             sizes={sizes}
-            priority={priority}
+            preload={preload}
             placeholder="blur"
             style={{ width: "100%", height: "auto", display: "block" }}
           />

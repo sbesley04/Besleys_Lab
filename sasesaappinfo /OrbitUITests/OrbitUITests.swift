@@ -16,6 +16,8 @@ final class OrbitUITests: XCTestCase {
     private func button(_ identifier: String) -> XCUIElement { app.buttons.matching(identifier: identifier).firstMatch }
 
     private func scrollTo(_ element: XCUIElement, attempts: Int = 9) {
+        let keyboardDone = button("orbit.editor.done")
+        if app.keyboards.count > 0 && keyboardDone.exists && keyboardDone.isHittable { keyboardDone.tap() }
         for _ in 0..<attempts {
             if element.exists && element.isHittable { return }
             app.coordinate(withNormalizedOffset: CGVector(dx: 0.50, dy: 0.65)).press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.50, dy: 0.25)))
@@ -98,8 +100,8 @@ final class OrbitUITests: XCTestCase {
         scrollTo(photo); photo.tap()
         XCTAssertTrue(app.buttons["Cancel"].firstMatch.waitForExistence(timeout: 8), "Native photo selection must be reachable.")
         capture("Orbit-native-photo-picker")
-        let cell = app.collectionViews.cells.firstMatch
-        if cell.waitForExistence(timeout: 3) {
+        let cell = app.collectionViews.cells.allElementsBoundByIndex.first { $0.isHittable }
+        if let cell {
             cell.tap()
             if app.buttons["Add"].waitForExistence(timeout: 2) { app.buttons["Add"].tap() }
         } else { app.buttons["Cancel"].firstMatch.tap() }
@@ -112,9 +114,11 @@ final class OrbitUITests: XCTestCase {
         scrollTo(button("orbit.place.edit")); button("orbit.place.edit").tap()
         let changedTitle = app.descendants(matching: .any).matching(identifier: "orbit.editor.title").firstMatch
         changedTitle.tap(); changedTitle.typeText(" Friday")
+        let editedTitle = (changedTitle.value as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        XCTAssertTrue(editedTitle.contains("Friday"), "The edit must change the title before saving.")
         scrollTo(button("orbit.editor.save")); button("orbit.editor.save").tap()
         if app.alerts.buttons["OK"].waitForExistence(timeout: 4) { app.alerts.buttons["OK"].tap() }
-        XCTAssertTrue(app.staticTexts["Library courtyard picnic Friday"].waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts[editedTitle].waitForExistence(timeout: 6), "The exact edited title must persist after saving.")
     }
 
     func testActualMapsSearchAndReviewOrHonestNetworkError() {

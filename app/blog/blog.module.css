@@ -22,7 +22,7 @@
 }
 
 .pageTitle {
-  font-size: clamp(2.3rem, 7vw, 2.6rem);
+  font-size: var(--h1-size);
 }
 
 .intro {

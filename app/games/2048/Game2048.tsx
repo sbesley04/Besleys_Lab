@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import styles from "./game2048.module.css";
 import SaveSlot from "../_components/SaveSlot";
 import { unlock, recordPlayed, recordWin } from "@/lib/arcade";
@@ -15,7 +15,21 @@ const KEY_DIR: Record<string, Dir> = {
   ArrowRight: "right",
   ArrowUp: "up",
   ArrowDown: "down",
+  a: "left",
+  d: "right",
+  w: "up",
+  s: "down",
 };
+
+const BEST_KEY = "bl:2048-best";
+
+function readBest(): number {
+  try {
+    return parseInt(localStorage.getItem(BEST_KEY) ?? "0", 10) || 0;
+  } catch {
+    return 0;
+  }
+}
 
 function tileClass(v: number): string {
   if (v === 0) return styles.empty;
@@ -33,6 +47,7 @@ export default function Game2048() {
     won: false,
   }));
   const started = useRef(false);
+  const [best, setBest] = useState(0);
   const swipeStart = useRef<{ x: number; y: number; pointerId: number } | null>(null);
   const stateRef2048 = useRef(state);
   stateRef2048.current = state;
@@ -42,8 +57,19 @@ export default function Game2048() {
       started.current = true;
       dispatch({ type: "START" });
       recordPlayed("2048");
+      setBest(readBest());
     }
   }, []);
+
+  // Personal best, kept in this browser (the signed-in record lives on the
+  // server, but a guest's run deserves a number to beat too).
+  useEffect(() => {
+    if (state.score <= best) return;
+    setBest(state.score);
+    try {
+      localStorage.setItem(BEST_KEY, String(state.score));
+    } catch { /* storage blocked — the best score just won't persist */ }
+  }, [state.score, best]);
 
   // Progression + cameo hooks.
   const prevStatus = useRef(state.status);
@@ -64,7 +90,7 @@ export default function Game2048() {
     function onKey(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
       if (target?.closest("input, select, textarea, [contenteditable='true']")) return;
-      const dir = KEY_DIR[e.key];
+      const dir = KEY_DIR[e.key] ?? KEY_DIR[e.key.toLowerCase()];
       if (dir) {
         e.preventDefault();
         dispatch({ type: "MOVE", dir });
@@ -107,8 +133,12 @@ export default function Game2048() {
         >
           {state.board.map((v, i) => (
             <div
-              key={i}
-              className={`${styles.cell} ${tileClass(v)}`}
+              // The move count is part of the key so a cell that merges twice
+              // in a row remounts and replays its pop.
+              key={`${i}-${state.moveCount ?? 0}`}
+              className={`${styles.cell} ${tileClass(v)} ${
+                state.merged?.includes(i) ? styles.merged : state.spawned === i ? styles.spawned : ""
+              }`}
               role="gridcell"
               aria-label={`Row ${Math.floor(i / SIZE) + 1}, column ${(i % SIZE) + 1}: ${v || "empty"}`}
             >
@@ -135,6 +165,10 @@ export default function Game2048() {
           <div className={styles.stat} aria-live="polite">{state.score}</div>
         </div>
         <div className={styles.panel}>
+          <h3>Best</h3>
+          <div className={styles.stat}>{Math.max(best, state.score)}</div>
+        </div>
+        <div className={styles.panel}>
           <h3>Status</h3>
           <div className={styles.stat} style={{ fontSize: "1.1rem" }}>
             {state.won ? "2048 reached ✦" : "Keep merging"}
@@ -149,7 +183,7 @@ export default function Game2048() {
           <button type="button" onClick={() => move("down")} aria-label="Slide down">↓</button>
           <button type="button" onClick={() => move("right")} aria-label="Slide right">→</button>
         </div>
-        <p className={styles.help}>Arrow keys, swipe, or use the pad to slide. Equal tiles merge.</p>
+        <p className={styles.help}>Arrow keys or WASD, swipe, or use the pad to slide. Equal tiles merge.</p>
         <SaveSlot<GameState>
           game="2048"
           getState={() => stateRef2048.current}

@@ -17,6 +17,9 @@ export interface GameState {
   snake: Point[]; // head is index 0
   dir: Dir; // current heading
   pendingDir: Dir; // next heading, applied on TICK (prevents mid-tick reversal)
+  /** A second turn typed within the same tick, applied on the tick after.
+   *  Optional so saves from before it existed still load. */
+  queuedDir?: Dir | null;
   food: Point;
   /** Almost always a rust dot — but 1 in 50 is a bladderfish worth 5. */
   foodKind: FoodKind;
@@ -81,6 +84,7 @@ export function createInitialState(): GameState {
     snake: start,
     dir: "right",
     pendingDir: "right",
+    queuedDir: null,
     food: { x: 14, y: 10 },
     foodKind: "dot",
     score: 0,
@@ -96,6 +100,7 @@ export function reducer(state: GameState, action: Action): GameState {
       return {
         ...action.state,
         foodKind: action.state.foodKind ?? "dot",
+        queuedDir: action.state.queuedDir ?? null,
         status: action.state.status === "running" ? "paused" : action.state.status,
       };
 
@@ -109,6 +114,13 @@ export function reducer(state: GameState, action: Action): GameState {
 
     case "TURN": {
       if (state.status !== "running") return state;
+      // A turn is already waiting for this tick: buffer one more behind it.
+      // Checking the second key against the old heading used to swallow a
+      // quick "up, left" as a reversal, so tight U-turns were impossible.
+      if (state.pendingDir !== state.dir) {
+        if (action.dir === state.pendingDir || action.dir === OPPOSITE[state.pendingDir]) return state;
+        return { ...state, queuedDir: action.dir };
+      }
       // Ignore reversals relative to the *committed* direction.
       if (action.dir === OPPOSITE[state.dir]) return state;
       return { ...state, pendingDir: action.dir };
@@ -136,17 +148,20 @@ export function reducer(state: GameState, action: Action): GameState {
       }
 
       const snake = [next, ...body];
+      const pendingDir = state.queuedDir ?? dir;
       if (eating) {
         return {
           ...state,
           snake,
           dir,
+          pendingDir,
+          queuedDir: null,
           food: placeFood(snake),
           foodKind: rollFoodKind(),
           score: state.score + (state.foodKind === "fish" ? FISH_SCORE : 1),
         };
       }
-      return { ...state, snake, dir };
+      return { ...state, snake, dir, pendingDir, queuedDir: null };
     }
 
     default:

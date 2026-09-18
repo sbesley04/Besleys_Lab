@@ -32,7 +32,7 @@ xcrun simctl boot "$ORBIT_DEVICE" 2>/dev/null || true
 if [ "${ORBIT_SKIP_WINDOW:-0}" != "1" ]; then open -a Simulator; fi
 xcrun simctl bootstatus "$ORBIT_DEVICE" -b
 
-ORBIT_BUILD_DIR="${ORBIT_BUILD_DIR:-${TMPDIR:-/tmp}/OrbitDerivedData}"
+ORBIT_BUILD_DIR="${ORBIT_BUILD_DIR:-/tmp/OrbitFinalDerivedData}"
 mkdir -p Reports
 echo "Building Orbit. Details: Reports/Orbit-build.log"
 if ! xcodebuild -project Orbit.xcodeproj -scheme Orbit -configuration Debug \

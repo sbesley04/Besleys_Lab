@@ -11,6 +11,7 @@ import {
   renderBoard,
   gravityIntervalMs,
   cellsFor,
+  ghostPiece,
   type Cell,
   type GameState,
   type TetrominoKey,
@@ -44,6 +45,7 @@ export default function Tetris() {
 
   // Progression + cameo hooks, driven by state transitions.
   const prevLines = useRef(state.lines);
+  const prevLines10 = useRef(state.lines);
   const prevStatus = useRef(state.status);
   useEffect(() => {
     // Four lines in one settle. Both states must be mid-run so a loaded save
@@ -54,7 +56,9 @@ export default function Tetris() {
     prevLines.current = state.lines;
 
     if (state.level >= 10) unlock("tet-marathon");
-    if (state.lines >= 10) recordWin("tetris");
+    // Once per crossing, not on every gravity tick after it.
+    if (state.lines >= 10 && prevLines10.current < 10) recordWin("tetris");
+    prevLines10.current = state.lines;
 
     if (state.status === "over" && prevStatus.current !== "over" && state.level === 1 && state.score < 300) {
       summonZote("general");
@@ -68,6 +72,16 @@ export default function Tetris() {
     const id = setInterval(() => dispatch({ type: "TICK" }), gravityIntervalMs(state.level));
     return () => clearInterval(id);
   }, [state.status, state.level]);
+
+  // Switching tabs used to leave the game running (throttled to one tick a
+  // second in the background), so you'd come back to a buried stack.
+  useEffect(() => {
+    function onVisibility() {
+      if (document.hidden && stateRef.current.status === "running") dispatch({ type: "TOGGLE_PAUSE" });
+    }
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
 
   // --- Keyboard controls. ---
   useEffect(() => {
@@ -121,6 +135,8 @@ export default function Tetris() {
   }, []);
 
   const view = renderBoard(state);
+  const ghost = state.status === "running" ? ghostPiece(state) : null;
+  const ghostCells = new Set(ghost ? cellsFor(ghost).map(([r, c]) => r * 10 + c) : []);
   // The field illustration advances every two levels. It is deliberately
   // independent from the active theme so a long run still feels like it moves
   // through distinct places instead of merely changing palette.
@@ -139,7 +155,13 @@ export default function Tetris() {
             row.map((cell, c) => (
               <div
                 key={`${r}-${c}`}
-                className={`${styles.cell} ${cell ? `${styles.filled} ${PIECE_CLASS[cell]}` : ""}`}
+                className={`${styles.cell} ${
+                  cell
+                    ? `${styles.filled} ${PIECE_CLASS[cell]}`
+                    : ghost && ghostCells.has(r * 10 + c)
+                      ? `${styles.ghost} ${PIECE_CLASS[ghost.key]}`
+                      : ""
+                }`}
               />
             )),
           )}

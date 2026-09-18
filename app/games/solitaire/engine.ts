@@ -272,7 +272,9 @@ export function drawStock(state: SolState): SolState | null {
   return null;
 }
 
-function takeFrom(state: SolState, from: Loc): Card[] | null {
+/** The cards a player would lift from `from`, or null if nothing legal is
+ *  there. Exported so the UI can decide whether a press can become a drag. */
+export function pickUp(state: SolState, from: Loc): Card[] | null {
   if (from.zone === "waste") {
     const c = state.waste[state.waste.length - 1];
     return c ? [c] : null;
@@ -284,12 +286,21 @@ function takeFrom(state: SolState, from: Loc): Card[] | null {
   if (from.zone === "tableau") {
     return movableGroup(state, state.tableau[from.i] ?? [], from.index);
   }
-  return null; // foundations are one-way
+  // Klondike lets a card come back down off a foundation (Windows rules) —
+  // sometimes it's the only way to give a stranded red 5 somewhere to land.
+  // FreeCell foundations are one-way, and Spider's hold finished runs.
+  if (from.zone === "foundation" && state.variant === "klondike") {
+    const pile = state.foundations[from.i] ?? [];
+    const c = pile[pile.length - 1];
+    return c ? [c] : null;
+  }
+  return null;
 }
 
 function removeFrom(state: SolState, from: Loc, count: number) {
   if (from.zone === "waste") state.waste.pop();
   else if (from.zone === "cell") state.cells[from.i] = null;
+  else if (from.zone === "foundation") state.foundations[from.i].pop();
   else if (from.zone === "tableau") {
     state.tableau[from.i].splice(from.index, count);
     flipExposed(state.tableau[from.i]);
@@ -298,13 +309,13 @@ function removeFrom(state: SolState, from: Loc, count: number) {
 
 export function move(state: SolState, from: Loc, to: Loc): SolState | null {
   if (state.won) return null;
-  const group = takeFrom(state, from);
+  const group = pickUp(state, from);
   if (!group) return null;
   const single = group.length === 1 ? group[0] : null;
 
   if (to.zone === "foundation") {
     if (!single) return null;
-    if (state.variant === "spider") return null;
+    if (state.variant === "spider" || from.zone === "foundation") return null;
     const pile = state.foundations[to.i];
     if (!pile || !canFoundation(pile, single)) return null;
     const s = clone(state);
@@ -318,7 +329,7 @@ export function move(state: SolState, from: Loc, to: Loc): SolState | null {
   if (to.zone === "cell") {
     if (state.variant !== "freecell" || !single) return null;
     if (state.cells[to.i] !== null) return null;
-    if (from.zone === "cell") return null;
+    if (from.zone === "cell" || from.zone === "foundation") return null;
     const s = clone(state);
     removeFrom(s, from, 1);
     s.cells[to.i] = single;
@@ -335,6 +346,9 @@ export function move(state: SolState, from: Loc, to: Loc): SolState | null {
     if (top) {
       if (!top.faceUp || !stacks(state.variant, top, group[0])) return null;
     } else {
+      // Lifting a whole column into another empty column changes nothing but
+      // the move counter.
+      if (from.zone === "tableau" && from.index === 0) return null;
       // Empty column rules: Klondike wants a King (or the Joker); Spider and
       // FreeCell take anything.
       if (state.variant === "klondike" && group[0].rank !== 13 && !isJoker(group[0])) return null;
@@ -361,6 +375,39 @@ export function autoToFoundation(state: SolState, from: Loc): SolState | null {
     if (s) return s;
   }
   return null;
+}
+
+// --- auto-finish ---------------------------------------------------------------
+
+function rankAt(state: SolState, loc: Loc): number {
+  if (loc.zone === "cell") return state.cells[loc.i]?.rank ?? 99;
+  if (loc.zone === "tableau") return state.tableau[loc.i][loc.index]?.rank ?? 99;
+  return 99;
+}
+
+/** One tidy step of the end-game cleanup: the lowest card that can go home
+ *  from a free cell or a column top. Null when nothing can. */
+export function autoFinishStep(state: SolState): SolState | null {
+  if (state.won || state.variant === "spider") return null;
+  const sources: Loc[] = [];
+  state.cells.forEach((c, i) => { if (c) sources.push({ zone: "cell", i }); });
+  state.tableau.forEach((p, i) => { if (p.length) sources.push({ zone: "tableau", i, index: p.length - 1 }); });
+  sources.sort((a, b) => rankAt(state, a) - rankAt(state, b));
+  for (const loc of sources) {
+    const next = autoToFoundation(state, loc);
+    if (next) return next;
+  }
+  return null;
+}
+
+/** True when nothing is hidden and repeatedly sending cards home wins — the
+ *  point where making the player click 30 more times is just busywork. */
+export function canAutoFinish(state: SolState): boolean {
+  if (state.won || state.variant === "spider") return false;
+  if (state.stock.length > 0 || state.waste.length > 0 || faceDownCount(state) > 0) return false;
+  let s: SolState | null = state;
+  for (let guard = 0; guard < 60 && s && !s.won; guard++) s = autoFinishStep(s);
+  return !!s?.won;
 }
 
 /** Mode string used for high-score buckets ("klondike-3", "spider-2", ...). */

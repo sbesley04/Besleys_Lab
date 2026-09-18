@@ -18,6 +18,13 @@
   --accent:       #74644F; /* muted rust, AA on paper panels */
   --accent-warm:  #6A5B45; /* hover warmth — keeps text AA   */
   --line:         rgba(0, 0, 0, 0.12); /* pencil-stroke border */
+  --danger:       #b94738; /* destructive actions — borders, error text */
+
+  /* Project dossier accents (projects page) — muted so they sit on any theme */
+  --dossier-slate: #64758a;
+  --dossier-clay:  #9a684d;
+  --dossier-moss:  #647a55;
+  --dossier-bark:  #786251;
 
   /* Typography */
   --font-display: 'Playfair Display', 'Lora', Georgia, serif;
@@ -42,6 +49,8 @@
 
   /* Spacing rhythm */
   --radius: 6px;
+  --h1-size:  clamp(2.3rem, 7vw, 2.6rem); /* inner-page titles; the home cover sets its own */
+  --header-h: 76px; /* sticky SiteHeader height; SiteHeader measures the live value */
 }
 
 /* --- Secret themes ---------------------------------------------------------
@@ -261,9 +270,6 @@
    panel titles as <h3> at 0.72rem (~11.5px) — a 20px bloom on an 11px uppercase
    letterspaced label is pure smear. Below ~0.8rem, drop to a tight glow. */
 :root[data-egg='tron'] .panel h3,
-:root[data-egg='tron'] .section-kicker {
-  text-shadow: 0 0 4px rgba(125, 249, 255, 0.3);
-}
 
 /* Body copy: no bloom. `body` carries a 3px shadow and every `a` a 6px one, so
    long-form text (blog prose, game help text, captions) was rendering blurred.
@@ -730,7 +736,10 @@ html.bl-jumping { overflow: hidden; }
 *::after { box-sizing: border-box; }
 
 html, body { margin: 0; padding: 0; }
-html { scrollbar-gutter: stable; }
+html {
+  scrollbar-gutter: stable;
+  scroll-padding-top: var(--header-h); /* anchors land below the sticky header */
+}
 
 body {
   background-color: var(--paper);
@@ -840,14 +849,6 @@ a:hover { color: var(--accent-warm); }
   box-shadow: var(--shadow-lift);
 }
 
-/* A clear but still notebook-like directional CTA for the home page. */
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1rem;
-  margin-top: 1.55rem;
-}
 .button-primary,
 .button-secondary {
   display: inline-flex;
@@ -950,20 +951,6 @@ a:hover { color: var(--accent-warm); }
   white-space: nowrap !important;
   border: 0 !important;
 }
-.section-card { position: relative; overflow: hidden; }
-.section-card-featured {
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
-  background: linear-gradient(135deg, var(--paper-deep), color-mix(in srgb, var(--paper-deep) 78%, var(--accent) 22%));
-}
-.section-kicker {
-  display: block;
-  margin-bottom: 0.25rem;
-  color: var(--accent);
-  font: 600 0.66rem var(--font-body);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-
 /* Project cards receive a small visual dossier mark so text-heavy case studies
    are easier to scan without inventing screenshots of products. */
 .project-card { position: relative; padding-left: clamp(7.5rem, 9vw, 8rem) !important; }
@@ -1091,17 +1078,26 @@ a:hover { color: var(--accent-warm); }
   scrollbar-width: thin;
 }
 .photo-strip > * { scroll-snap-align: start; }
-
-/* --- Photo cluster: overlapping prints for the home hero ------------------ */
-.photo-cluster {
-  position: relative;
-  display: grid;
-  grid-template-columns: 7fr 6fr;
-  align-items: start;
-  gap: 0;
+/* Flat variant (home page): no tape, no tilt, no handwriting. New selectors
+   only — the base .snapshot rules used everywhere else are untouched. */
+.photo-strip--flat .snapshot {
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: none;
 }
-.photo-cluster > :first-child { z-index: 1; }
-.photo-cluster > :last-child { margin: 34% 0 0 -18%; }
+.photo-strip--flat .snapshot:hover { box-shadow: none; }
+.photo-strip--flat .snapshot-frame { border-radius: 10px; }
+.photo-strip--flat .snapshot-caption {
+  margin-top: 0.55rem;
+  font: 500 0.78rem / 1.3 var(--font-body);
+  letter-spacing: 0.02em;
+  text-align: left;
+  color: var(--ink-soft);
+}
+
 
 /* --- Photo gallery grid (About page) --------------------------------------- */
 .photo-grid {
@@ -1246,6 +1242,10 @@ a:hover { color: var(--accent-warm); }
   flex-direction: column;
   gap: 0.25rem;
   padding-top: 0.55rem;
+}
+.site-footer-copyright {
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
 }
 .site-footer-navs {
   display: grid;

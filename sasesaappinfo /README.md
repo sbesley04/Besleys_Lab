@@ -1,4 +1,8 @@
-# Gather & Keeps
+# Gather, Keeps & Orbit
+
+**Orbit is the newest app:** [setup and features](README-Orbit.md). Double-click **Open Orbit.command** for its populated iPhone demo, or select the **Orbit** scheme in the workspace. Its companion service is live and supports friends in different locations through private invitations and host approval.
+
+## Gather & Keeps
 
 Two independent native iPhone and iPad apps in one Xcode workspace. Both work without an account, API key, subscription, or backend. They share a restrained cream-and-sage visual system, but solve different parts of choosing a plan.
 
@@ -39,7 +43,7 @@ The demo includes twelve fictional saves across food, activities, trips, and sho
 
 On first launch, choose **Try the demo** or start with an empty personal collection. Switch modes in the app's settings. Demo and personal data are persisted separately. Resetting demo data affects only the demo collection.
 
-Data is stored in each app's private device container. There is no analytics or developer-operated server. Device-level Apple backups may include app data according to the device's backup settings. Share/export actions hand the selected content to the destination you choose. Keep your exported backups somewhere you control.
+Gather and Keeps store data in each app's private device container and use no analytics or developer-operated server. Orbit's separate online service and data handling are described in [its guide](README-Orbit.md). Device-level Apple backups may include app data according to the device's backup settings. Share/export actions hand the selected content to the destination you choose. Keep your exported backups somewhere you control.
 
 Reminders use the device's notification permission and can be canceled inside the app. External links use the system browser. Booking is a user action on the linked service; these apps do not make reservations or payments automatically.
 

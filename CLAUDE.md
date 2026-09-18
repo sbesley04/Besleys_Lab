@@ -3,7 +3,8 @@
 Personal site of Samuel Besley: blog, projects, digital library, an arcade of
 browser games, and `/lab` — interactive machine-learning demos. Next.js App
 Router + Prisma + NextAuth. Built by hand; no UI framework, no chart library,
-no game engine.
+no game engine. The one animation dependency is `motion` (`motion/react`), used
+only by the home hero's scroll effects (`app/_components/home/HomeHero.tsx`).
 
 ## Commands
 

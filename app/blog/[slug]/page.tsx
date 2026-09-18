@@ -85,7 +85,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               sizes="(max-width: 720px) 100vw, 700px"
               unoptimized={isExternalImage(post.coverImage)}
               style={{ objectFit: "cover" }}
-              priority
+              preload
             />
           </div>
         )}

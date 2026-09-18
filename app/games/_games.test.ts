@@ -23,6 +23,14 @@ ok(s1.snake.length === len0, "snake length preserved when not eating");
 // cannot reverse into itself: facing right, press left -> ignored
 const s2 = snakeReducer(s, { type: "TURN", dir: "left" });
 ok(s2.pendingDir === "right", "snake ignores 180 reversal");
+// Two quick turns inside one tick: both land, one tick apart.
+const uTurn = snakeReducer(snakeReducer(s, { type: "TURN", dir: "up" }), { type: "TURN", dir: "left" });
+ok(uTurn.pendingDir === "up" && uTurn.queuedDir === "left", "snake buffers a second turn within a tick");
+const uTurn1 = snakeReducer(uTurn, { type: "TICK" });
+const uTurn2 = snakeReducer(uTurn1, { type: "TICK" });
+ok(uTurn1.dir === "up" && uTurn2.dir === "left" && uTurn2.status === "running", "snake plays buffered turns on consecutive ticks");
+const suicide = snakeReducer(snakeReducer(s, { type: "TURN", dir: "up" }), { type: "TURN", dir: "down" });
+ok(suicide.queuedDir == null, "snake won't buffer a reversal of the pending turn");
 // eating grows + scores: place food directly ahead of head
 let eat: SnakeState = { ...s, food: { x: s.snake[0].x + 1, y: s.snake[0].y } };
 let s3 = snakeReducer(eat, { type: "TICK" });
@@ -49,6 +57,9 @@ const b: Board = [2,2,0,0, 0,0,0,0, 4,0,4,0, 0,0,0,0];
 const mv = applyMove(b, "left");
 ok(mv.moved === true, "2048 applyMove detects movement");
 ok(mv.board[0] === 4 && mv.board[8] === 8, "2048 applyMove merges rows left");
+ok(JSON.stringify(mv.merged) === JSON.stringify([0, 8]), "2048 reports which cells merged");
+const spun = g2048Reducer({ board: b, score: 0, status: "playing" as const, won: false }, { type: "MOVE", dir: "left" });
+ok(spun.spawned != null && spun.board[spun.spawned] > 0 && (spun.moveCount ?? 0) === 1, "2048 reports the spawned cell and counts the move");
 // no movement on already-collapsed
 const settled: Board = [4,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0];
 ok(applyMove(settled, "left").moved === false, "2048 no move when nothing slides");
@@ -78,6 +89,13 @@ const bs = step(bg);
 ok(JSON.stringify(bs) === JSON.stringify(bg), "life block is stable");
 // empty stays empty
 ok(step(emptyGrid()).every((c)=>!c), "life empty stays empty");
+// A dying colony stops the run.
+let lone = emptyGrid();
+lone[6*LC+6] = true;
+const dies = lifeReducer({ grid: lone, generation: 4, running: true }, { type: "STEP" });
+ok(!dies.running && dies.grid.every((c) => !c), "life pauses itself once everything dies");
+const blinkerRuns = lifeReducer({ grid: g, generation: 0, running: true }, { type: "STEP" });
+ok(blinkerRuns.running, "life keeps running while anything is alive");
 
 // Glider detection: canonical phase, a rotated step of it, and non-gliders.
 let gl = emptyGrid();

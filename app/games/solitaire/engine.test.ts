@@ -2,7 +2,8 @@
 //   npm run test:solitaire   (node --experimental-strip-types)
 import {
   dealKlondike, dealSpider, dealFreecell, drawStock, move, autoToFoundation,
-  movableGroup, faceDownCount, modeOf, isJoker, type SolState, type Card,
+  movableGroup, faceDownCount, modeOf, isJoker, pickUp, canAutoFinish, autoFinishStep,
+  type SolState, type Card,
 } from "./engine.ts";
 
 let fail = 0;
@@ -59,8 +60,17 @@ let m = move(p, { zone: "tableau", i: 1, index: 0 }, { zone: "tableau", i: 0 });
 ok(m !== null && m.tableau[0].length === 2, "red 6 stacks on black 7");
 ok(move(p, { zone: "tableau", i: 0, index: 0 }, { zone: "tableau", i: 1 }) === null, "black 7 won't stack on red 6");
 ok(move(p, { zone: "tableau", i: 1, index: 0 }, { zone: "tableau", i: 2 }) === null, "only kings on empty klondike column");
-let pk = pos({ tableau: [[card(0, 13)], [], [], [], [], [], []] });
-ok(move(pk, { zone: "tableau", i: 0, index: 0 }, { zone: "tableau", i: 1 }) !== null, "king moves to empty column");
+let pk = pos({ tableau: [[card(1, 4, false), card(0, 13)], [], [], [], [], [], []] });
+ok(move(pk, { zone: "tableau", i: 0, index: 1 }, { zone: "tableau", i: 1 }) !== null, "king moves to empty column");
+let pkAlone = pos({ tableau: [[card(0, 13)], [], [], [], [], [], []] });
+ok(move(pkAlone, { zone: "tableau", i: 0, index: 0 }, { zone: "tableau", i: 1 }) === null, "a whole column won't shuffle into another empty column");
+
+// Klondike foundations give cards back; FreeCell's don't.
+let pback = pos({ foundations: [[card(1, 1), card(1, 2), card(1, 3)], [], [], []], tableau: [[card(0, 4)], [], [], [], [], [], []] });
+let back = move(pback, { zone: "foundation", i: 0 }, { zone: "tableau", i: 0 });
+ok(!!back && back.foundations[0].length === 2 && back.tableau[0].length === 2, "klondike foundation card comes back down onto the tableau");
+ok(move(pback, { zone: "foundation", i: 0 }, { zone: "foundation", i: 1 }) === null, "no foundation-to-foundation shuffling");
+ok(pickUp({ ...pback, variant: "freecell", cells: [null, null, null, null] }, { zone: "foundation", i: 0 }) === null, "freecell foundations are one-way");
 
 // Foundation: ace up, then two of same suit.
 let pf = pos({ tableau: [[card(0, 1)], [card(0, 2)], [], [], [], [], []] });
@@ -144,6 +154,20 @@ ok(move(tight, { zone: "tableau", i: 0, index: 0 }, { zone: "tableau", i: 1 }) =
 let toCell = move(fcPos, { zone: "tableau", i: 0, index: 3 }, { zone: "cell", i: 0 });
 ok(toCell !== null && toCell.cells[0] !== null, "single card parks in a free cell");
 ok(toCell !== null && move(toCell, { zone: "cell", i: 0 }, { zone: "cell", i: 1 }) === null, "no cell-to-cell shuffling");
+
+// Auto-finish: offered only when nothing is hidden and greedy play wins.
+const finishable = pos({
+  foundations: [fullPile(0).slice(0, 10), fullPile(1).slice(0, 11), fullPile(2), fullPile(3)],
+  tableau: [[card(0, 13), card(1, 12)], [card(0, 12), card(1, 13)], [card(0, 11)], [], [], [], []],
+});
+ok(canAutoFinish(finishable), "auto-finish offered for an open end-game");
+let fin: SolState | null = finishable;
+for (let i = 0; i < 10 && fin && !fin.won; i++) fin = autoFinishStep(fin);
+ok(!!fin && fin.won, "auto-finish steps play the game out");
+ok(!canAutoFinish({ ...finishable, stock: [card(0, 9, false)] }), "no auto-finish while the stock has cards");
+ok(!canAutoFinish({ ...finishable, tableau: [[card(3, 5, false), card(0, 11)], ...finishable.tableau.slice(1)] }), "no auto-finish with face-down cards");
+const stuckFc: SolState = { ...fcPos, tableau: [[card(0, 1), card(0, 2)], [], [], [], [], [], [], []], foundations: [fullPile(1), fullPile(2), fullPile(3), []] };
+ok(!canAutoFinish({ ...stuckFc, tableau: [[card(0, 13), ...fullPile(0).slice(0, 12)], [], [], [], [], [], [], []] }), "auto-finish refuses a buried ace");
 
 // autoToFoundation finds the right pile.
 let auto = pos({ tableau: [[card(2, 1)], [], [], [], [], [], []] });

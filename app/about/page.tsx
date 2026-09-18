@@ -43,7 +43,7 @@ export default function AboutPage() {
         }}
       >
         <div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.6rem", margin: "0 0 1.25rem" }}>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "var(--h1-size)", margin: "0 0 1.25rem" }}>
             About
           </h1>
           <div style={{ fontSize: "1.05rem", color: "var(--ink)" }}>
@@ -86,7 +86,7 @@ export default function AboutPage() {
             tilt={2}
             aspect="3 / 4"
             sizes="(max-width: 720px) 80vw, 320px"
-            priority
+            preload
           />
         </div>
       </div>

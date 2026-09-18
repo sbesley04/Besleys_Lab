@@ -69,10 +69,17 @@
   outline-offset: 2px;
 }
 .button:disabled { opacity: 0.45; cursor: default; }
-.buttonActive {
+/* Keep the active button readable under the cursor: the plain .button:hover
+   rule above outranks a lone .buttonActive, so hovering the selected option
+   repainted its background under its paper-coloured label. */
+.buttonActive,
+.buttonActive:hover {
   background: var(--accent);
   color: var(--paper);
   border-color: var(--accent);
+}
+.buttonActive:hover {
+  background: color-mix(in srgb, var(--accent) 86%, var(--ink));
 }
 
 .sliderGrid {

@@ -71,7 +71,7 @@ export default function ResumePage() {
         }}
       >
         <div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.6rem", margin: 0 }}>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "var(--h1-size)", margin: 0 }}>
             Samuel Besley
           </h1>
           <p style={{ color: "var(--ink-soft)", margin: "0.25rem 0 0" }}>

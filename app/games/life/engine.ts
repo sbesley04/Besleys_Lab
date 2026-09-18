@@ -159,8 +159,13 @@ export function reducer(state: GameState, action: Action): GameState {
       return { ...state, grid };
     }
 
-    case "STEP":
-      return { ...state, grid: step(state.grid), generation: state.generation + 1 };
+    case "STEP": {
+      // A colony that dies out stops the clock; leaving the loop running on an
+      // empty grid just burned generations with nothing to see.
+      const grid = step(state.grid);
+      const alive = grid.some(Boolean);
+      return { ...state, grid, generation: state.generation + 1, running: alive && state.running };
+    }
 
     case "PLAY":
       return { ...state, running: true };

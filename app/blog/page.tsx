@@ -33,7 +33,7 @@ export default async function BlogIndex() {
     <main className={styles.page}>
       <h1 className={styles.pageTitle}>Blog</h1>
       <p className={styles.intro}>
-        Some of the work I've done in writing and a space for new thoughts
+        Some of the work I&rsquo;ve done in writing and a space for new thoughts
       </p>
 
       {posts === null ? (
@@ -65,7 +65,7 @@ export default async function BlogIndex() {
                         sizes="(max-width: 520px) calc(100vw - 4rem), 96px"
                         unoptimized={isExternalImage(post.coverImage)}
                         style={{ objectFit: "cover" }}
-                        priority={index === 0}
+                        preload={index === 0}
                       />
                     </div>
                   )}

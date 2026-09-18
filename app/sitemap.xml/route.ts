@@ -1,26 +1,23 @@
 import { prisma } from "@/lib/prisma";
 import { requestOrigin } from "@/lib/baseUrl";
+import { games } from "@/app/games/registry";
+import { demos } from "@/app/lab/registry";
 
 // Sitemap served from a route handler (see robots.txt/route.ts for why this
 // isn't app/sitemap.ts): static pages plus published blog posts and books.
 // URLs use the requesting host so the sitemap is valid on every domain the
 // site answers on (Google requires sitemap URLs to match the sitemap's host).
+//
+// Game and demo URLs are derived from the registries so a new entry is indexed
+// without anyone remembering to edit this list (it drifted to 5 of 13 games and
+// zero lab demos before this was wired up).
 export const dynamic = "force-dynamic";
 
-const STATIC_PATHS = [
-  "",
-  "/about",
-  "/projects",
-  "/blog",
-  "/games",
-  "/games/hunger-games",
-  "/games/tetris",
-  "/games/snake",
-  "/games/2048",
-  "/games/life",
-  "/library",
-  "/contact",
-  "/resume",
+const STATIC_PATHS = ["", "/about", "/projects", "/blog", "/lab", "/games", "/library", "/contact", "/resume", "/privacy"];
+
+const REGISTRY_PATHS = [
+  ...games.map((g) => `/games/${g.slug}`),
+  ...demos.map((d) => `/lab/${d.slug}`),
 ];
 
 function esc(s: string): string {
@@ -41,7 +38,7 @@ export async function GET(): Promise<Response> {
   ]);
 
   const urls = [
-    ...STATIC_PATHS.map((p) => `  <url><loc>${esc(`${base}${p}`)}</loc></url>`),
+    ...[...STATIC_PATHS, ...REGISTRY_PATHS].map((p) => `  <url><loc>${esc(`${base}${p}`)}</loc></url>`),
     ...posts.map(
       (p) =>
         `  <url><loc>${esc(`${base}/blog/${p.slug}`)}</loc><lastmod>${p.updatedAt.toISOString()}</lastmod></url>`,

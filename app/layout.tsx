@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Script from "next/script";
 import { Playfair_Display, Inter, Caveat, Michroma, IBM_Plex_Mono } from "next/font/google";
 import Providers from "./providers";
 import SiteHeader from "./_components/SiteHeader";
+import SiteFooter from "./_components/SiteFooter";
 import AchievementToaster from "./_components/AchievementToaster";
 import EggEffects from "./_components/eggs/EggEffects";
 import ZoteHeckler from "./_components/eggs/ZoteHeckler";
-import ThemeAtmosphere from "./_components/ThemeAtmosphere";
 import SecretTerminal from "./_components/eggs/SecretTerminal";
 import HyperspaceJump from "./_components/eggs/HyperspaceJump";
-import GridText from "./_components/eggs/GridText";
 import "./globals.css";
 // Grid-only global styles (scoped under :root[data-egg='tron']).
 import "./_styles/grid-motion.css";
@@ -28,7 +26,7 @@ const playfair = Playfair_Display({
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-body",
   display: "swap",
 });
@@ -73,7 +71,6 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "Besley's Lab",
     type: "website",
-    images: [{ url: "/photos/farm-dusk.jpg", width: 1800, height: 1350, alt: "The Besley farm at dusk" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -111,41 +108,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div id="main-content" className="site-content" tabIndex={-1}>
               {children}
             </div>
-            <footer className="site-footer">
-              <div className="site-footer-signoff">
-                <span>
-                  <GridText
-                    paper={<>Besley&rsquo;s Lab — built by hand, one commit at a time.</>}
-                    grid="BESLEY'S LAB // COMPILED BY HAND — END OF LINE"
-                  />
-                </span>
-                <span className="margin-note">
-                  <ThemeAtmosphere />
-                  <GridText paper="thanks for stopping by ✌︎" grid="end of line ▮" />
-                </span>
-              </div>
-              <div className="site-footer-navs">
-                <nav aria-label="Explore" className="site-footer-nav">
-                  <span className="site-footer-label" aria-hidden="true">Explore</span>
-                  <Link href="/blog">Blog</Link>
-                  <Link href="/projects">Projects</Link>
-                  <Link href="/lab">Lab</Link>
-                  <Link href="/games">Games</Link>
-                  <Link href="/library">Library</Link>
-                </nav>
-                <nav aria-label="More information" className="site-footer-nav">
-                  <span className="site-footer-label" aria-hidden="true">More</span>
-                  <Link href="/about">About</Link>
-                  <Link href="/contact">Contact</Link>
-                  <Link href="/resume">Resume</Link>
-                  <Link href="/privacy">Privacy</Link>
-                  <a href="https://github.com/sbesley04" target="_blank" rel="noopener noreferrer">
-                    GitHub<span aria-hidden="true"> ↗</span>
-                    <span className="sr-only"> (opens in a new tab)</span>
-                  </a>
-                </nav>
-              </div>
-            </footer>
+            <SiteFooter />
           </div>
           <AchievementToaster />
           <EggEffects />

@@ -33,7 +33,7 @@
 .pageTitle {
   margin: 0 0 0.35rem;
   font-family: var(--font-display);
-  font-size: clamp(2.15rem, 7vw, 2.8rem);
+  font-size: var(--h1-size);
   text-wrap: balance;
 }
 

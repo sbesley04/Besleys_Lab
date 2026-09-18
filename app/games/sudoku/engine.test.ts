@@ -2,7 +2,7 @@
 //   npm run test:sudoku   (node --experimental-strip-types)
 import {
   generate, generateFull, solve, solveCount, isLegal, isSolved,
-  seededRng, dailySeed, streakEndingToday, todayString, CLUE_TARGETS, type Grid,
+  seededRng, dailySeed, streakEndingToday, currentStreak, todayString, CLUE_TARGETS, type Grid,
 } from "./engine.ts";
 
 let fail = 0;
@@ -53,6 +53,10 @@ const today = todayString(new Date("2026-07-20T12:00:00"));
 const dates = new Set(["2026-07-20", "2026-07-19", "2026-07-18", "2026-07-15"]);
 ok(streakEndingToday(dates, today) === 3, "streak counts consecutive days");
 ok(streakEndingToday(new Set(["2026-07-19"]), today) === 0, "streak requires today");
+// The displayed streak survives until the day after it would break.
+ok(currentStreak(dates, today) === 3, "current streak matches when today is solved");
+ok(currentStreak(new Set(["2026-07-19", "2026-07-18"]), today) === 2, "yesterday's streak still counts before today's solve");
+ok(currentStreak(new Set(["2026-07-18"]), today) === 0, "a two-day gap ends the streak");
 
 console.log(fail === 0 ? "\nALL SUDOKU ENGINE TESTS PASSED" : `\n${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -53,15 +53,19 @@ export function makeDungeon(rng: () => number = Math.random): Card[] {
   return shuffle(cards, rng);
 }
 
-function refill(state: ScoundrelState, countRoom = true): ScoundrelState {
+function refill(state: ScoundrelState): ScoundrelState {
   const deck = state.deck.slice();
   const room = state.room.slice();
   while (room.length < 4 && deck.length > 0) room.push(deck.shift()!);
   const status = room.length === 0 && deck.length === 0 ? "won" : state.status;
+  // Only a room that actually gained cards is a new room. With the deck spent,
+  // the last card used to "enter" a phantom room — bumping the depth counter
+  // and handing back a second tonic.
+  const newRoom = room.length > state.room.length;
   return {
     ...state, deck, room, status,
-    tonicUsedThisRoom: countRoom ? false : state.tonicUsedThisRoom,
-    roomsEntered: countRoom && room.length > 0 ? state.roomsEntered + 1 : state.roomsEntered,
+    tonicUsedThisRoom: newRoom ? false : state.tonicUsedThisRoom,
+    roomsEntered: newRoom ? state.roomsEntered + 1 : state.roomsEntered,
   };
 }
 
@@ -87,7 +91,6 @@ export function resolveCard(
   const card = state.room.find((c) => c.id === cardId);
   if (!card) return state;
   const kind = cardKind(card);
-  if (kind === "tonic" && state.tonicUsedThisRoom) return state;
 
   const rules = DIFFICULTIES[state.difficulty];
   const power = cardPower(card);
@@ -101,9 +104,12 @@ export function resolveCard(
     if (combat === "weapon" && weapon > 0) weapon = Math.max(0, weapon - Math.ceil(monster / 3));
   } else if (kind === "weapon") {
     weapon = power;
-  } else {
+  } else if (!state.tonicUsedThisRoom) {
     health = Math.min(rules.maxHealth, health + Math.min(power, rules.tonicCap));
   }
+  // A second tonic in the same room is simply discarded (the classic rule).
+  // Refusing it outright could strand two hearts in a room that can neither
+  // refill (it needs to be down to one card) nor be fled (it needs four).
 
   const next: ScoundrelState = {
     ...state, health, weapon,
@@ -122,6 +128,13 @@ export function resolveCard(
 export function fleeRoom(state: ScoundrelState): ScoundrelState {
   if (state.status !== "playing" || state.fledLastRoom || state.room.length < 4) return state;
   return refill({ ...state, deck: [...state.deck, ...state.room], room: [], fledLastRoom: true });
+}
+
+/** Health a tonic would actually restore right now (0 when it'd be discarded). */
+export function tonicHeal(state: ScoundrelState, card: Card): number {
+  if (cardKind(card) !== "tonic" || state.tonicUsedThisRoom) return 0;
+  const rules = DIFFICULTIES[state.difficulty];
+  return Math.max(0, Math.min(rules.maxHealth, state.health + Math.min(cardPower(card), rules.tonicCap)) - state.health);
 }
 
 export function scoundrelScore(state: ScoundrelState): number {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { ACHIEVEMENTS_BY_KEY } from "@/lib/achievements";
-import { TOAST_EVENT, syncLocalToServer } from "@/lib/arcade";
+import { TOAST_EVENT, setArcadeAuth, syncLocalToServer } from "@/lib/arcade";
 import { secretArtifactForAchievement } from "@/lib/secretArtifacts";
 import Image from "next/image";
 
@@ -24,6 +24,8 @@ export default function AchievementToaster() {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
+    if (status === "loading") return;
+    setArcadeAuth(status === "authenticated");
     if (status === "authenticated") syncLocalToServer();
   }, [status]);
 

@@ -42,7 +42,7 @@ const channels = [
 export default function ContactPage() {
   return (
     <main style={{ maxWidth: 640, margin: "0 auto", padding: "3.5rem 1.5rem" }}>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2.6rem", margin: "0 0 0.25rem" }}>
+      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "var(--h1-size)", margin: "0 0 0.25rem" }}>
         Contact
       </h1>
       <p style={{ color: "var(--ink-soft)", marginBottom: "2rem", maxWidth: "50ch" }}>

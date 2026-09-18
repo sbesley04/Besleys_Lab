@@ -10,7 +10,9 @@ import { isExternalImage } from "@/lib/images";
 // expands into a full-screen lightbox. Click anywhere (or Esc / the × button)
 // to put the print back; ← → browse neighbours.
 
-export default function FieldNotebook({ notes }: { notes: FieldNoteEntry[] }) {
+// `flat` (home page) drops the tape, tilt and handwriting — a plain grid of
+// rounded photos. The lightbox is identical either way.
+export default function FieldNotebook({ notes, flat = false }: { notes: FieldNoteEntry[]; flat?: boolean }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -70,7 +72,7 @@ export default function FieldNotebook({ notes }: { notes: FieldNoteEntry[] }) {
 
   return (
     <>
-      <div className="photo-strip">
+      <div className={flat ? "photo-strip photo-strip--flat" : "photo-strip"}>
         {notes.map((note, i) => (
           <button
             key={note.id}
@@ -87,7 +89,8 @@ export default function FieldNotebook({ notes }: { notes: FieldNoteEntry[] }) {
               src={note.image}
               alt={note.alt}
               caption={note.caption}
-              tilt={note.tilt}
+              tilt={flat ? 0 : note.tilt}
+              taped={!flat}
               aspect="4 / 5"
               sizes="240px"
             />
@@ -152,7 +155,8 @@ export default function FieldNotebook({ notes }: { notes: FieldNoteEntry[] }) {
                 fill
                 sizes="100vw"
                 style={{ objectFit: "contain" }}
-                priority
+                loading="eager"
+                fetchPriority="high"
                 unoptimized={isExternalImage(activeNote.image)}
               />
             </div>

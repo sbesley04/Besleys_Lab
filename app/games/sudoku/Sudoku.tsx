@@ -6,7 +6,7 @@ import styles from "./sudoku.module.css";
 import SaveSlot from "../_components/SaveSlot";
 import { unlock, recordPlayed, recordWin, postResult } from "@/lib/arcade";
 import {
-  generate, seededRng, dailySeed, todayString, isSolved, streakEndingToday,
+  generate, seededRng, dailySeed, todayString, isSolved, streakEndingToday, currentStreak,
   peers, DIFFICULTIES, type Difficulty, type Grid,
 } from "./engine";
 
@@ -202,9 +202,17 @@ export default function Sudoku() {
   // Keyboard input.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (selected == null) return;
       const target = e.target as HTMLElement | null;
       if (target?.closest("input, select, textarea, [contenteditable='true']")) return;
+      if (selected == null) {
+        // An arrow key with nothing chosen starts in the middle of the board,
+        // so the grid is reachable without clicking first.
+        if (e.key.startsWith("Arrow")) {
+          e.preventDefault();
+          setSelected(40);
+        }
+        return;
+      }
       if (e.key >= "1" && e.key <= "9") {
         e.preventDefault();
         enter(selected, parseInt(e.key, 10));
@@ -262,6 +270,11 @@ export default function Sudoku() {
   }, [solved]);
 
   const selectedValue = selected != null ? entries[selected] : 0;
+  // A digit placed nine times is spent; dim it on the pad.
+  const placed = entries.reduce<number[]>((counts, v) => {
+    if (v > 0) counts[v - 1]++;
+    return counts;
+  }, Array(9).fill(0));
 
   return (
     <div className={styles.layout}>
@@ -359,7 +372,14 @@ export default function Sudoku() {
 
         <div className={styles.pad}>
           {Array.from({ length: 9 }, (_, k) => (
-            <button key={k} type="button" className={styles.padButton} onClick={() => selected != null && enter(selected, k + 1)} disabled={selected == null || given(selected) || solved}>
+            <button
+              key={k}
+              type="button"
+              className={`${styles.padButton} ${placed[k] >= 9 ? styles.padSpent : ""}`}
+              onClick={() => selected != null && enter(selected, k + 1)}
+              disabled={selected == null || given(selected) || solved}
+              aria-label={`Write ${k + 1}${placed[k] >= 9 ? ", all nine placed" : ""}`}
+            >
               {k + 1}
             </button>
           ))}
@@ -454,7 +474,7 @@ function Stats({ refresh }: { refresh: number }) {
       if (typeof date === "string") dailyDates.add(date);
     } catch { /* ignore */ }
   }
-  const streak = streakEndingToday(dailyDates, todayString());
+  const streak = currentStreak(dailyDates, todayString());
 
   const rows = [...DIFFICULTIES, "daily"].filter((m) => summary.byMode[m]);
   if (rows.length === 0) return null;

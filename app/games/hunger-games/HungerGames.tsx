@@ -171,8 +171,12 @@ export default function HungerGames({
     const a = document.createElement("a");
     a.href = url;
     a.download = "hunger-games-roster.json";
+    // Firefox needs the anchor in the document, and revoking the URL in the
+    // same tick can cancel the download before it starts.
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
   async function importRoster(file: File) {

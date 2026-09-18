@@ -39,6 +39,22 @@
   color: var(--ink);
 }
 
+/* A tile that just appeared, and one that just absorbed its twin. */
+.spawned { animation: tileIn 180ms ease-out; }
+.merged { animation: tilePop 200ms ease-out; }
+@keyframes tileIn {
+  from { transform: scale(0.4); opacity: 0.2; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes tilePop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spawned, .merged { animation: none; }
+}
+
 /* Empty cells read as faint recesses. */
 .empty {
   background: rgba(0, 0, 0, 0.03);

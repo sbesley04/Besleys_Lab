@@ -30,6 +30,7 @@ export default function Minesweeper() {
   const [scoreRefresh, setScoreRefresh] = useState(0);
   const longPress = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suppressClick = useRef(false);
+  const lastTouchFlag = useRef(0);
 
   useEffect(() => recordPlayed("minesweeper"), []);
 
@@ -65,6 +66,7 @@ export default function Minesweeper() {
     finishedRef.current = board;
 
     const timeMs = startedAt === null ? 0 : Date.now() - startedAt;
+    if (startedAt !== null) setNow(startedAt + timeMs); // show the exact finishing time
     if (board.status === "won") {
       postResult({ game: "minesweeper", mode: levelKey, event: "win", timeMs });
       recordWin("minesweeper");
@@ -101,6 +103,9 @@ export default function Minesweeper() {
 
   function onFlag(i: number, e: React.MouseEvent) {
     e.preventDefault();
+    // Android fires contextmenu at the end of a long press, on top of the
+    // timer below — flagging and then instantly unflagging the same cell.
+    if (performance.now() - lastTouchFlag.current < 1000) return;
     begin();
     setBoard((b) => toggleFlag(b, i));
   }
@@ -109,6 +114,7 @@ export default function Minesweeper() {
   function onTouchStart(i: number) {
     longPress.current = setTimeout(() => {
       suppressClick.current = true;
+      lastTouchFlag.current = performance.now();
       begin();
       setBoard((b) => toggleFlag(b, i));
     }, 380);
@@ -178,10 +184,14 @@ export default function Minesweeper() {
           {board.cells.map((cell, i) => {
             const revealed = cell.state === "revealed";
             const isMine = revealed && cell.mine;
+            // After a loss, a flag that wasn't hiding a mine is marked wrong —
+            // it's the first thing you want to see on the finished board.
+            const wrongFlag = board.status === "lost" && cell.state === "flagged" && !cell.mine;
             const cls = [
               styles.cell,
               revealed ? styles.revealed : "",
               cell.state === "flagged" ? styles.flagged : "",
+              wrongFlag ? styles.wrongFlag : "",
               isMine ? styles.mine : "",
               board.detonated === i ? styles.boom : "",
               revealed && !cell.mine && cell.adjacent > 0 ? styles[`n${cell.adjacent}`] : "",
@@ -199,7 +209,7 @@ export default function Minesweeper() {
                 onTouchCancel={onTouchEnd}
                 aria-label={
                   cell.state === "flagged"
-                    ? `Row ${Math.floor(i / board.cols) + 1}, column ${(i % board.cols) + 1}: flagged`
+                    ? `Row ${Math.floor(i / board.cols) + 1}, column ${(i % board.cols) + 1}: flagged${wrongFlag ? ", incorrectly" : ""}`
                     : revealed
                       ? cell.mine
                         ? `Row ${Math.floor(i / board.cols) + 1}, column ${(i % board.cols) + 1}: mine`
@@ -208,7 +218,7 @@ export default function Minesweeper() {
                 }
               >
                 {cell.state === "flagged"
-                  ? "⚑"
+                  ? wrongFlag ? "✗" : "⚑"
                   : revealed
                     ? cell.mine ? "✷" : cell.adjacent > 0 ? cell.adjacent : ""
                     : ""}

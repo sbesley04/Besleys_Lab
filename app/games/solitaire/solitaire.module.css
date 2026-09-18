@@ -1,5 +1,8 @@
-/* Solitaire — paper-lab card table. Cards are DOM divs sized by a --card-w
-   variable so Klondike (7 cols) and Spider (10 cols) both fit the frame. */
+/* Solitaire — paper-lab card table. Cards are DOM buttons sized by --card-w,
+   which is derived from the table's own width (container units) so Klondike
+   (7 cols), FreeCell (8) and Spider (10) each fill the table edge to edge. The
+   top row shares the tableau's column tracks, so stock, waste, cells and
+   foundations sit directly above the columns they belong with. */
 
 .layout {
   display: flex;
@@ -24,29 +27,42 @@
   color: var(--ink);
   cursor: pointer;
 }
-.button:hover { background: var(--paper-deep); }
+.button:hover:not(:disabled) { background: var(--paper-deep); }
+.button:disabled { cursor: default; opacity: 0.5; }
 .button:focus-visible,
 .slot:focus-visible,
 .card:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-.buttonActive {
+/* The hover rule above outranks a lone .buttonActive, which used to repaint
+   the active variant paper-deep under its paper-coloured label — hovering the
+   selected mode made its name vanish. */
+.buttonActive,
+.buttonActive:hover:not(:disabled) {
   background: var(--accent);
   color: var(--paper);
   border-color: var(--accent);
+}
+.buttonActive:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 86%, var(--ink));
 }
 
 .statusRow {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.4rem 1.2rem;
   font-size: 0.85rem;
   color: var(--ink-soft);
 }
 
 .table {
-  --card-w: clamp(44px, 9.5vw, 72px);
+  --gap-min: 8px;
+  --card-max: 86px;
+  /* Fallback for browsers without container units. */
+  --card-w: clamp(40px, 9.5vw, 72px);
+  container-type: inline-size;
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--paper-deep) 88%, transparent), color-mix(in srgb, var(--paper) 55%, transparent)),
     repeating-linear-gradient(90deg, transparent 0 27px, color-mix(in srgb, var(--line) 17%, transparent) 27px 28px),
@@ -55,26 +71,47 @@
   border-radius: var(--radius);
   padding: 0.9rem;
   user-select: none;
+  -webkit-user-select: none;
 }
-.tableWide { --card-w: clamp(30px, 6.8vw, 52px); }
-
-.topRow {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+@supports (width: 1cqi) {
+  /* Unregistered custom properties resolve where they're used, so 100cqi is
+     measured against .table — the cards' nearest query container. */
+  .table {
+    --card-w: min(var(--card-max), calc((100cqi - (var(--cols, 7) - 1) * var(--gap-min)) / var(--cols, 7)));
+  }
 }
-.pileGroup { display: flex; gap: 0.45rem; }
+.tableFreecell { --card-max: 88px; }
+.tableSpider { --card-max: 76px; --gap-min: 5px; }
 
+.topRow,
 .columns {
   display: grid;
-  gap: 0.45rem;
+  grid-template-columns: repeat(var(--cols, 7), var(--card-w));
+  justify-content: space-between;
+  column-gap: var(--gap-min);
+}
+.topRow {
+  align-items: start;
+  margin-bottom: calc(var(--card-w) * 0.24 + 0.35rem);
 }
 
+.zone {
+  position: relative;
+  width: var(--card-w);
+}
+
+/* Piles stretch to the tallest column, so the open felt under a short column
+   is still part of its drop target. */
 .pile {
   position: relative;
-  min-height: calc(var(--card-w) * 1.45);
+  width: var(--card-w);
+  min-height: calc(var(--card-w) * 1.4);
+}
+
+/* Draw-3 fans the last three flips into the empty track beside the waste. */
+.waste {
+  position: relative;
+  height: calc(var(--card-w) * 1.4);
 }
 
 .slot {
@@ -117,10 +154,17 @@
   overflow: hidden;
 }
 
-.stacked { margin-top: calc(var(--card-w) * -0.98); }
+/* A card is 1.4 widths tall; --fan (set per pile) is how much of each
+   face-up card peeks out below the one before it. */
+.stacked { margin-top: calc(var(--card-w) * (var(--fan, 0.42) - 1.4)); }
 .stackedTight { margin-top: calc(var(--card-w) * -1.26); }
 .pile .card { display: block; }
-.pile > * + * { }
+
+.fanCard {
+  position: absolute;
+  top: 0;
+  left: calc(var(--fan-i, 0) * var(--card-w) * 0.3);
+}
 
 .faceDown {
   background: #17324d;
@@ -128,6 +172,30 @@
   box-shadow:
     0 2px 5px color-mix(in srgb, var(--ink) 20%, transparent),
     inset 0 0 0 1px rgba(255, 250, 235, 0.58);
+}
+
+.stockStack {
+  box-shadow:
+    2px 2px 0 -1px var(--paper-deep),
+    3px 3px 0 -1px rgba(15, 32, 49, 0.6),
+    0 3px 7px color-mix(in srgb, var(--ink) 22%, transparent),
+    inset 0 0 0 1px rgba(255, 250, 235, 0.58);
+}
+.stockCount,
+.runCount {
+  position: absolute;
+  z-index: 4;
+  right: 6%;
+  bottom: 5%;
+  min-width: calc(var(--card-w) * 0.3);
+  padding: 0.08em 0.4em;
+  border-radius: 99px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 max(10px, calc(var(--card-w) * 0.15)) / 1.3 var(--font-body);
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(20, 16, 10, 0.3);
+  pointer-events: none;
 }
 
 .faceDown::before {
@@ -292,6 +360,29 @@
 :global(:root[data-theme="rose"]) .faceDown { filter: hue-rotate(320deg) saturate(0.92); }
 :global(:root[data-theme="noir"]) .faceDown { filter: grayscale(1) contrast(1.45); }
 
+/* Face-up cards can be dragged, so a touch on one must not start a page pan. */
+.card:not(.faceDown) { touch-action: none; }
+
+/* A dragged card rides above everything and ignores the pointer, so the drop
+   target underneath can be found. */
+.card[data-dragging] {
+  z-index: 50;
+  pointer-events: none;
+  transition: none;
+  box-shadow:
+    0 14px 26px color-mix(in srgb, var(--ink) 26%, transparent),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+.celebrate .foundationCard {
+  animation: winHop 1s cubic-bezier(0.3, 0.7, 0.3, 1) calc(var(--i, 0) * 140ms) 2 both;
+}
+@keyframes winHop {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  35% { transform: translateY(-16px) rotate(-4deg); }
+  62% { transform: translateY(0) rotate(2deg); }
+}
+
 .selected {
   outline: 2.5px solid var(--accent);
   outline-offset: 1px;
@@ -303,6 +394,7 @@
   .card { transition: none; }
   .flipping { animation: none; }
   .selected { transform: none; }
+  .celebrate .foundationCard { animation: none; }
 }
 
 .winBanner {
@@ -359,18 +451,11 @@
 
 @media (max-width: 520px) {
   .table {
-    --card-w: clamp(29px, 9.5vw, 72px);
-    padding: 0.65rem;
+    --gap-min: 4px;
+    padding: 0.55rem;
   }
-  .tableWide {
-    --card-w: clamp(22px, 6.2vw, 52px);
-  }
-  .columns,
-  .pileGroup {
-    gap: 0.25rem;
-  }
-  .tableWide .columns {
-    gap: 0.18rem;
+  .tableSpider {
+    --gap-min: 2px;
   }
 }
 
@@ -397,7 +482,7 @@
      gameplay signal into a lookup. (It is also the only scheme CSS alone can
      apply consistently here — foundation cards carry no suit in the DOM.) */
   /* Lifted from #ff3ca0: that scored ~6:1 on this card body against cyan's
-     ~17:1, so the red pips were visibly dimmer — and in .tableWide the corner
+     ~17:1, so the red pips were visibly dimmer — and on a Spider table the corner
      suit is only ~5.6px, where the dimmer of the two is the one that drops out.
      This keeps the hot-pink identity at roughly 8:1. */
   --g-red: #ff79c8;

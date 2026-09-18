@@ -31,10 +31,17 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-.buttonActive {
+/* Keep the active button readable under the cursor: the plain .button:hover
+   rule above outranks a lone .buttonActive, so hovering the selected option
+   repainted its background under its paper-coloured label. */
+.buttonActive,
+.buttonActive:hover {
   background: var(--accent);
   color: var(--paper);
   border-color: var(--accent);
+}
+.buttonActive:hover {
+  background: color-mix(in srgb, var(--accent) 86%, var(--ink));
 }
 
 .statusRow {
@@ -62,6 +69,8 @@
   border: 2px solid var(--ink);
   background: var(--paper);
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   width: max-content;
   touch-action: manipulation;
 }
@@ -97,6 +106,7 @@
 .revealed:hover { background: var(--print); }
 
 .flagged { color: #a03c2e; }
+.wrongFlag { color: #6b6b6b; background: rgba(160, 60, 46, 0.12); text-decoration: none; }
 .boom { background: #c0503f !important; }
 .mine { background: rgba(160, 60, 46, 0.22); }
 

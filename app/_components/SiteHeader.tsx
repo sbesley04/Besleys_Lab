@@ -83,6 +83,23 @@ export default function SiteHeader() {
     setNavOpen(false);
   }, [pathname]);
 
+  // Publish the bar's live height as --header-h (globals.css carries a static
+  // fallback) so anything pinned under the sticky header — the home hero's
+  // portrait, anchor scroll-padding — stays correct when the bar wraps.
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar || typeof ResizeObserver === "undefined") return;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--header-h", `${Math.round(bar.offsetHeight)}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(bar);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--header-h");
+    };
+  }, []);
+
   const user = session?.user;
   const isStaff = user?.role === "ADMIN" || user?.role === "EDITOR";
   const handle = user?.username || user?.name || user?.email || "";

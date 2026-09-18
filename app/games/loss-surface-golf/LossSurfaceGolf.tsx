@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { SURFACES_BY_KEY, OPTIMIZER_LABELS, SCHEDULE_LABELS, type OptimizerKey, type ScheduleKey } from "@/app/lab/gradient-descent/engine";
+import { heatRamp } from "@/app/lab/_components/plot";
 import { postResult, recordPlayed, recordWin, unlock } from "@/lib/arcade";
 import SaveSlot from "../_components/SaveSlot";
 import styles from "../_components/newGame.module.css";
@@ -9,6 +10,8 @@ import { HOLES, createGolf, golfScore, holeBudget, holeTolerance, nextHole, retr
 
 const W = 400;
 const H = 300;
+/** Backing-store scale for the terrain canvas, so contours stay crisp. */
+const TERRAIN_DPR = 2;
 
 export default function LossSurfaceGolf() {
   const [game, setGame] = useState<GolfState>(createGolf);
@@ -20,8 +23,15 @@ export default function LossSurfaceGolf() {
   const [steps, setSteps] = useState(18);
   const gameRef = useRef(game);
   const reported = useRef(false);
+  const terrainRef = useRef<HTMLCanvasElement>(null);
+  const [paletteVersion, bumpPalette] = useReducer((n: number) => n + 1, 0);
   gameRef.current = game;
   useEffect(() => recordPlayed("loss-surface-golf"), []);
+  // The heat ramp swaps to the Grid palette on the Konami egg; repaint then.
+  useEffect(() => {
+    window.addEventListener("bl:egg-change", bumpPalette);
+    return () => window.removeEventListener("bl:egg-change", bumpPalette);
+  }, []);
   useEffect(() => {
     if (game.status !== "complete" || reported.current) return;
     reported.current = true; recordWin("loss-surface-golf");
@@ -39,6 +49,52 @@ export default function LossSurfaceGolf() {
   const sx = (x: number) => ((x - surface.domain[0]) / (surface.domain[1] - surface.domain[0])) * W;
   const sy = (y: number) => H - ((y - surface.range[0]) / (surface.range[1] - surface.range[0])) * H;
   const points = game.ball.path.map(([x, y]) => `${sx(x)},${sy(y)}`).join(" ");
+  // The hole drawn at its true size: the tolerance is a radius in loss-space,
+  // so on the stretched ravine surfaces it becomes an ellipse. (It used to be a
+  // fixed 14px circle, several times the real target — a ball could sit inside
+  // the drawn ring and still not count as sunk.)
+  const tolerance = holeTolerance(hole, game.difficulty);
+  const holeRx = Math.max(1.6, (tolerance / (surface.domain[1] - surface.domain[0])) * W);
+  const holeRy = Math.max(1.6, (tolerance / (surface.range[1] - surface.range[0])) * H);
+
+  // Paint the real loss surface under the course: heat for height, darker
+  // bands as contour lines. Previously the backdrop was decorative rings
+  // centred off the hole, which showed neither the ravine nor the bumps.
+  useEffect(() => {
+    const canvas = terrainRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const cw = W * TERRAIN_DPR;
+    const ch = H * TERRAIN_DPR;
+    canvas.width = cw;
+    canvas.height = ch;
+    const img = ctx.createImageData(cw, ch);
+    const vals = new Float64Array(cw * ch);
+    let lo = Infinity;
+    let hi = -Infinity;
+    const [x0, x1] = surface.domain;
+    const [y0, y1] = surface.range;
+    for (let py = 0; py < ch; py++) {
+      const y = y1 - ((py + 0.5) / ch) * (y1 - y0);
+      for (let px = 0; px < cw; px++) {
+        const v = surface.f(x0 + ((px + 0.5) / cw) * (x1 - x0), y);
+        vals[py * cw + px] = v;
+        if (v < lo) lo = v;
+        if (v > hi) hi = v;
+      }
+    }
+    const span = hi - lo || 1;
+    for (let i = 0; i < vals.length; i++) {
+      const t = Math.sqrt((vals[i] - lo) / span);
+      const shade = (t * 12) % 1 < 0.06 ? 0.84 : 1;
+      const [r, g, b] = heatRamp(t);
+      img.data[i * 4] = r * shade;
+      img.data[i * 4 + 1] = g * shade;
+      img.data[i * 4 + 2] = b * shade;
+      img.data[i * 4 + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+  }, [surface, paletteVersion]);
   const restart = (nextDifficulty = difficulty) => { reported.current = false; setDifficulty(nextDifficulty); setGame(createGolf(nextDifficulty)); };
 
   return (
@@ -52,11 +108,20 @@ export default function LossSurfaceGolf() {
       {game.status === "failed" ? <div className={styles.banner} role="alert"><h2>{game.ball.diverged ? "Shot diverged." : "Compute allocation exhausted."}</h2><p className={styles.help}>Take a two-stroke penalty and retry this surface with a different optimizer or schedule.</p><button className={styles.button} onClick={() => setGame((g) => retryHole(g))}>Penalty + retry</button></div> : null}
       <div className={styles.layout}>
         <section className={styles.course} aria-label={`Loss-surface golf course: ${hole.name}`}>
-          <svg viewBox={`0 0 ${W} ${H}`} className={styles.pathSvg} aria-hidden="true" focusable="false"><circle className={styles.holeTarget} cx={sx(0)} cy={sy(0)} r="14" /><polyline className={styles.pathLine} points={points} />{game.ball.path.map(([x, y], i) => <circle key={i} className={styles.pathPoint} cx={sx(x)} cy={sy(y)} r={i === game.ball.path.length - 1 ? 0 : 2.2} />)}{!game.ball.diverged ? <circle className={styles.ball} cx={sx(game.ball.x)} cy={sy(game.ball.y)} r="6" /> : null}</svg>
+          <canvas ref={terrainRef} className={styles.terrain} aria-hidden="true" />
+          <svg viewBox={`0 0 ${W} ${H}`} className={styles.pathSvg} aria-hidden="true" focusable="false">
+            <ellipse className={styles.holeGreen} cx={sx(0)} cy={sy(0)} rx={holeRx * 3.2} ry={holeRy * 3.2} />
+            <ellipse className={styles.holeTarget} cx={sx(0)} cy={sy(0)} rx={holeRx} ry={holeRy} />
+            <path className={styles.flagPole} d={`M${sx(0)} ${sy(0)} V${sy(0) - 26}`} />
+            <path className={styles.flag} d={`M${sx(0)} ${sy(0) - 26} l13 4.5 l-13 4.5 Z`} />
+            <polyline className={styles.pathLine} points={points} />
+            {game.ball.path.map(([x, y], i) => <circle key={i} className={styles.pathPoint} cx={sx(x)} cy={sy(y)} r={i === game.ball.path.length - 1 ? 0 : 2.2} />)}
+            {!game.ball.diverged ? <circle className={styles.ball} cx={sx(game.ball.x)} cy={sy(game.ball.y)} r="4.5" /> : null}
+          </svg>
         </section>
         <aside className={styles.sidebar}>
           <div className={styles.panel}>
-            <p className={styles.kicker}>Shot {game.currentStrokes + 1} · target radius {holeTolerance(hole, game.difficulty).toFixed(3)}</p>
+            <p className={styles.kicker}>Shot {game.currentStrokes + 1} · target radius {tolerance.toFixed(3)}</p>
             <p className={styles.courseReadout} aria-live="polite"><strong>{distance.toFixed(3)}</strong> distance to target</p>
             <label className={styles.control}>Optimizer<select className={styles.select} value={optimizer} onChange={(e) => setOptimizer(e.target.value as OptimizerKey)}>{(Object.keys(OPTIMIZER_LABELS) as OptimizerKey[]).map((key) => <option key={key} value={key}>{OPTIMIZER_LABELS[key]}</option>)}</select></label>
             <label className={styles.control}>Schedule<select className={styles.select} value={schedule} onChange={(e) => setSchedule(e.target.value as ScheduleKey)}>{(Object.keys(SCHEDULE_LABELS) as ScheduleKey[]).map((key) => <option key={key} value={key}>{SCHEDULE_LABELS[key]}</option>)}</select></label>

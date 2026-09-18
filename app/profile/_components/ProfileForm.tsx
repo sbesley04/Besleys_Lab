@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { field, input, primaryButton, ghostButton, dangerButton, errorText } from "../../admin/_components/formStyles";
@@ -187,7 +188,7 @@ export default function ProfileForm({
       {canSelfDelete && (
         <fieldset
           style={{
-            border: "1px solid color-mix(in srgb, #b94738 40%, var(--line))",
+            border: "1px solid color-mix(in srgb, var(--danger) 40%, var(--line))",
             borderRadius: 6,
             padding: "1rem",
             margin: 0,
@@ -199,7 +200,7 @@ export default function ProfileForm({
           <p style={{ margin: "0 0 0.85rem", fontSize: "0.88rem", color: "var(--ink-soft)" }}>
             Permanently deletes your account and everything tied to it — saved games, rosters,
             simulation history, achievements, and book reviews. This cannot be undone. See the{" "}
-            <a href="/privacy">privacy policy</a> for details on how your data is handled.
+            <Link href="/privacy">privacy policy</Link> for details on how your data is handled.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
             <label style={field}>

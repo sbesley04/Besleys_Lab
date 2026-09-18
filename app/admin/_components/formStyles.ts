@@ -66,14 +66,14 @@ export const ghostButton: CSSProperties = {
 
 export const dangerButton: CSSProperties = {
   ...ghostButton,
-  color: "color-mix(in srgb, #b94738 68%, var(--ink))",
-  borderColor: "color-mix(in srgb, #b94738 55%, var(--line))",
+  color: "color-mix(in srgb, var(--danger) 68%, var(--ink))",
+  borderColor: "color-mix(in srgb, var(--danger) 55%, var(--line))",
 };
 
 export const errorText: CSSProperties = {
-  color: "color-mix(in srgb, #b94738 68%, var(--ink))",
+  color: "color-mix(in srgb, var(--danger) 68%, var(--ink))",
 };
 
 export const invalidControl: CSSProperties = {
-  borderColor: "color-mix(in srgb, #b94738 68%, var(--line))",
+  borderColor: "color-mix(in srgb, var(--danger) 68%, var(--line))",
 };

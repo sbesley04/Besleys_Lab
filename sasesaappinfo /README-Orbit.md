@@ -34,7 +34,7 @@ Use your personal space to create an **online** or **nearby** room. Rooms suppor
 
 Online rooms use an invitation link and manual host approval. The companion website lets friends request access and participate from a browser; native clients use the same room service. Updates refresh while Orbit is open. This version does not deliver background chat notifications. Online room data expires seven days after creation.
 
-The companion service is deployed at https://orbit-together.sambesley04.chatgpt.site. It is currently private to the owner: allowing invited friends and native phones to reach it still requires the owner’s explicit approval to change the Sites audience. The native endpoint is already configured; no API key or code change is needed once that audience change is approved. Demo and nearby mode are independent of this access gate. See **Reports/Orbit-Verification.md** for completed checks.
+The companion service is live at https://orbit-together.sambesley04.chatgpt.site and reachable by invited friends and native phones. Each room still requires its private invitation and manual host approval. The native endpoint is already configured; no API key or code change is needed. All 32 HTTP integration checks passed against this production service on September 15, 2026. Demo and nearby mode work independently of the online service. See **Reports/Orbit-Verification.md** for completed checks and remaining physical-device verification.
 
 Nearby rooms use encrypted peer connections, with each guest connected to the host. Compare the room code before approving a request. Everyone needs Orbit installed, open, and in range. Nearby mode does not connect friends over the internet, and a host leaving interrupts the room.
 
