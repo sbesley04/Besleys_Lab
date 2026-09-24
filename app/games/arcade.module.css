@@ -1,7 +1,7 @@
 /* Arcade hub — the game-card grid plus its resident wildlife. */
 
 .hubPage {
-  width: min(100%, 1040px);
+  width: min(100%, 1160px);
   margin: 0 auto;
   padding: clamp(2rem, 6vw, 3.75rem) clamp(1rem, 4vw, 1.5rem) 4.5rem;
 }
@@ -42,57 +42,10 @@
   line-height: 1.65;
 }
 
-.catalogue {
-  display: grid;
-  gap: 2.5rem;
-}
-
-.category {
-  min-width: 0;
-}
-
-.category + .category {
-  padding-top: 2rem;
-  border-top: 1px solid var(--line);
-}
-
-.categoryHeader {
-  display: flex;
-  align-items: baseline;
-  gap: 0.55rem;
-  margin-bottom: 0.75rem;
-}
-
-.categoryTitle {
-  margin: 0;
-  color: var(--ink-soft);
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.categoryCount {
-  display: inline-grid;
-  min-width: 1.45rem;
-  min-height: 1.45rem;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--ink-soft);
-  font: 600 0.7rem var(--font-body);
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
   gap: 1.25rem;
-}
-
-.cardWrap {
-  position: relative;
-  min-width: 0;
 }
 
 .card {
@@ -148,16 +101,7 @@
   background: color-mix(in srgb, var(--accent) 9%, transparent);
 }
 
-/* --- Junimo: sleeps behind a card, wakes on hover, scurries elsewhere ------ */
-.junimo {
-  position: absolute;
-  top: -15px;
-  z-index: 0; /* behind the card body — only the top of its head shows */
-  width: 30px;
-  height: 30px;
-  transition: left 0.25s ease;
-  pointer-events: none;
-}
+/* --- Junimo: naps on the room's furniture, hops when disturbed ------------- */
 .junimoAwake { animation: junimo-hop 0.55s ease; }
 @keyframes junimo-hop {
   0%, 100% { transform: translateY(0); }
@@ -200,11 +144,6 @@
 }
 
 /* --- The sheep in the margin ------------------------------------------------ */
-.sheepWrap {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 2.5rem;
-}
 .sheep {
   border: none;
   background: none;
@@ -339,20 +278,17 @@
 
 /* --- The Grid (Konami egg): wireframe wildlife + a native console -----------
    CSS fill/stroke override the sprites' presentation-attribute colors, so the
-   Junimo and the sheep become glowing cyan wireframes with no sprite edits. */
-:global(:root[data-egg='tron']) .junimo path,
+   sheep becomes a glowing cyan wireframe with no sprite edits (the Junimo and
+   the rest of the room get the same treatment in _room/room.module.css). */
 :global(:root[data-egg='tron']) .sheep path {
   fill: none !important;
   stroke: var(--accent);
   stroke-width: 1.4;
 }
-:global(:root[data-egg='tron']) .junimo ellipse,
-:global(:root[data-egg='tron']) .junimo circle,
 :global(:root[data-egg='tron']) .sheep ellipse {
   fill: var(--accent) !important;
   stroke: none;
 }
-:global(:root[data-egg='tron']) .junimo svg,
 :global(:root[data-egg='tron']) .sheep svg {
   filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent) 70%, transparent));
 }

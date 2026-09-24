@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07101f">
+  <title>The Last Can — Episode 1</title>
+  <style>
+    :root {
+      --night: #07101f;
+      --night-2: #0d1b31;
+      --ink: #111827;
+      --paper: #fffdf7;
+      --paper-muted: #e9edf5;
+      --ember: #ee8f43;
+      --will: #cfe3ff;
+      --gabe: #e8d7c2;
+      --colin: #cbd7bd;
+      --max: 820px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; background: var(--night); }
+    body {
+      margin: 0;
+      color: var(--paper);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(42, 73, 120, .34), transparent 28rem),
+        linear-gradient(180deg, #030812 0%, var(--night-2) 42%, #040812 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow-x: hidden;
+    }
+
+    .progress {
+      position: fixed;
+      z-index: 20;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 4px;
+      transform-origin: left;
+      transform: scaleX(0);
+      background: linear-gradient(90deg, #6da8ff, var(--ember));
+      box-shadow: 0 0 18px rgba(238, 143, 67, .7);
+    }
+
+    main {
+      width: min(100%, var(--max));
+      margin: 0 auto;
+      box-shadow: 0 0 80px rgba(0, 0, 0, .46);
+      background: #07101f;
+    }
+
+    .cover {
+      min-height: 100svh;
+      display: grid;
+      align-content: end;
+      padding: clamp(2rem, 9vw, 5.5rem) clamp(1.35rem, 6vw, 4rem);
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .cover::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background: url("assets/scene-01-opening.png") center / cover no-repeat;
+    }
+
+    .cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(180deg, rgba(2, 7, 16, .05) 35%, rgba(2, 7, 16, .91) 90%);
+    }
+
+    .eyebrow {
+      margin: 0 0 .75rem;
+      color: #a9c7f5;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 10ch;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3.6rem, 15vw, 7.6rem);
+      line-height: .82;
+      letter-spacing: -.065em;
+      text-wrap: balance;
+      text-shadow: 0 6px 28px rgba(0, 0, 0, .68);
+    }
+
+    .subtitle {
+      margin: 1.25rem 0 0;
+      color: #d9e5f8;
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      letter-spacing: .06em;
+    }
+
+    .scroll-cue {
+      margin-top: 2.3rem;
+      color: #9eb2d0;
+      font-size: .75rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .text-beat {
+      display: grid;
+      gap: 1rem;
+      justify-items: center;
+      padding: clamp(4.5rem, 15vw, 8.5rem) clamp(1.15rem, 7vw, 4.5rem);
+      position: relative;
+    }
+
+    .text-beat.tight { padding-block: clamp(2.8rem, 10vw, 5.5rem); }
+    .text-beat.long { padding-block: clamp(6rem, 20vw, 11rem); }
+
+    .caption {
+      width: min(100%, 34rem);
+      margin: 0;
+      padding: .82rem 1rem;
+      color: #dce7f8;
+      background: rgba(13, 27, 49, .9);
+      border: 1px solid rgba(185, 207, 242, .19);
+      border-radius: 3px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, .22);
+      text-align: center;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.05rem, 3.3vw, 1.32rem);
+      line-height: 1.55;
+      font-style: italic;
+    }
+
+    .caption + .caption { margin-top: -.55rem; }
+
+    .bubble {
+      width: fit-content;
+      max-width: min(90%, 32rem);
+      margin: 0;
+      padding: 1.05rem 1.25rem;
+      color: var(--ink);
+      background: var(--paper);
+      border-radius: 1.3rem;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .3);
+      font-size: clamp(1rem, 3.3vw, 1.2rem);
+      line-height: 1.42;
+      position: relative;
+    }
+
+    .bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -.62rem;
+      width: 1.1rem;
+      height: 1.1rem;
+      background: inherit;
+      transform: rotate(38deg) skew(-12deg);
+    }
+
+    .bubble.left { justify-self: start; border-top: 5px solid var(--gabe); }
+    .bubble.left::after { left: 2rem; }
+    .bubble.right { justify-self: end; border-top: 5px solid var(--will); }
+    .bubble.right::after { right: 2rem; }
+    .bubble.center { justify-self: center; border-top: 5px solid var(--colin); }
+    .bubble.center::after { left: calc(50% - .55rem); }
+
+    .speaker {
+      display: block;
+      margin-bottom: .28rem;
+      color: #697386;
+      font-size: .63rem;
+      font-weight: 900;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    .thought {
+      border-radius: 50% / 32%;
+      font-style: italic;
+    }
+
+    .art {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #111a2b;
+    }
+
+    .divider {
+      display: grid;
+      place-items: center;
+      min-height: 42svh;
+      padding: 4rem 1rem;
+      text-align: center;
+      background:
+        radial-gradient(circle at center, rgba(238, 143, 67, .08), transparent 18rem),
+        #050b15;
+    }
+
+    .divider span {
+      color: #7994bb;
+      font: 700 .72rem/1.4 ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+    }
+
+    .divider strong {
+      display: block;
+      margin-top: .75rem;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.8rem, 7vw, 3.4rem);
+      font-weight: 500;
+    }
+
+    .sfx {
+      margin: 2rem 0;
+      color: #a8b8cf;
+      font-size: clamp(1.35rem, 5vw, 2.4rem);
+      font-weight: 950;
+      font-style: italic;
+      letter-spacing: .08em;
+      transform: rotate(-3deg);
+      text-shadow: 0 3px 0 rgba(0, 0, 0, .8);
+    }
+
+    .stars {
+      min-height: 44svh;
+      padding: 7rem 1rem;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      background:
+        radial-gradient(circle at 20% 20%, white 0 1px, transparent 2px),
+        radial-gradient(circle at 72% 34%, #bdd8ff 0 1px, transparent 2px),
+        radial-gradient(circle at 45% 78%, white 0 1px, transparent 2px),
+        linear-gradient(180deg, #07101f, #0d1c34);
+      background-size: 74px 89px, 121px 113px, 157px 151px, auto;
+    }
+
+    .end {
+      min-height: 75svh;
+      display: grid;
+      place-items: center;
+      padding: 8rem 1.5rem;
+      text-align: center;
+      background: #030711;
+    }
+
+    .end h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.3rem, 9vw, 5rem);
+      font-weight: 500;
+    }
+
+    .end p { color: #8799b5; letter-spacing: .18em; text-transform: uppercase; }
+
+    @media (min-width: 821px) {
+      body { padding: 2rem 0; }
+      main { border-radius: 8px; overflow: hidden; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+
+    @media print {
+      .progress, .scroll-cue { display: none; }
+      body { padding: 0; background: #07101f; }
+      main { width: 100%; max-width: 820px; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"></div>
+  <main>
+    <header class="cover">
+      <p class="eyebrow">Ecuador Mountain Fan Fic · Episode 1</p>
+      <h1>The Last Can</h1>
+      <p class="subtitle">A vertical-scroll manhwa</p>
+      <p class="scroll-cue">Scroll to begin ↓</p>
+    </header>
+
+    <section class="text-beat long">
+      <p class="caption">Night three was when everything fell apart.</p>
+      <p class="caption">Not because of the altitude.</p>
+      <p class="caption">Not because of the cold.</p>
+      <p class="caption">And not because William was technically not actually post-grad.</p>
+    </section>
+
+    <img class="art" src="assets/scene-02-philosophy.png" alt="William talks animatedly to Colin while Gabe searches an empty pack behind them.">
+
+    <section class="text-beat">
+      <p class="bubble right"><span class="speaker">William</span>I’m telling you, the unfinished degree is more of a philosophical issue than an academic one.</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>No.</p>
+      <p class="bubble right"><span class="speaker">William</span>What?</p>
+    </section>
+
+    <img class="art" src="assets/scene-03-last-can.png" alt="Gabe holds up the final empty can while William and Colin stare.">
+
+    <section class="text-beat long">
+      <p class="bubble left"><span class="speaker">Gabe</span>We have no beer.</p>
+      <p class="sfx" aria-label="wind sound">WHOOOOOSH</p>
+      <p class="caption">Somewhere in the darkness, a bird made a noise that sounded vaguely disappointed.</p>
+      <p class="bubble right"><span class="speaker">William</span>That’s impossible.</p>
+      <p class="caption">The realization settled over the campsite like a funeral shroud.</p>
+      <p class="bubble right"><span class="speaker">William</span>Oh.</p>
+    </section>
+
+    <div class="divider">
+      <div><span>Part Two</span><strong>The Trial of the Missing Beer</strong></div>
+    </div>
+
+    <img class="art" src="assets/scene-04-argument.png" alt="Gabe and William argue across the fire while Colin eats trail mix in front of them.">
+
+    <section class="text-beat tight">
+      <p class="bubble left"><span class="speaker">Gabe</span>This is your fault.</p>
+      <p class="bubble right"><span class="speaker">William</span>My fault?</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>You argued for one suitcase.</p>
+      <p class="bubble right"><span class="speaker">William</span>Because carrying two suitcases up a mountain is insane.</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>It would’ve been worth it.</p>
+      <p class="bubble right"><span class="speaker">William</span>For beer?</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>For enough beer.</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>You wanted to bring forty-eight cans.</p>
+      <p class="bubble right"><span class="speaker">William</span>We <em>did</em> bring forty-eight cans.</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>And somehow you’re acting like we planned poorly.</p>
+      <p class="bubble right"><span class="speaker">William</span>Because we did.</p>
+    </section>
+
+    <img class="art" src="assets/scene-05-mediation.png" alt="Colin tries to mediate while Gabe and William argue past him.">
+
+    <section class="text-beat">
+      <p class="bubble center"><span class="speaker">Colin</span>Maybe we could—</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>You don’t understand logistics.</p>
+      <p class="bubble right"><span class="speaker">William</span>You don’t understand basic physics!</p>
+      <p class="bubble center thought"><span class="speaker">Colin · thought</span>Neptune would’ve appreciated me.</p>
+      <p class="caption">Colin was beginning to suspect he’d been invited solely to prevent the appearance of a honeymoon.</p>
+    </section>
+
+    <div class="divider">
+      <div><span>Part Three</span><strong>Forty Minutes of Darkness</strong></div>
+    </div>
+
+    <img class="art" src="assets/scene-06-silence.png" alt="Gabe and William sit far apart under the stars with Colin stranded between them.">
+
+    <section class="text-beat long">
+      <p class="caption">An hour later, neither was speaking.</p>
+      <p class="caption">Neither was looking at the other.</p>
+      <p class="bubble center"><span class="speaker">Colin</span>I feel like I’m the child in a divorce.</p>
+      <p class="bubble center"><span class="speaker">Colin</span>I miss Neptune.</p>
+      <p class="sfx" aria-label="ember popping">TCK.</p>
+      <p class="caption">Still nothing.</p>
+    </section>
+
+    <div class="stars">
+      <p class="caption">The silence lasted another forty minutes.</p>
+    </div>
+
+    <div class="divider">
+      <div><span>Part Four</span><strong>The Cough</strong></div>
+    </div>
+
+    <img class="art" src="assets/scene-07-cough.png" alt="Gabe coughs once while William immediately looks over with concern and Colin notices.">
+
+    <section class="text-beat tight">
+      <p class="sfx">COUGH.</p>
+      <p class="bubble right"><span class="speaker">William</span>You okay?</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>You started it.</p>
+      <p class="bubble right"><span class="speaker">William</span>You called me irresponsible.</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>You <em>are</em> irresponsible.</p>
+      <p class="bubble right"><span class="speaker">William</span>You’re the one who wanted to haul sixty pounds of beer up a volcano.</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>It would’ve solved the current situation.</p>
+    </section>
+
+    <img class="art" src="assets/scene-08-laughter.png" alt="Gabe and William dissolve into helpless laughter while Colin watches with a granola bar.">
+
+    <section class="text-beat long">
+      <p class="sfx">HAH—</p>
+      <p class="caption">The fight collapsed under its own absurdity.</p>
+    </section>
+
+    <div class="divider">
+      <div><span>Part Five</span><strong>Brotherly Affection</strong></div>
+    </div>
+
+    <img class="art" src="assets/scene-09-love-you.png" alt="Gabe and William smile warmly at each other while Colin lowers his granola bar in disbelief.">
+
+    <section class="text-beat tight">
+      <p class="bubble right"><span class="speaker">William</span>I’m sorry.</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>I’m sorry too.</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>You are still a trigger. It’s not my fault we fought. You’re just more invested than I am. And I miss—</p>
+      <p class="bubble right"><span class="speaker">William</span>Fair.</p>
+      <p class="caption">The mountain was silent. Their little fire was a warm ember in the dark.</p>
+      <p class="bubble left"><span class="speaker">Gabe</span>Love you, bro.</p>
+      <p class="bubble right"><span class="speaker">William</span>Love you too, bro.</p>
+      <p class="bubble center"><span class="speaker">Colin</span>Jesus Christ.</p>
+      <p class="bubble right"><span class="speaker">William</span>Don’t say the Lord’s name in vain. I can’t go to church on this mountain.</p>
+      <p class="caption">His smile was bright like a bag of diamonds.</p>
+    </section>
+
+    <div class="divider">
+      <div><span>Epilogue</span><strong>Night Three Is Going Great</strong></div>
+    </div>
+
+    <img class="art" src="assets/scene-10-epilogue.png" alt="Colin lies awake in his tent while Gabe and William laugh in the neighboring glowing tent beneath the stars.">
+
+    <section class="text-beat long">
+      <p class="caption">Later that night, the temperature dropped sharply.</p>
+      <p class="bubble left"><span class="speaker">Gabe · from the next tent</span>No, that’s not what happened.</p>
+      <p class="bubble right"><span class="speaker">William · from the next tent</span>That is exactly what happened!</p>
+      <p class="sfx">HAH HA HA.</p>
+      <p class="bubble center"><span class="speaker">Colin</span>You know, Neptune would’ve slept on the floor with me.</p>
+      <p class="caption">The mountain offered no response.</p>
+      <p class="caption">Night three was going great.</p>
+    </section>
+
+    <footer class="end">
+      <div>
+        <p>End of Episode 1</p>
+        <h2>The Last Can</h2>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const bar = document.querySelector('.progress');
+    const updateProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - innerHeight;
+      bar.style.transform = `scaleX(${scrollable > 0 ? scrollY / scrollable : 0})`;
+    };
+    addEventListener('scroll', updateProgress, { passive: true });
+    addEventListener('resize', updateProgress);
+    updateProgress();
+  </script>
+</body>
+</html>

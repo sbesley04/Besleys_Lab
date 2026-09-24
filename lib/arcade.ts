@@ -9,6 +9,8 @@
 // ---------------------------------------------------------------------------
 
 import { ACHIEVEMENTS_BY_KEY } from "@/lib/achievements";
+import { whenAuthKnown } from "@/lib/arcadeAuth";
+import { creditLocalAchievements, walletAct } from "@/lib/walletClient";
 
 const LS_UNLOCKED = "bl:achievements";
 const LS_PLAYED = "bl:played";
@@ -34,22 +36,14 @@ function writeSet(key: string, set: Set<string>) {
 }
 
 // Guests can't persist results or achievements, so POSTing them only earned a
-// 401 — one red console error per deal, win, and unlock. The root
-// AchievementToaster reports the session here; anything sent before the
-// session is known waits in a short queue and is flushed or dropped once it is.
-let authState: "unknown" | "signed-in" | "guest" = "unknown";
-let pendingSends: Array<() => void> = [];
-
-export function setArcadeAuth(signedIn: boolean) {
-  authState = signedIn ? "signed-in" : "guest";
-  const queued = pendingSends;
-  pendingSends = [];
-  if (signedIn) queued.forEach((send) => send());
-}
+// 401 — one red console error per deal, win, and unlock. Sends wait until the
+// session is known (lib/arcadeAuth.ts) and are dropped for guests.
+export { setArcadeAuth } from "@/lib/arcadeAuth";
 
 function whenSignedIn(send: () => void) {
-  if (authState === "signed-in") send();
-  else if (authState === "unknown" && pendingSends.length < 50) pendingSends.push(send);
+  whenAuthKnown((signedIn) => {
+    if (signedIn) send();
+  });
 }
 
 export function localUnlocked(): Set<string> {
@@ -72,6 +66,12 @@ export function unlock(...keys: string[]) {
   writeSet(LS_UNLOCKED, have);
 
   window.dispatchEvent(new CustomEvent(TOAST_EVENT, { detail: { keys: fresh } }));
+
+  // Zinc for the trophy: guests are paid into the local wallet here; for a
+  // signed-in visitor /api/achievements pays it when the row is inserted.
+  whenAuthKnown((signedIn) => {
+    if (!signedIn) creditLocalAchievements(fresh.length);
+  });
 
   whenSignedIn(() => {
     fetch("/api/achievements", {
@@ -136,8 +136,10 @@ export function recordPlayed(slug: string) {
   if (hour >= 2 && hour < 5) unlock("meta-night-shift");
 }
 
-/** Call on any game win: tracks Renaissance Scientist (wins in 4 games). */
+/** Call on any game win: tracks Renaissance Scientist (wins in 4 games) and
+ *  pays the first-win-of-the-day zinc bonus for this game. */
 export function recordWin(slug: string) {
+  void walletAct({ type: "win", game: slug });
   const wins = readSet(LS_WINS);
   wins.add(slug);
   writeSet(LS_WINS, wins);

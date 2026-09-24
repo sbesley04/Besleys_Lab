@@ -87,6 +87,16 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { key: "garden-catalogue", game: "genetic-garden", icon: "🌺", title: "True Breeder", desc: "Complete every commission in the seed catalogue." },
   { key: "garden-stable", game: "genetic-garden", icon: "🌱", title: "No Happy Accidents", desc: "Complete the advanced catalogue with mutation pressure disabled." },
 
+  // --- Casino & prize counter ---
+  { key: "cas-first-spin", game: "casino", icon: "🎰", title: "Pull the Lever", desc: "Spin the slot machine." },
+  { key: "cas-three", game: "casino", icon: "🍒", title: "Three in a Row", desc: "Land any three-of-a-kind." },
+  { key: "cas-high-roller", game: "casino", icon: "💰", title: "High Roller", desc: "Bet the house maximum on a single spin." },
+  { key: "cas-jackpot", game: "casino", icon: "⚗️", title: "Zn Zn Zn", desc: "Hit the zinc jackpot." },
+  { key: "cas-ruin", game: "casino", icon: "🕳️", title: "Gambler's Ruin", desc: "Spin your wallet all the way down to zero.", hidden: true },
+  { key: "shop-first", game: "casino", icon: "🛍️", title: "Retail Therapy", desc: "Buy something from the prize counter." },
+  { key: "shop-decorator", game: "casino", icon: "🛋️", title: "Interior Decorator", desc: "Furnish the game room with every piece of decor." },
+  { key: "shop-capsules", game: "casino", icon: "🥚", title: "Complete Set", desc: "Collect every capsule toy." },
+
   // --- Site-wide ---
   { key: "meta-lab-rat", game: "meta", icon: "🐀", title: "Lab Rat", desc: "Play every game in the arcade at least once." },
   { key: "meta-night-shift", game: "meta", icon: "🌙", title: "Night Shift", desc: "Play any game between 2am and 5am." },
@@ -122,6 +132,7 @@ export const ACHIEVEMENT_SECTIONS: { game: string; label: string }[] = [
   { game: "loss-surface-golf", label: "Loss-Surface Golf" },
   { game: "bayesian-detective", label: "Bayesian Detective" },
   { game: "genetic-garden", label: "Genetic Garden" },
+  { game: "casino", label: "Casino & Prize Counter" },
   { game: "meta", label: "Around the Lab" },
   { game: "secret", label: "???" },
 ];

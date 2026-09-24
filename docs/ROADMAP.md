@@ -21,7 +21,10 @@ net learning XOR, Bayes' theorem, Markov chain trained on the blog, Q-learning
 gridworld.
 
 **Systems**: achievements + trophy case, per-account high scores/stats, the
-easter eggs and cameos listed in CLAUDE.md.
+easter eggs and cameos listed in CLAUDE.md. The `/games` hub is a drawn game
+room; **zinc** currency (passive income, daily bonus, win/achievement
+rewards) spent at a slot machine and a prize counter (decor that appears in
+the room, income upgrades, fortune cookies, capsule toys).
 
 ## Next up — highest value per effort
 

@@ -44,6 +44,7 @@ model User {
   bookReviews  BookReview[]
   achievements Achievement[]
   gameResults  GameResult[]
+  wallet       Wallet?
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 }
@@ -289,4 +290,23 @@ model SimulationRun {
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
+}
+
+// --- Zinc wallet ------------------------------------------------------------------
+// The arcade currency (see lib/wallet.ts). One row per user. The full engine
+// state is JSON in `data`; `balance` is mirrored into its own column so it can
+// be sorted on later (a richest-players board) without parsing JSON.
+// `version` is an optimistic-concurrency counter: every write is
+// `updateMany where { version }`, so two spins racing can't both spend the
+// same zinc — the loser re-reads and retries (lib/walletServer.ts).
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance   Int      @default(0)
+  version   Int      @default(0)
+  data      String   @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

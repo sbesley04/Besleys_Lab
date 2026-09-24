@@ -35,11 +35,7 @@ app/
   games/          arcade — registry.ts drives the hub; one folder per game
     _components/  GameFrame (page chrome), SaveSlot (save/load to account)
     registry.ts   ← add a game here + a folder; hub needs no edits
-    ArcadeHub.tsx client hub: wallet bar + the game room + list + terminal + glider
-    _room/        the game room: RoomScene (the SVG drawing), GameRoom (hit
-                  areas, furniture "stations" → drawers of games), Residents
-    casino/       slot machine — slots.ts is the pure engine (exact RTP test)
-    prizes/       prize counter — spends zinc on lib/prizes.ts
+    ArcadeHub.tsx client hub: game cards + Junimo + sheep + terminal + glider
   lab/            ML demos — same pattern, own registry
     _components/  LabFrame, PointCanvas, Axes, Controls, plot.ts (scales/palette)
     registry.ts   ← add a demo here + a folder
@@ -49,10 +45,6 @@ lib/
   arcade.ts       client-side progression: unlock(), recordPlayed(), postResult()
   saves.ts        save-payload rules; GAME_SLUGS derives from the registry
   sound.ts        tiny WebAudio effects (no audio assets)
-  wallet.ts       zinc economy engine (pure): accrual, daily, spins, purchases
-  walletServer.ts signed-in wallets: DB row, crypto rng, version-checked writes
-  walletClient.ts useWallet() / walletAct(): server when signed in, localStorage for guests
-  prizes.ts       prize-counter catalogue (decor, upgrades, consumables)
 prisma/schema.prisma
 ```
 
@@ -100,35 +92,6 @@ and `LAB_DEMO_SLUGS`.
   flushes guest unlocks to the account once per browser session.
 - Trophy case renders on `/profile`; hidden achievements show as `???`.
 
-## The game room and zinc
-
-`/games` is a room drawn in one-point perspective from Sam's sketch (VP at
-800,400 in a 1600×1000 viewBox — keep new furniture aimed at it). Furniture is
-grouped into **stations** (`STATIONS` in `_room/GameRoom.tsx`): each maps to
-registry categories (opens a drawer of those games) or to a page (`href`). A
-new game appears in its category's drawer automatically. Hit areas are HTML
-buttons laid over the SVG in viewBox units, not SVG click handlers.
-
-**Zinc (Zn)** is the arcade currency. Earned: 20/hr passively (12h cap), 50
-daily, 15 for the first win per game per day (via `recordWin`), 25 per
-achievement. Spent: the slot machine (`/games/casino`) and the prize counter
-(`/games/prizes`).
-
-- One engine, two homes: `applyAction()` in `lib/wallet.ts` runs on the
-  server for signed-in users (`/api/wallet`, `Wallet` model) and in the
-  browser for guests. Never add wallet logic outside the engine.
-- Achievement zinc for signed-in users is credited by `/api/achievements` off
-  rows actually inserted; clients can't request it (`parseClientAction`).
-- Writes are optimistic-concurrency (`version`) with jittered retries — 20
-  parallel spins conserve zinc exactly.
-- The slot machine's return-to-player is computed exactly by enumeration
-  and pinned to 90–98% in `lib/wallet.test.ts`. Retune strips/paytable and
-  the test tells you if the house still has its edge. It's disclosed on the page.
-- The slot machine calls `walletAct(..., { quiet: true })` and announces the
-  balance after the reels land, so the win isn't spoiled early.
-- **Adding a prize:** append to `lib/prizes.ts`. Decor also needs a drawing in
-  `RoomScene.tsx` gated on `owned.has(id)`.
-
 ## Easter eggs and cameos (don't delete by accident)
 
 | Where | What |
@@ -138,7 +101,7 @@ achievement. Spent: the slot machine (`/games/casino`) and the prize counter
 | `/games` | Type `besley` → secret terminal. `theme blueprint` unlocks the dark theme; `synthesize`, `train`, `lake`, `jeb_` are unlisted and grant hidden achievements |
 | Solitaire | ~1/100 Klondike deals contain a Joker (rank 0, wild, can't reach a foundation); playing it stamps the win "assisted" |
 | Game of Life | Draw a real glider → permanent drifting glider on the arcade hub |
-| `/games` room | Junimo napping on a random piece of furniture; sheep on the floor shears after 5 clicks (the golden-fleece prize regilds it) |
+| `/games` hub | Junimo asleep behind a random card; sheep shears after 5 clicks |
 | Snake | 1/50 food pellets is a bladderfish (worth 5, plays a bloop) |
 | Blog footer | Grub in a jar — click to free it |
 | Any bad loss | Zote the Mighty recites a Precept (~30% chance) |

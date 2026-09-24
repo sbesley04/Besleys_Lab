@@ -1,0 +1,146 @@
+/* The token booth strip above the room, the slot machine, and the counter. */
+
+.bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  margin: 0 0 1.25rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-deep);
+  box-shadow: var(--shadow-rest);
+}
+
+.balance {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.coin {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  border: 2px solid color-mix(in srgb, var(--room-brass) 55%, var(--ink));
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--room-brass) 60%, white), var(--room-brass));
+  color: var(--room-wood-dark);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.18);
+}
+
+.amount {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  animation: bump 0.35s ease;
+}
+
+@keyframes bump {
+  0% { transform: scale(1.12); color: var(--accent); }
+  100% { transform: scale(1); }
+}
+
+.unit {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.guest {
+  font-size: 0.78rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.daily,
+.link {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  padding: 0 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font: 600 0.85rem var(--font-body);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.daily:not(:disabled):hover,
+.link:hover {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+.daily:not(:disabled) {
+  background: color-mix(in srgb, var(--room-brass) 25%, transparent);
+  border-color: color-mix(in srgb, var(--room-brass) 60%, var(--ink));
+  color: var(--ink);
+}
+
+.daily:disabled {
+  border-color: var(--line);
+  color: var(--ink-soft);
+  cursor: default;
+}
+
+.message {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.4rem 0.2rem 0 0.2rem;
+  border-top: 1px dashed var(--line);
+  font-family: var(--font-hand);
+  font-size: 1.2rem;
+  color: var(--ink);
+}
+
+.dismiss {
+  min-width: 32px;
+  min-height: 32px;
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .bar {
+    grid-template-columns: 1fr;
+  }
+  .actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amount { animation: none; }
+}

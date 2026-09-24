@@ -82,6 +82,40 @@ export function baa() {
   vib.stop(t + 0.55);
 }
 
+/* --- The game room -------------------------------------------------------- */
+
+/** A reel thunking to a stop. `i` (0–2) raises the pitch per reel. */
+export function reelStop(i = 0) {
+  tone(170 + i * 40, 0, 0.09, "square", 0.05);
+  tone(90, 0, 0.12, "sine", 0.07);
+}
+
+/** A few coins landing in the tray. */
+export function coinClink(count = 3) {
+  for (let i = 0; i < Math.min(count, 12); i++) {
+    tone(2100 + ((i * 373) % 700), i * 0.07, 0.12, "triangle", 0.035);
+  }
+}
+
+/** Win fanfare — a rising arpeggio, longer for bigger wins. */
+export function slotWin(level: "small" | "big" | "jackpot") {
+  const notes = level === "jackpot" ? [523, 659, 784, 1047, 784, 1047, 1319] : level === "big" ? [523, 659, 784, 1047] : [659, 784];
+  notes.forEach((f, i) => tone(f, i * 0.11, 0.22, "square", 0.045));
+  if (level !== "small") coinClink(level === "jackpot" ? 12 : 6);
+}
+
+/** Eight bars of jukebox — a little I–vi–IV–V walk, no assets. */
+export function jukeboxTune() {
+  const bass = [131, 110, 87, 98];
+  const melody = [
+    [523, 659, 784, 659], [440, 523, 659, 523], [349, 440, 523, 440], [392, 494, 587, 494],
+  ];
+  bass.forEach((f, bar) => {
+    tone(f, bar * 0.6, 0.55, "triangle", 0.07);
+    melody[bar].forEach((m, j) => tone(m, bar * 0.6 + j * 0.15, 0.14, "square", 0.03));
+  });
+}
+
 /* --- Hyperspace jump (Konami → the Grid) ---------------------------------
    The jump gets a real (if tiny) sound-design chain rather than one oscillator
    per beat. Four layers recur throughout: a SUB for the chest, a detuned saw

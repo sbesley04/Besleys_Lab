@@ -1,0 +1,399 @@
+/* The game room — layout of the interactive layer, then the drawing's paints.
+   Every paint is a token (--room-* for furniture, the paper tokens for the
+   room itself), so the nine paper themes and the Grid all just work. */
+
+/* --- layout ----------------------------------------------------------------- */
+
+.wrap {
+  position: relative;
+}
+
+/* Below ~720px the room keeps its proportions and scrolls sideways inside
+   this box rather than shrinking furniture past the point of tapping. */
+.scroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow-lift);
+  scrollbar-width: thin;
+}
+
+.room {
+  position: relative;
+  min-width: 720px;
+  aspect-ratio: 1600 / 1000;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hit {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hit:focus-visible {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+.tag {
+  position: absolute;
+  z-index: 1;
+  transform: translate(-50%, -100%);
+  color: var(--ink-soft);
+  font-family: var(--font-hand);
+  font-size: clamp(1rem, 1.9vw, 1.35rem);
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0.75;
+  transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.tagHot {
+  color: var(--accent);
+  opacity: 1;
+  transform: translate(-50%, -110%) scale(1.08);
+}
+
+.junimoSpot {
+  position: absolute;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  transition: left 0.25s ease, top 0.25s ease;
+}
+
+.sheepSpot {
+  position: absolute;
+  z-index: 3;
+  left: 51%;
+  top: 83%;
+  width: 7.5%;
+}
+
+.sheepSpot svg {
+  width: 100%;
+  height: auto;
+}
+
+.hint {
+  margin: 0.6rem 0 0;
+  color: var(--ink-soft);
+  font-family: var(--font-hand);
+  font-size: 1.2rem;
+}
+
+.drawerAnchor {
+  scroll-margin-bottom: 1.5rem;
+}
+
+.drawer {
+  margin-top: 1.25rem;
+  padding: 1.25rem 1.35rem 1.4rem;
+  animation: drawer-in 0.22s ease;
+}
+
+@keyframes drawer-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.drawerHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.drawerKicker {
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.drawerTitle {
+  margin: 0.15rem 0 0.25rem;
+  font-size: clamp(1.5rem, 3.5vw, 1.9rem);
+}
+
+.drawerBlurb {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.drawerClose {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.drawerClose:hover { color: var(--ink); border-color: var(--ink-soft); }
+
+/* --- the drawing: default ink ------------------------------------------------ */
+
+.scene :where(path, rect, circle, ellipse, polygon) {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.scene text {
+  stroke: none;
+}
+
+/* Stations lift and glow a little when you point at them. */
+.station {
+  transition: filter 0.2s ease, transform 0.2s ease;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.stationHot {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 55%, transparent))
+    drop-shadow(0 6px 6px rgba(40, 30, 20, 0.18));
+  transform: translateY(-4px);
+}
+
+/* --- room shell --- */
+.ceiling { fill: color-mix(in srgb, var(--paper-deep) 70%, var(--paper)); stroke: none !important; }
+.sideWall { fill: var(--paper-deep); stroke: none !important; }
+.backWall { fill: var(--paper); stroke: none !important; }
+.lampWash { fill: url(#room-lamp); stroke: none !important; }
+.floor { fill: color-mix(in srgb, var(--room-wood) 22%, var(--paper-deep)); stroke: none !important; }
+.boards path { fill: none; stroke: color-mix(in srgb, var(--room-wood) 45%, transparent); stroke-width: 1.5; }
+.trim { fill: none; stroke: var(--line) !important; stroke-width: 6 !important; }
+.edges path { fill: none; stroke-width: 3.5; }
+.shade { fill: color-mix(in srgb, var(--ink) 55%, var(--room-cab-b)); }
+.shadow { fill: rgba(40, 30, 20, 0.14); stroke: none !important; }
+.rug { fill: color-mix(in srgb, var(--room-red) 55%, var(--room-wood)); stroke: var(--room-brass) !important; stroke-width: 6 !important; stroke-dasharray: 2 10; }
+
+/* --- materials --- */
+.wood { fill: var(--room-wood); }
+.woodDark { fill: var(--room-wood-dark); }
+.metal { fill: var(--room-metal); }
+.steel { fill: var(--room-steel); }
+.chrome { fill: var(--room-metal); }
+.brass { fill: var(--room-brass); }
+.leaf { fill: var(--room-leaf); }
+.pot { fill: color-mix(in srgb, var(--room-red) 50%, var(--room-wood)); }
+.paper { fill: var(--room-cream); stroke-width: 1.2 !important; }
+.paperDeep { fill: color-mix(in srgb, var(--room-cream) 70%, var(--room-steel)); stroke-width: 1 !important; }
+.tinyInk { fill: #1a1a1a; font: 700 11px var(--font-body); }
+.tinyDot { fill: #1a1a1a; stroke: none !important; }
+.hand { fill: var(--ink); font: 22px var(--font-hand); }
+
+/* --- arcade cabinets --- */
+.cabA { fill: var(--room-cab-a); }
+.cabB { fill: var(--room-cab-b); }
+.marquee { fill: var(--room-brass); }
+.marqueeText { fill: var(--room-red); font: 900 20px var(--font-display); letter-spacing: 0.06em; }
+.bezel { fill: #0c0c0f; }
+.screen { fill: var(--room-screen); }
+.screenArt rect { fill: var(--room-glow); stroke: var(--room-screen); stroke-width: 1; }
+.snakeTrail { fill: none; stroke: var(--room-glow) !important; stroke-width: 7 !important; }
+.snakeFood { fill: var(--room-red); stroke: none !important; }
+.stick { fill: none; stroke-width: 4 !important; }
+.knobRed { fill: var(--room-red); }
+.btnA { fill: var(--room-brass); }
+.btnB { fill: var(--room-glow); }
+.coinDoor { fill: color-mix(in srgb, var(--room-metal) 70%, #000); }
+.coinSlot { fill: var(--room-red); stroke-width: 1.5 !important; }
+
+.fallingPiece { animation: piece-fall 3.2s steps(8) infinite; }
+@keyframes piece-fall {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(40px); }
+}
+
+/* --- desk --- */
+.tower { fill: var(--room-cab-b); }
+.ledGlow { fill: var(--room-glow); stroke: none !important; }
+.codeLines path { fill: none; stroke: var(--room-glow) !important; stroke-width: 3 !important; opacity: 0.85; }
+.codeLines { animation: code-scroll 2.4s steps(5) infinite; }
+@keyframes code-scroll {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.caster { fill: #222; stroke-width: 1.5 !important; }
+.chairSeat { fill: #2b2d33; }
+.chairBack { fill: #34373f; }
+.chairMesh { fill: none; stroke: #5a5e68 !important; stroke-width: 2 !important; }
+.lavaGlass { fill: color-mix(in srgb, var(--room-neon) 22%, var(--room-cream)); stroke-width: 1.5 !important; }
+.lavaBlob { fill: var(--room-neon); stroke: none !important; }
+.lavaA { animation: lava 6s ease-in-out infinite; }
+.lavaB { animation: lava 7.5s ease-in-out infinite reverse; }
+@keyframes lava {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(0.85, 1.2); }
+}
+
+/* --- corkboard --- */
+.cork { fill: var(--room-cork); }
+.gridLine { fill: none; stroke-width: 1 !important; }
+.pin { fill: var(--room-red); stroke-width: 1 !important; }
+.flag { fill: var(--room-red); stroke-width: 1.5 !important; }
+.curve { fill: none; stroke: var(--room-cab-a) !important; stroke-width: 2 !important; }
+.contour { fill: none; stroke: var(--room-leaf) !important; stroke-width: 1.5 !important; }
+
+/* --- prize wall --- */
+.pegboard { fill: color-mix(in srgb, var(--room-wood) 35%, var(--paper-deep)); }
+.prizeSign { fill: var(--room-red); }
+.prizeSignText { fill: var(--room-cream); font: 800 30px var(--font-display); letter-spacing: 0.12em; }
+.duck { fill: #f2cf4a; stroke-width: 1.5 !important; }
+.beak { fill: #e08a2e; stroke-width: 1 !important; }
+.capTop { fill: var(--room-glow); stroke-width: 1.5 !important; }
+.capBottom { fill: var(--room-cream); stroke-width: 1.5 !important; }
+.plush { fill: #b7825a; stroke-width: 1.5 !important; }
+.rock { fill: #9a958b; stroke-width: 1.5 !important; }
+
+/* --- poker table --- */
+.rail { fill: var(--room-wood-dark); }
+.felt { fill: var(--room-felt); }
+.feltLine { fill: none; stroke: var(--room-felt-line) !important; stroke-width: 2 !important; stroke-dasharray: 8 8; }
+.slats path { fill: none; stroke: color-mix(in srgb, var(--room-wood) 60%, #000) !important; stroke-width: 3 !important; }
+.card { fill: var(--room-cream); stroke-width: 1.2 !important; }
+.cardPip { fill: var(--room-red); stroke: none !important; }
+.chipRed { fill: var(--room-red); stroke-width: 1.5 !important; }
+.chipBlue { fill: var(--room-cab-a); stroke-width: 1.5 !important; }
+.chipBrass { fill: var(--room-brass); stroke-width: 1.5 !important; }
+.chairBase { fill: var(--room-cream); }
+.chairShell { fill: color-mix(in srgb, var(--room-brass) 30%, var(--room-cream)); }
+.chairCushion { fill: var(--room-cream); }
+
+/* --- slot machine --- */
+.slotBody { fill: #2a2327; }
+.slotSign { fill: var(--room-felt); }
+.slotSignText { fill: var(--room-brass); font: 700 13px var(--font-body); letter-spacing: 0.16em; }
+.slotSignBig { fill: var(--room-cream); font: 900 22px var(--font-display); letter-spacing: 0.2em; }
+.beacon { fill: var(--room-red); animation: beacon 1.4s ease-in-out infinite; }
+@keyframes beacon {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.reel { fill: var(--room-cream); }
+.reelSym { fill: #2a2327; font: 700 18px var(--font-display); }
+.reelSymBig { fill: var(--room-red); font: 900 22px var(--font-display); }
+.payline { fill: none; stroke: var(--room-red) !important; stroke-width: 2 !important; opacity: 0.75; }
+.paytable { fill: #120f11; }
+.payText { fill: var(--room-brass); font: 700 12px var(--font-body); letter-spacing: 0.06em; }
+.slotBelly { fill: var(--room-felt); }
+.bellyZn { fill: var(--room-brass); font: 900 54px var(--font-display); }
+.bellyNum { fill: var(--room-cream); font: 700 11px var(--font-body); }
+.clover { fill: color-mix(in srgb, var(--room-leaf) 70%, #9fdc6a); stroke-width: 1.5 !important; }
+.tray { fill: #120f11; }
+.leverArm { fill: none; stroke: var(--room-metal) !important; stroke-width: 7 !important; }
+
+/* --- decor you can buy --- */
+.neonText { fill: none; stroke: var(--room-neon) !important; stroke-width: 2.5 !important; font: italic 700 64px var(--font-display); }
+.neonTube { fill: none; stroke: var(--room-neon) !important; stroke-width: 4 !important; }
+.neon { filter: drop-shadow(0 0 6px var(--room-neon)); animation: neon-buzz 5s steps(1) infinite; }
+@keyframes neon-buzz {
+  0%, 91%, 94%, 100% { opacity: 1; }
+  92%, 95% { opacity: 0.55; }
+}
+.string { fill: none; stroke-width: 1.5 !important; }
+.discoBall { fill: var(--room-metal); }
+.discoGrid { fill: none; stroke: #8b8b8b !important; stroke-width: 1.5 !important; }
+.disco { transform-box: fill-box; transform-origin: center; animation: disco-turn 6s linear infinite; }
+@keyframes disco-turn {
+  from { transform: scaleX(1); }
+  50% { transform: scaleX(-1); }
+  to { transform: scaleX(1); }
+}
+.sparkles path { fill: #fff6c8; stroke: var(--room-brass) !important; stroke-width: 1 !important; animation: sparkle 2.2s ease-in-out infinite; }
+.sparkles path:nth-child(2) { animation-delay: 0.6s; }
+.sparkles path:nth-child(3) { animation-delay: 1.1s; }
+.sparkles path:nth-child(4) { animation-delay: 1.6s; }
+@keyframes sparkle {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+.glassTank { fill: var(--room-glass); }
+.water { fill: none; stroke: #6fb3cf !important; stroke-width: 2 !important; }
+.weed { fill: none; stroke: var(--room-leaf) !important; stroke-width: 3 !important; }
+.bladderfish { fill: #d6c7a3; stroke-width: 1.2 !important; }
+.peeper { fill: #f0a53a; stroke-width: 1.2 !important; }
+.peeperEye { fill: #3c8dde; stroke-width: 1 !important; }
+.fishA { animation: swim-a 7s ease-in-out infinite; }
+.fishB { animation: swim-b 5s ease-in-out infinite; }
+@keyframes swim-a {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-22px, 4px); }
+}
+@keyframes swim-b {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-40px, -6px); }
+}
+.jukebox { fill: var(--room-red); }
+.jukeArch { fill: color-mix(in srgb, var(--room-brass) 55%, var(--room-cream)); }
+.jukeLights { fill: none; stroke: var(--room-glow) !important; stroke-width: 4 !important; stroke-dasharray: 6 8; animation: chase 1.2s linear infinite; }
+@keyframes chase {
+  to { stroke-dashoffset: -28; }
+}
+.grille { fill: none; stroke: #2a2327 !important; stroke-width: 3 !important; }
+.notes text { fill: var(--ink-soft); font: 30px var(--font-body); animation: sparkle 3s ease-in-out infinite; }
+.notes text:nth-child(2) { animation-delay: 1.5s; }
+
+.goldenWool { fill: #e8c45a !important; stroke: #a07d22 !important; filter: drop-shadow(0 0 4px rgba(232, 196, 90, 0.7)); }
+
+/* --- motion etiquette: pause with the page, stop for reduced motion --------- */
+:global(html.bl-idle) .room * { animation-play-state: paused !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .room *,
+  .drawer { animation: none !important; }
+  .station,
+  .tag,
+  .junimoSpot { transition: none; }
+  .stationHot { transform: none; }
+}
+
+/* --- The Grid (Konami): the whole room becomes a wireframe ----------------- */
+:global(:root[data-egg='tron']) .scroller {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 0 30px rgba(0, 184, 212, 0.18);
+}
+:global(:root[data-egg='tron']) .scene :where(path, rect, circle, ellipse, polygon) {
+  fill: none !important;
+  stroke: var(--accent) !important;
+  stroke-width: 1.6 !important;
+}
+:global(:root[data-egg='tron']) .scene .boards path { stroke: color-mix(in srgb, var(--accent) 30%, transparent) !important; }
+:global(:root[data-egg='tron']) .scene .ceiling,
+:global(:root[data-egg='tron']) .scene .sideWall,
+:global(:root[data-egg='tron']) .scene .backWall,
+:global(:root[data-egg='tron']) .scene .floor,
+:global(:root[data-egg='tron']) .scene .lampWash,
+:global(:root[data-egg='tron']) .scene .shadow { stroke: none !important; }
+:global(:root[data-egg='tron']) .scene text { fill: var(--accent) !important; stroke: none !important; }
+:global(:root[data-egg='tron']) .scene { filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent) 60%, transparent)); }
+:global(:root[data-egg='tron']) .tag { color: var(--accent); font-family: var(--font-body); font-size: 0.72rem; letter-spacing: 0.14em; }
+:global(:root[data-egg='tron']) .junimoSpot path { fill: none !important; stroke: var(--accent); stroke-width: 1.4; }
+:global(:root[data-egg='tron']) .junimoSpot ellipse,
+:global(:root[data-egg='tron']) .junimoSpot circle { fill: var(--accent) !important; stroke: none; }

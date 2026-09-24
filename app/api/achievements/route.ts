@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiSession } from "@/lib/api";
 import { ACHIEVEMENT_KEYS } from "@/lib/achievements";
+import { withWallet } from "@/lib/walletServer";
 
 // Per-user achievement unlocks.
 //   GET  /api/achievements          → my unlocked keys + timestamps
 //   POST /api/achievements          → { keys: string[] } — unlock (idempotent),
 //                                     responds with the keys that were new
+//
+// Each genuinely new unlock also pays ACHIEVEMENT_BONUS zinc into the wallet.
+// It's credited here, off the rows actually inserted, so a replayed request
+// can't pay twice.
 //
 // Unknown keys are ignored rather than erroring so an old client with a stale
 // registry can't fail the whole batch. Rows are scoped to the session user.
@@ -60,5 +65,10 @@ export async function POST(req: NextRequest) {
       }
     }),
   );
+  if (unlocked.length > 0) {
+    await withWallet(auth.user.id, { type: "achievements", count: unlocked.length }).catch(() => {
+      /* a busy wallet shouldn't fail the unlock itself */
+    });
+  }
   return NextResponse.json({ unlocked });
 }

@@ -3,9 +3,10 @@ import ArcadeHub from "./ArcadeHub";
 import styles from "./arcade.module.css";
 import GridText from "@/app/_components/eggs/GridText";
 
-// Arcade hub. The card grid itself lives in ArcadeHub (a client component,
-// because the hub has… residents). Driven entirely by ./registry — to add a
-// game, add an entry there and a folder at app/games/<slug>/.
+// Arcade hub: a game room you click around in (ArcadeHub → _room/GameRoom, a
+// client component because the room has… residents, and a wallet). Still
+// driven entirely by ./registry — a new game shows up in the drawer of the
+// furniture matching its category, with no edits here.
 export const metadata = {
   title: "Games",
   description: "Browser games, strategy challenges, card games, and interactive simulations from Besley’s Lab.",
@@ -26,7 +27,7 @@ export default function GamesPage() {
         </h1>
         <p className={styles.hubIntro}>
           <GridText
-            paper="A shelf of quick classics, deeper strategy games, and living simulations — all playable in the browser."
+            paper="Welcome to the game room. Cabinets on the back wall, cards on the table, a slot machine in the corner — and a pocketful of zinc that refills while you're away."
             grid="Programs available for execution. Select a sector and initialize a run."
           />
         </p>
