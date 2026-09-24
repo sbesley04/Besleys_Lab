@@ -69,7 +69,7 @@ export default function SignupPage() {
         <div>
           <h1 className={styles.authTitle}>Create account</h1>
           <p style={{ color: "var(--ink-soft)", margin: "0.25rem 0 0", fontSize: "0.9rem" }}>
-            Join the lab.
+            Letting you save some stuff/just for kicks. Dealing with logins was a fun challenge. Logging in lets you access a bunch of hidden secrets too :)
           </p>
         </div>
 

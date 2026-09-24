@@ -100,7 +100,7 @@ export default async function LibraryPage({
     <main className={styles.page}>
       <h1 className={styles.pageTitle}>Library</h1>
       <p className={styles.intro}>
-        What I&rsquo;ve been reading. Pull a spine off the shelf to read the review — and if
+        What I&rsquo;ve been reading. Take a peak at my reviews and if
         you&rsquo;ve read it too, sign in and leave your own.
       </p>
 

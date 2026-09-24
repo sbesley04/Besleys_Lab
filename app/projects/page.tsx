@@ -13,7 +13,7 @@ import styles from "./projects.module.css";
 export const metadata = {
   title: "Projects & Lab Work",
   description:
-    "Selected data science, machine learning, and full-stack work by Samuel Besley — NLP dashboards, prediction models, simulations, and games.",
+    "Here are some projects I'm proud of, showing off a bit of my work as I've been learning",
 };
 export const dynamic = "force-dynamic";
 
@@ -28,8 +28,7 @@ export default async function ProjectsIndex() {
     <main className={styles.page}>
       <h1 className={styles.pageTitle}>Projects &amp; lab work</h1>
       <p className={styles.intro}>
-        Selected data science, machine learning, and full-stack work — plus the experiments that
-        keep the lab fun. Code lives on{" "}
+        Here are some projects I am proud of, showing off a bit of my work as I have been learning. Code lives on{" "}
         <a
           href="https://github.com/sbesley04"
           target="_blank"

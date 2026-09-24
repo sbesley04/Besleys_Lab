@@ -48,7 +48,7 @@ export default function AboutPage() {
           </h1>
           <div style={{ fontSize: "1.05rem", color: "var(--ink)" }}>
             <p>
-              Hi there! Welcome in. I&rsquo;m Sam — a data/quantitative science student from Emory
+              Hi there! Welcome in. I&rsquo;m Sam. I am a data/quantitative science student from Emory
               (class of &rsquo;26), living in Atlanta.
             </p>
             <p>
@@ -66,10 +66,9 @@ export default function AboutPage() {
               Hunger Games simulator with your own friends as tributes.
             </p>
             <p>
-              When the laptop is closed, I&rsquo;m usually somewhere in the photos below — on a
-              volleyball court (eight years of it, plus a stint as club president and volunteer
-              coach), behind a camera (once for Emory&rsquo;s communications team, now mostly for
-              the donkeys), trying my hand at ceramics, or reading (for one of my book clubs).
+              When I&rsquo;m away from work on my computer, I&rsquo;m usually somewhere in the photos below; on a
+              volleyball court (11 years of it, plus a stint as club president and volunteer
+              coach), behind a camera (once for Emory&rsquo;s communications team, now mostly for friends and family), trying my hand at ceramics, or reading (for one of my book clubs).
             </p>
             <p style={{ fontSize: "0.95rem" }}>
               Looking for the formal version? Here&rsquo;s my{" "}

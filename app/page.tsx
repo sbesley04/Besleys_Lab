@@ -129,11 +129,11 @@ export default async function HomePage() {
           <section className={styles.section} aria-labelledby="field-notebook-title">
             <div className={styles.sectionHead}>
               <h2 id="field-notebook-title" className={styles.sectionTitle}>
-                From the field notebook
+                Pictures
               </h2>
             </div>
             <p className={styles.sectionIntro}>
-              Proof that the laptop does occasionally get closed. Click a photo to take a closer look.
+              Some snippets from my life. Click a photo to take a closer look.
             </p>
             <FieldNotebook notes={fieldNotes} flat />
           </section>
