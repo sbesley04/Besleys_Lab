@@ -2,7 +2,7 @@
 
 import { useEffect, useReducer, useRef, useState } from "react";
 import { SURFACES_BY_KEY, OPTIMIZER_LABELS, SCHEDULE_LABELS, type OptimizerKey, type ScheduleKey } from "@/app/lab/gradient-descent/engine";
-import { heatRamp } from "@/app/lab/_components/plot";
+import { heatRamp, syncPalette } from "@/app/lab/_components/plot";
 import { postResult, recordPlayed, recordWin, unlock } from "@/lib/arcade";
 import SaveSlot from "../_components/SaveSlot";
 import styles from "../_components/newGame.module.css";
@@ -29,6 +29,7 @@ export default function LossSurfaceGolf() {
   useEffect(() => recordPlayed("loss-surface-golf"), []);
   // The heat ramp swaps to the Grid palette on the Konami egg; repaint then.
   useEffect(() => {
+    if (syncPalette()) bumpPalette();
     window.addEventListener("bl:egg-change", bumpPalette);
     return () => window.removeEventListener("bl:egg-change", bumpPalette);
   }, []);

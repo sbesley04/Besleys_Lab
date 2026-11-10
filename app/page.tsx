@@ -54,6 +54,16 @@ export default async function HomePage() {
       : DEFAULT_FIELD_NOTES;
 
   const selected = featuredProjects.slice(0, 3);
+  // ISO weeks start on Monday; use UTC so the picks agree across time zones.
+  const today = new Date();
+  const thursday = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  thursday.setUTCDate(thursday.getUTCDate() + 4 - (thursday.getUTCDay() || 7));
+  const yearStart = Date.UTC(thursday.getUTCFullYear(), 0, 1);
+  const week = Math.ceil(((thursday.getTime() - yearStart) / 86400000 + 1) / 7);
+  const spotlight = [
+    ...Array.from({ length: Math.min(2, demos.length) }, (_, i) => ({ ...demos[((week - 1) * 2 + i) % demos.length], section: "Lab", parent: "/lab" })),
+    ...Array.from({ length: Math.min(2, games.length) }, (_, i) => ({ ...games[((week - 1) * 2 + i) % games.length], section: "Arcade", parent: "/games" })),
+  ];
 
   return (
     <GridSwitch
@@ -79,7 +89,7 @@ export default async function HomePage() {
               {selected.map((p) => (
                 <Link
                   key={p.title}
-                  href="/projects"
+                  href={`/projects#${p.slug}`}
                   className={styles.workCard}
                   style={{ "--work-accent": p.accent } as CSSProperties}
                 >
@@ -93,6 +103,23 @@ export default async function HomePage() {
                       </li>
                     ))}
                   </ul>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.section} aria-labelledby="playground-title">
+            <div className={styles.sectionHead}>
+              <h2 id="playground-title" className={styles.sectionTitle}>From the lab &amp; arcade</h2>
+            </div>
+            <p className={styles.sectionIntro}>A few things to try. The selection changes each week.</p>
+            <div className={styles.spotlightGrid}>
+              {spotlight.map((item) => (
+                <Link key={`${item.parent}/${item.slug}`} href={`${item.parent}/${item.slug}`} className={styles.workCard}>
+                  <span className={styles.workMark}>{item.section}</span>
+                  <h3 className={styles.workTitle}>{item.title}</h3>
+                  <p className={styles.workPeriod}>{item.blurb}</p>
+                  <span className={styles.sectionLink}>Try it →</span>
                 </Link>
               ))}
             </div>
@@ -136,6 +163,16 @@ export default async function HomePage() {
               Some snippets from my life. Click a photo to take a closer look.
             </p>
             <FieldNotebook notes={fieldNotes} flat />
+          </section>
+          <section className={styles.section} aria-labelledby="contact-title">
+            <div className={styles.sectionHead}>
+              <h2 id="contact-title" className={styles.sectionTitle}>Get in touch</h2>
+            </div>
+            <p className={styles.sectionIntro}>Say hi about collaborations, the lab, or a good book.</p>
+            <div className={styles.actions}>
+              <a href="mailto:sambesley04@gmail.com" className="button-primary">Email me</a>
+              <Link href="/about" className="button-secondary">More about me</Link>
+            </div>
           </section>
         </main>
       }

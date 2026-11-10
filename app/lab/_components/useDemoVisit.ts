@@ -2,6 +2,7 @@
 
 import { useEffect, useReducer } from "react";
 import { recordDemoVisit } from "@/lib/arcade";
+import { syncPalette } from "./plot";
 
 // Records that a demo was opened, for the Lab Notebook achievement. One line
 // per demo component instead of repeating the effect nine times.
@@ -14,6 +15,8 @@ export function useDemoVisit(slug: string) {
     // render afterwards so colors captured in SVG props and canvases follow
     // the site's hidden themes without keeping duplicate listeners per plot.
     const onThemeChange = () => refreshTheme();
+    // Hydration rendered the paper palette; catch up if the Grid was restored.
+    if (syncPalette()) refreshTheme();
     window.addEventListener("bl:egg-change", onThemeChange);
     return () => window.removeEventListener("bl:egg-change", onThemeChange);
   }, [slug]);

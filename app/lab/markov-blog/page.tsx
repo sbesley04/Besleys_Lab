@@ -31,7 +31,7 @@ export default async function Page() {
   const corpus = enough ? joined : FALLBACK_CORPUS;
 
   return (
-    <LabFrame title={meta.title} takeaway={meta.takeaway}>
+    <LabFrame slug={meta.slug} title={meta.title} takeaway={meta.takeaway}>
       <MarkovBlog corpus={corpus} postCount={posts.length} usingFallback={!enough} />
     </LabFrame>
   );

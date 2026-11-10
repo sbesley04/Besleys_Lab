@@ -82,7 +82,7 @@
 /* Collapse before the desktop links start clipping. At 640px the old layout
    silently cut "Contact" down to "Con" beside a signed-in profile because the
    scrollable nav had no visible overflow affordance. */
-@media (max-width: 860px) {
+@media (max-width: 1040px) {
   .bar { flex-wrap: wrap; row-gap: 0.4rem; }
   .navToggle {
     display: inline-flex;
@@ -167,8 +167,7 @@
 }
 
 @media (max-width: 560px) {
-  .right .link { display: none; }
-  .right .signupLink { font-size: 0.8rem; padding: 0.35rem 0.6rem; }
+  .right .link { font-size: 0.8rem; }
   .handle { display: none; }
 }
 
@@ -198,32 +197,6 @@
   text-decoration: none;
 }
 .link:hover { color: var(--accent); }
-
-.signupLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.4rem 0.85rem;
-  border: 1px solid var(--accent);
-  border-radius: 4px;
-  background: var(--accent);
-  color: var(--paper);
-  text-decoration: none;
-}
-.signupLink:hover {
-  border-color: var(--accent-warm);
-  background: var(--accent-warm);
-  color: var(--paper);
-}
-.signupShort { display: none; }
-@media (max-width: 360px) {
-  .signupFull { display: none; }
-  .signupShort { display: inline; }
-}
 
 /* Preserve the account area's footprint while next-auth restores the session.
    Without it the Menu control visibly jumped sideways and signed-in controls

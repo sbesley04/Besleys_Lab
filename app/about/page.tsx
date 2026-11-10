@@ -48,8 +48,9 @@ export default function AboutPage() {
           </h1>
           <div style={{ fontSize: "1.05rem", color: "var(--ink)" }}>
             <p>
-              Hi there! Welcome in. I&rsquo;m Sam. I am a data/quantitative science student from Emory
-              (class of &rsquo;26), living in Atlanta.
+              Hi there! Welcome in. I&rsquo;m Sam. I am an Emory graduate (&rsquo;26), now working as a Data Engineer
+              with the Gavegnano Drug Discovery Program and as a Software Engineering Intern
+              at Cavalo. I live in Atlanta.
             </p>
             <p>
               My work so far has lived where machine learning meets things people can actually use:

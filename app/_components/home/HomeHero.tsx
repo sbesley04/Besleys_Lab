@@ -47,7 +47,7 @@ export default function HomeHero({ portrait, stats }: Props) {
       href: "/projects",
       title: "Projects",
       meta: "Featured work",
-      blurb: "Writeups of ML and full-stack projects — stacks, screenshots, and source.",
+      blurb: "ML and full-stack projects — methods, tools, and things you can try.",
     },
     {
       href: "/lab",
@@ -58,8 +58,8 @@ export default function HomeHero({ portrait, stats }: Props) {
     {
       href: "/blog",
       title: "Blog",
-      meta: stats.posts > 0 ? plural(stats.posts, "post", "posts") : "Notes",
-      blurb: "Notes on data, models, and building things.",
+      meta: stats.posts >= 3 ? plural(stats.posts, "post", "posts") : null,
+      blurb: "Essays and notes — on data, media, and whatever I’m chewing on.",
     },
     {
       href: "/games",
@@ -133,7 +133,7 @@ export default function HomeHero({ portrait, stats }: Props) {
                 <li key={s.href}>
                   <Link href={s.href} className={styles.row}>
                     <span className={styles.rowTitle}>{s.title}</span>
-                    <span className={styles.rowMeta}>{s.meta}</span>
+                    {s.meta && <span className={styles.rowMeta}>{s.meta}</span>}
                     <span className={styles.rowBlurb}>{s.blurb}</span>
                   </Link>
                 </li>
@@ -170,20 +170,7 @@ export default function HomeHero({ portrait, stats }: Props) {
             </p>
           </Beat>
 
-          <Beat index="03" title="Get in touch">
-            <p className={styles.lede}>
-              Open to data science and ML engineering roles, collaborations, and good conversations
-              about models. The inbox is the fastest way to reach me.
-            </p>
-            <div className={styles.actions}>
-              <a href="mailto:sambesley04@gmail.com" className="button-primary">
-                Email me
-              </a>
-              <Link href="/about" className="button-secondary">
-                More about me
-              </Link>
-            </div>
-          </Beat>
+
         </div>
 
         <div className={styles.heroMedia}>

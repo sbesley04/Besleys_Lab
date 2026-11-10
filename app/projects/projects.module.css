@@ -48,11 +48,8 @@
 }
 
 .cardHeader {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.3rem 1rem;
+  display: grid;
+  gap: 0.3rem;
 }
 
 .cardTitle,
@@ -120,8 +117,46 @@
   font-size: 0.9rem;
 }
 
-.shelfSection {
+.categoryNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: -1rem 0 2.25rem;
+}
+
+.categoryLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.categoryLink:hover {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+
+.categoryLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.categorySection {
+  scroll-margin-top: 5rem;
+}
+
+.categorySection + .categorySection {
   margin-top: 2.75rem;
+}
+
+.shelfAfterFeatured {
+  margin-top: 1.25rem;
 }
 
 .projectGrid {
@@ -191,4 +226,10 @@
   .cardHeader {
     display: grid;
   }
+}
+
+.handoff {
+  margin: 2.75rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
 }

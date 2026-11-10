@@ -20,7 +20,7 @@ const channels = [
     label: "LinkedIn",
     value: "linkedin.com/in/sbesley",
     href: "https://linkedin.com/in/sbesley",
-    blurb: "For roles, referrals, and professional hellos.",
+    blurb: "For collaborations and professional hellos.",
     external: true,
   },
   {
@@ -46,9 +46,8 @@ export default function ContactPage() {
         Contact
       </h1>
       <p style={{ color: "var(--ink-soft)", marginBottom: "2rem", maxWidth: "50ch" }}>
-        I&rsquo;m Sam. I&rsquo;m a data scientist and full-stack developer based in Atlanta. I&rsquo;m looking for
-        data science roles and adjacent technical opportunities. If something here caught your
-        eye, I&rsquo;d genuinely love to hear from you.
+        I&rsquo;m Sam. I&rsquo;m a data scientist and full-stack developer based in Atlanta. Say hi about collaborations,
+        the lab, or a good book. If something here caught your eye, I&rsquo;d love to hear from you.
       </p>
 
       <div style={{ display: "grid", gap: "1rem" }}>

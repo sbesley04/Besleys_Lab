@@ -1,4 +1,3 @@
-import Link from "next/link";
 import ArcadeHub from "./ArcadeHub";
 import styles from "./arcade.module.css";
 import GridText from "@/app/_components/eggs/GridText";
@@ -15,9 +14,6 @@ export const metadata = {
 export default function GamesPage() {
   return (
     <main className={styles.hubPage}>
-      <Link href="/" className={styles.breadcrumb}>
-        <GridText paper="← Home" grid="← ROOT" />
-      </Link>
       <header className={styles.hubHeader}>
         <span className={styles.hubKicker}>
           <GridText paper="Playable experiments" grid="Executable programs" />

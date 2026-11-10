@@ -23,9 +23,6 @@ export default function LabPage() {
   return (
     <main className={styles.page}>
       <header className={styles.pageHeader}>
-        <Link href="/" className={styles.backLink}>
-          ← Home
-        </Link>
         <p className={styles.eyebrow}>Experiments bench</p>
         <h1 className={styles.pageTitle}>The Lab</h1>
         <p className={styles.intro}>

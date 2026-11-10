@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NextPrev from "@/app/_components/NextPrev";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -48,6 +49,15 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     if (!isStaff(session?.user?.role)) notFound();
   }
 
+  // A slug tie-breaker keeps adjacency stable when timestamps match.
+  const published = post.published ? await prisma.post.findMany({
+    where: { published: true },
+    orderBy: [{ publishedAt: "asc" }, { slug: "asc" }],
+    select: { slug: true, title: true },
+  }).catch(() => []) : [];
+  const index = published.findIndex((item) => item.slug === slug);
+  const destination = (item: (typeof published)[number] | undefined) =>
+    item ? { href: `/blog/${item.slug}`, title: item.title } : undefined;
   const html = renderMarkdown(post.body);
   const words = post.body.split(/\s+/).length;
 
@@ -95,6 +105,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <p className={styles.emptyBody}>This note is still being assembled.</p>
         )}
       </article>
+      <NextPrev
+        previous={index > 0 ? destination(published[index - 1]) : undefined}
+        next={index >= 0 ? destination(published[index + 1]) : undefined}
+        crossLink={{ href: "/blog", title: "Back to all posts" }}
+        label="Explore more posts"
+      />
     </main>
   );
 }

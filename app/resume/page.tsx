@@ -6,7 +6,7 @@ import Link from "next/link";
 export const metadata = {
   title: "Resume",
   description:
-    "Samuel Besley — Data Scientist & ML Engineer. Emory University B.S. in Data Science (2026). NLP pipelines, machine learning models, full-stack data applications.",
+    "Samuel Besley — Data Engineer & Software Engineering Intern. Emory University B.S. in Data Science (2026). NLP pipelines, machine learning models, full-stack data applications.",
 };
 
 const h2: React.CSSProperties = {
@@ -75,7 +75,7 @@ export default function ResumePage() {
             Samuel Besley
           </h1>
           <p style={{ color: "var(--ink-soft)", margin: "0.25rem 0 0" }}>
-            Data Scientist &amp; ML Engineer · Atlanta, GA
+            Data Engineer &amp; Software Engineering Intern · Atlanta, GA
           </p>
         </div>
         <a
@@ -103,12 +103,12 @@ export default function ResumePage() {
       <section aria-label="Summary">
         <h2 style={h2}>Summary</h2>
         <p style={{ fontSize: "0.98rem", lineHeight: 1.7, margin: 0 }}>
-          Data science student at Emory University with hands-on experience building NLP
-          pipelines, training and evaluating machine learning models, and deploying full-stack
+          Emory University data science graduate, now a Data Engineer with the Gavegnano
+          Drug Discovery Program and a Software Engineering Intern at Cavalo. I build NLP
+          pipelines, train and evaluate machine learning models, and deploy full-stack
           data applications. Proficient in Python, scikit-learn, and transformer-based NLP (BERT,
           Hugging Face); comfortable across the full modeling lifecycle from feature engineering
-          to deployment. Seeking data scientist and ML engineer roles where applied ML has direct
-          product impact.
+          to deployment.
         </p>
       </section>
 
@@ -150,6 +150,18 @@ export default function ResumePage() {
 
       <section aria-label="Experience">
         <h2 style={h2}>Experience</h2>
+        <Entry
+          title="Data Engineer"
+          where="Gavegnano Drug Discovery Program"
+          when="Oct 2026 – Present"
+          bullets={[]}
+        />
+        <Entry
+          title="Software Engineering Intern"
+          where="Cavalo"
+          when="Oct 2026 – Present"
+          bullets={[]}
+        />
         <Entry
           title="Photographer & Communications Contributor"
           where="Oxford College of Emory University · Oxford, GA"

@@ -139,6 +139,7 @@ function paletteIsGrid(): boolean {
 
 function refreshPalette(): void {
   const grid = paletteIsGrid();
+  if (grid === gridPaletteActive) return;
   gridPaletteActive = grid;
   const s = grid ? GRID_SERIES : PAPER_SERIES;
   Object.assign(SERIES, s);
@@ -149,9 +150,19 @@ function refreshPalette(): void {
   for (let i = 0; i < next.length; i++) CLUSTER_COLORS[i] = next[i];
 }
 
+// No refresh at import: a Grid restored from sessionStorage would otherwise
+// paint neon into the first client render while SSR rendered paper, and
+// hydration would fail. Components call syncPalette() after mount instead.
 if (typeof window !== "undefined") {
-  refreshPalette();
   window.addEventListener("bl:egg-change", refreshPalette);
+}
+
+/** Bring the palette in line with the page after hydration. Returns true when
+ *  it changed, so the caller knows to re-render. */
+export function syncPalette(): boolean {
+  const before = gridPaletteActive;
+  refreshPalette();
+  return gridPaletteActive !== before;
 }
 
 /** Sample a sequential ramp (0 = cool/low, 1 = hot/high) as "r,g,b". Warm on

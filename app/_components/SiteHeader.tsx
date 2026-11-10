@@ -17,7 +17,7 @@ function fmtUptime(s: number): string {
 }
 
 // Site-wide top bar: brand, primary navigation, and the account menu. Reads
-// the session on the client; shows sign-in/up links to guests and a profile
+// the session on the client; shows a sign-in link to guests and a profile
 // dropdown to authenticated users (with an Admin link for staff).
 
 const NAV = [
@@ -28,6 +28,7 @@ const NAV = [
   { href: "/library", label: "Library", description: "Books & reviews" },
   { href: "/about", label: "About", description: "Meet Samuel" },
   { href: "/contact", label: "Contact", description: "Start a conversation" },
+  { href: "/resume", label: "Resume", description: "Experience & skills" },
 ];
 
 export default function SiteHeader() {
@@ -214,18 +215,12 @@ export default function SiteHeader() {
             )}
           </div>
         ) : (
-          <>
-            <Link
-              href={`/login${pathname && pathname !== "/" ? `?callbackUrl=${encodeURIComponent(pathname)}` : ""}`}
-              className={styles.link}
-            >
-              Sign in
-            </Link>
-            <Link href="/signup" className={styles.signupLink}>
-              <span className={styles.signupFull}>Create account</span>
-              <span className={styles.signupShort}>Sign up</span>
-            </Link>
-          </>
+          <Link
+            href={`/login${pathname && pathname !== "/" ? `?callbackUrl=${encodeURIComponent(pathname)}` : ""}`}
+            className={styles.link}
+          >
+            Sign in
+          </Link>
         )}
       </div>
     </header>
