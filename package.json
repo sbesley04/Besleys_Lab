@@ -7,7 +7,7 @@
     "build": "node scripts/prepare-vercel.mjs && next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test:engine": "node --experimental-strip-types app/games/tetris/engine.test.ts",
     "test:games": "node --experimental-strip-types app/games/_games.test.ts",
     "test:hunger": "node --experimental-strip-types app/games/hunger-games/engine.test.ts",
