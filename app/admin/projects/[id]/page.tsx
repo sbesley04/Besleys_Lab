@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { canEditContent } from "@/lib/validation";
+import { normalizeCategory } from "@/lib/projectCategories";
 import ProjectForm from "../_components/ProjectForm";
 import styles from "../../_components/accountArea.module.css";
 
@@ -32,6 +33,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
           slug: project.slug,
           description: project.description,
           techStack: project.techStack, // already comma-separated in SQLite
+          category: normalizeCategory(project.category),
           githubUrl: project.githubUrl ?? "",
           thumbnail: project.thumbnail ?? "",
           published: project.published,

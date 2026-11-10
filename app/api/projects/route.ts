@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireApiStaff } from "@/lib/api";
 import { slugify } from "@/lib/slug";
 import { normalizeTechStack } from "@/lib/techstack";
+import { normalizeCategory } from "@/lib/projectCategories";
 import { isSafeExternalUrl, isSafeImageSource } from "@/lib/images";
 
 // Collection endpoints for projects (admin-only).
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
         title: body.title,
         description: body.description,
         techStack: normalizeTechStack(body.techStack),
+        category: normalizeCategory(body.category),
         thumbnail,
         githubUrl,
         published: Boolean(body.published),

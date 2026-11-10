@@ -107,6 +107,7 @@ model Project {
   title       String
   description String
   techStack   String   @default("") // comma-separated tags
+  category    String   @default("other") // lib/projectCategories.ts
   thumbnail   String?
   githubUrl   String?
   published   Boolean  @default(false)

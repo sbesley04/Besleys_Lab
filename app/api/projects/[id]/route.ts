@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireApiStaff } from "@/lib/api";
 import { slugify } from "@/lib/slug";
 import { normalizeTechStack } from "@/lib/techstack";
+import { normalizeCategory } from "@/lib/projectCategories";
 import { canEditContent } from "@/lib/validation";
 import { isSafeExternalUrl, isSafeImageSource } from "@/lib/images";
 
@@ -47,6 +48,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         title: body.title,
         description: body.description,
         techStack: normalizeTechStack(body.techStack),
+        category: normalizeCategory(body.category),
         thumbnail,
         githubUrl,
         published: Boolean(body.published),

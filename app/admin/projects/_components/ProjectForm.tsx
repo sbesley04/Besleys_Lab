@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { isExternalImage } from "@/lib/images";
+import { projectCategories, type ProjectCategory } from "@/lib/projectCategories";
 import { field, input, textarea, primaryButton, ghostButton, dangerButton, errorText } from "../../_components/formStyles";
 import styles from "../../_components/accountArea.module.css";
 
@@ -15,6 +16,7 @@ export interface ProjectInput {
   slug: string;
   description: string;
   techStack: string; // comma-separated in the UI; the API splits it
+  category: ProjectCategory;
   githubUrl: string;
   thumbnail: string;
   published: boolean;
@@ -25,6 +27,7 @@ const empty: ProjectInput = {
   slug: "",
   description: "",
   techStack: "",
+  category: "other",
   githubUrl: "",
   thumbnail: "",
   published: false,
@@ -138,6 +141,21 @@ export default function ProjectForm({ project }: { project?: ProjectInput }) {
           onChange={(e) => set("techStack", e.target.value)}
           placeholder="Next.js, Prisma, Python"
         />
+      </label>
+
+      <label style={field}>
+        Category
+        <select
+          style={input}
+          value={form.category}
+          onChange={(e) => set("category", e.target.value as ProjectCategory)}
+        >
+          {projectCategories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.label}
+            </option>
+          ))}
+        </select>
       </label>
 
       <label style={field}>
