@@ -1,0 +1,141 @@
+<!doctype html>
+<!--
+  Source for public/resume.pdf. Keep in sync with app/resume/page.tsx.
+  Regenerate:  node scripts/resume/build.mjs
+  (needs Playwright's Chromium: `npm i -D playwright && npx playwright install chromium`)
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Samuel Besley — Resume</title>
+<style>
+  @page { size: Letter; margin: 0.36in 0.5in; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Calibri, Carlito, "Helvetica Neue", Arial, sans-serif;
+    font-size: 9.8pt;
+    line-height: 1.2;
+    color: #111;
+  }
+  h1 { font-size: 20pt; margin: 0; text-align: center; letter-spacing: 0.02em; }
+  .contact { text-align: center; margin: 2pt 0 4pt; font-size: 9.6pt; }
+  .contact a { color: inherit; text-decoration: none; }
+  h2 {
+    font-size: 10.6pt;
+    letter-spacing: 0.06em;
+    margin: 6pt 0 2.5pt;
+    padding-bottom: 1pt;
+    border-bottom: 0.8pt solid #111;
+  }
+  p { margin: 0; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8pt; }
+  .entry { margin-bottom: 3pt; break-inside: avoid; }
+  .title { font-weight: 700; }
+  .sub { font-style: italic; }
+  .when { white-space: nowrap; }
+  ul { margin: 1pt 0 0; padding-left: 13pt; }
+  li { margin: 0.3pt 0; }
+  .skills p { margin: 0.8pt 0; }
+</style>
+</head>
+<body>
+  <h1>Samuel Besley</h1>
+  <p class="contact">
+    Atlanta, GA | sambesley04@gmail.com | (608) 999-0662 |
+    <a href="https://linkedin.com/in/sbesley">linkedin.com/in/sbesley</a> |
+    <a href="https://github.com/sbesley04">github.com/sbesley04</a>
+  </p>
+
+  <h2>PROFESSIONAL SUMMARY</h2>
+  <p>
+    Data scientist and research software developer with a B.S. in Data Science from Emory University. Builds tools that
+    put rigorous analysis in researchers' hands: an offline study-data workspace with statistics validated against R,
+    NLP pipelines using LLM-based extraction, classical ML models, and a Rust/TypeScript data-visualization studio.
+    Seeking Data Scientist
+    and ML Engineer roles where applied ML has direct product or research impact.
+  </p>
+
+  <h2>EDUCATION</h2>
+  <div class="entry">
+    <div class="row"><span class="title">Emory University</span><span class="when">Atlanta, GA</span></div>
+    <div class="row"><span class="sub">B.S. in Data Science, International Studies Track</span><span class="when">May 2026</span></div>
+    <p>Relevant Coursework: Machine Learning (QTM 347), Natural Language Processing (CS/QTM/LING 329), Data Structures,
+      Applied Regression, East European Politics, International Relations &amp; Conflict</p>
+  </div>
+
+  <h2>EXPERIENCE</h2>
+  <div class="entry">
+    <div class="row"><span class="title">Research Software Developer</span><span class="when">Oct 2026 – Present</span></div>
+    <div class="row"><span class="sub">BARI-CNS Lab, Emory University</span><span class="when">Atlanta, GA</span></div>
+    <ul>
+      <li>Built the lab's offline research workspace, an Electron/React/TypeScript desktop app for macOS and Windows that
+        imports longitudinal study spreadsheets into SQLite while preserving source attribution, QC highlights, and
+        comments, so researchers can explore data without SQL</li>
+      <li>Implemented on-demand statistics (Welch t, Mann–Whitney, ANOVA, Kruskal–Wallis with effect sizes and
+        Holm-adjusted comparisons; Pearson/Spearman/Kendall; regression bands; correlation matrix; PCA), validated
+        against R 4.3, with every step recorded as a reproducible R-syntax analysis log</li>
+      <li>Added a read-only MCP server that lets AI assistants query aggregate results with small-cell suppression and
+        access logging; shipped four releases in five days, backed by 141 unit/integration tests and Playwright E2E tests</li>
+    </ul>
+  </div>
+  <div class="entry">
+    <div class="row"><span class="title">Photographer &amp; Communications Contributor</span><span class="when">Aug 2023 – May 2024</span></div>
+    <div class="row"><span class="sub">Oxford College of Emory University</span><span class="when">Oxford, GA</span></div>
+    <ul>
+      <li>Conducted interviews and produced photo content for Emory's official communications team, published across
+        institutional social media and web channels</li>
+    </ul>
+  </div>
+  <div class="entry">
+    <div class="row"><span class="title">Server &amp; Bartender</span><span class="when">Aug 2022 – Aug 2024</span></div>
+    <div class="row"><span class="sub">Seven Acre Dairy; Everly</span><span class="when">Madison, WI</span></div>
+  </div>
+
+  <h2>PROJECTS</h2>
+  <div class="entry">
+    <div class="row"><span><span class="title">Albi: Data-Visualization Studio</span> | Rust, TypeScript, Svelte</span><span class="when">Fall 2026</span></div>
+    <ul>
+      <li>Built a macOS app for editorial data notebooks that export as one self-contained, offline HTML file; a Rust core
+        runs the data engine, validation, and export, and one TypeScript renderer draws charts in both app and exports</li>
+      <li>Engineered a data layer for CSV, JSON, Parquet, spreadsheets, SQLite, and PostgreSQL with 13 recorded
+        preparation steps; a 1M-row CSV imports in ~1.3 s without freezing the UI</li>
+      <li>Shipped a 38-tool MCP server so AI assistants edit through the same validated, undoable commands as the UI;
+        exports pass automated WCAG 2.2 AA audits</li>
+    </ul>
+  </div>
+  <div class="entry">
+    <div class="row"><span><span class="title">EpsTracked: Document Analysis Dashboard</span> | Python, React, TypeScript</span><span class="when">Spring 2026</span></div>
+    <ul>
+      <li>Built and deployed a full-stack NLP app (eps-tracked.vercel.app) over the public Epstein document corpus, with a
+        React/TypeScript multi-view dashboard; CS/QTM/LING 329 (Computational Linguistics)</li>
+      <li>Engineered a Python pipeline using LLM-based structured extraction (Anthropic API) that pulled 2,599 events from
+        787 document threads, classified them into six event types with likelihood scores, and resolved 515 unique entities</li>
+    </ul>
+  </div>
+  <div class="entry">
+    <div class="row"><span><span class="title">NYC Airbnb Price Prediction</span> | Python, scikit-learn, pandas</span><span class="when">Spring 2026</span></div>
+    <ul>
+      <li>Trained a price model on 48,000+ NYC listings combining structured features with 25 engineered NLP features from
+        listing names; benchmarked OLS, Ridge, LASSO, and Random Forest</li>
+      <li>Achieved R² of 0.53 and MAE of ~$60 on log-transformed prices; showed text features add signal beyond
+        structured data</li>
+    </ul>
+  </div>
+  <div class="entry">
+    <div class="row"><span><span class="title">Besley's Lab: ML From Scratch</span> | Next.js, TypeScript</span><span class="when">2026 – Present</span></div>
+    <ul>
+      <li>Implemented nine interactive ML demos with no ML libraries (gradient descent, k-means, SVM, Q-learning, more), each tested</li>
+    </ul>
+  </div>
+
+  <h2>SKILLS</h2>
+  <div class="skills">
+    <p><b>ML / NLP:</b> Regression, Random Forest, Ridge/LASSO, PCA, Transformers (BERT), RNNs, LLM-based extraction, feature engineering</p>
+    <p><b>Statistics:</b> Hypothesis tests (t, Mann–Whitney, ANOVA, Kruskal–Wallis), effect sizes, multiple-comparison correction</p>
+    <p><b>Programming:</b> Python (pandas, scikit-learn, NumPy, HuggingFace), TypeScript/JavaScript, SQL, R, Rust, Java</p>
+    <p><b>Tools:</b> React, Next.js, Electron, SQLite, PostgreSQL, Vitest, Playwright, Git/GitHub, Jupyter, MCP</p>
+    <p><b>Languages:</b> English (native), German (proficient), Spanish (proficient)</p>
+  </div>
+</body>
+</html>
